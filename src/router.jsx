@@ -16,7 +16,8 @@ import Preference from "./components/Setting/Preference";
 import OrderReceivePage from "./pages/OrderReceivePage";
 import AssignDeliveryMan from "./pages/AssignDeliveryMan";
 import ChatPage from "./pages/ChatPage";
-
+import MenuListPage from "./pages/MenuListPage";
+import MenuDetail from "./components/Shop/MenuDetail";
 
 const router = createBrowserRouter([
   {
@@ -37,7 +38,16 @@ const router = createBrowserRouter([
         path: "/menu",
         element: <MenuPage />,
       },
-        {
+      {
+        path: "shop/menu-list/:shopId",
+        element: <MenuListPage />,
+      },
+      // {
+      //   path: "shop/menu-list/:shopId/detail/:menuId",
+      //   element: <MenuDetail />,
+      // },
+
+      {
         path: "/orders/received",
         element: <OrderReceivePage />,
       },
@@ -45,7 +55,7 @@ const router = createBrowserRouter([
         path: "/delivery",
         element: <DeliveryPage />,
       },
-        {
+      {
         path: "/orders/assignment",
         element: <AssignDeliveryMan />,
       },
@@ -69,7 +79,7 @@ const router = createBrowserRouter([
         path: "/management",
         element: <ManagementPage />,
       },
-        {
+      {
         path: "/chat",
         element: <ChatPage />,
       },
@@ -78,14 +88,13 @@ const router = createBrowserRouter([
         element: <SettingPage />,
         children: [
           {
-            path: "account",   
+            path: "account",
             element: <Account />,
           },
-             {
-            path: "preference",   
-            element: <Preference/>,
+          {
+            path: "preference",
+            element: <Preference />,
           },
-
         ],
       },
     ],
