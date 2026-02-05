@@ -1,12 +1,15 @@
 import React from 'react'
-import OrderConfirm from '../components/OrderReceive/OrderConfirm'
-import OrderDetail from '../components/OrderReceive/OrderDetail'
+
+import OrdersTable from '../components/OrderReceive/OrdersTable'
+import ShopOrdersQueue from '../components/OrderReceive/ShopOrdersQueue'
 
 const OrderReceivePage = () => {
   return (
    <div>
-     <OrderConfirm/>
-     <OrderDetail/>
+     {/* <OrderConfirm/>
+     <OrderDetail/> */}
+     {/* <OrdersTable/> */}
+     <ShopOrdersQueue/>
    </div>
     
   )

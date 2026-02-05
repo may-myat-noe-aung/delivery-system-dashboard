@@ -579,7 +579,7 @@
 //     setPasscode("");
 //     setPasscodeModal(true);
 //       setModalOpen(false);     // <-- close detail popup
-//   setActiveShop(null);  
+//   setActiveShop(null);
 //   };
 
 //   useEffect(() => {
@@ -1070,6 +1070,13 @@ export default function PendingShopsFull() {
     }
   };
 
+  const parseLocation = (loc) => {
+    if (!loc) return { lat: null, lon: null };
+    const match = loc.match(/Lag\s*([0-9.\-]+),\s*Log\s*([0-9.\-]+)/i);
+    if (!match) return { lat: null, lon: null };
+    return { lat: Number(match[1]), lon: Number(match[2]) };
+  };
+
   return (
     <div className="mt-4 border border-gray-200 rounded-2xl p-4 mb-6">
       <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-[#B476FF] to-purple-600 bg-clip-text text-transparent">
@@ -1130,7 +1137,10 @@ export default function PendingShopsFull() {
                 "Date & Time",
                 "Actions",
               ].map((h) => (
-                <th key={h} className="p-2 sm:p-3 font-semibold text-left sm:text-center">
+                <th
+                  key={h}
+                  className="p-2 sm:p-3 font-semibold text-left sm:text-center"
+                >
                   {h}
                 </th>
               ))}
@@ -1177,11 +1187,21 @@ export default function PendingShopsFull() {
                     </div>
                   </td>
 
-                  <td className="p-2 sm:p-3 text-xs sm:text-center">{s.shop_name}</td>
-                  <td className="p-2 sm:p-3 text-xs sm:text-center">{s.email}</td>
-                  <td className="p-2 sm:p-3 text-xs sm:text-center">{s.phone}</td>
-                  <td className="p-2 sm:p-3 text-xs sm:text-center">{s.items}</td>
-                  <td className="p-2 sm:p-3 text-xs sm:text-center">{s.address}</td>
+                  <td className="p-2 sm:p-3 text-xs sm:text-center">
+                    {s.shop_name}
+                  </td>
+                  <td className="p-2 sm:p-3 text-xs sm:text-center">
+                    {s.email}
+                  </td>
+                  <td className="p-2 sm:p-3 text-xs sm:text-center">
+                    {s.phone}
+                  </td>
+                  <td className="p-2 sm:p-3 text-xs sm:text-center">
+                    {s.items}
+                  </td>
+                  <td className="p-2 sm:p-3 text-xs sm:text-center">
+                    {s.address}
+                  </td>
                   <td className="p-2 sm:p-3 text-xs sm:text-center">
                     {splitDateTime(s.created_at)[0]} <br />
                     {splitDateTime(s.created_at)[1]}
@@ -1334,9 +1354,39 @@ export default function PendingShopsFull() {
                 ))}
               </div>
 
+              {/* LOCATION MAP */}
+
               <div className="col-span-3">
                 <div className="font-semibold text-gray-600">Location Map</div>
-                <div className="text-gray-800">-</div>
+
+                {(() => {
+                  const { lat, lon } = parseLocation(activeShop.location);
+
+                  if (!lat || !lon) {
+                    return <div className="text-gray-800">No location</div>;
+                  }
+
+                  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${
+                    lon - 0.01
+                  }%2C${lat - 0.01}%2C${lon + 0.01}%2C${
+                    lat + 0.01
+                  }&layer=mapnik&marker=${lat}%2C${lon}`;
+
+                  return (
+                    <div className="mt-2">
+                      <iframe
+                        src={mapUrl}
+                        className="w-full h-64 rounded-lg border"
+                        title="Shop Location Map"
+                        loading="lazy"
+                      ></iframe>
+
+                      <p className="text-xs text-gray-500 mt-1">
+                        {lat}, {lon}
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 

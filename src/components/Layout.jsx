@@ -6,9 +6,16 @@ import Footer from "./Footer";
 
 const Layout = () => {
   return (
-    <main className="min-h-screen bg-[#f5f5f5] w-full relative ">
+    <main
+      className="
+        min-h-screen w-full relative
+        bg-gray-100 dark:bg-gray-900
+        text-gray-900 dark:text-gray-100
+      "
+    >
       <section className="flex">
         <Aside />
+
         <div className="w-full flex flex-col px-10">
           <Header />
           <Outlet />

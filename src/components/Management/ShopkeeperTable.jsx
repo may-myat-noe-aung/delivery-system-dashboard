@@ -13,6 +13,10 @@
 //   const [actionLoading, setActionLoading] = useState({});
 //   const [alerts, setAlerts] = useState([]);
 
+//   // ---------------- PAGINATION STATES ----------------
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const itemsPerPage = 5;
+
 //   // Live fetch every 500ms
 //   useEffect(() => {
 //     const interval = setInterval(() => {
@@ -46,14 +50,15 @@
 //   const getPhoto = (photo) => photo || null;
 //   const formatDateShort = (date) =>
 //     date ? new Date(date).toLocaleString() : "-";
-//   const getMapUrl = (location) =>
-//     location
-//       ? `https://maps.google.com?q=${encodeURIComponent(location)}&output=embed`
-//       : null;
+//   const getMapUrl = (location) => {
+//     if (!location) return null;
 
-//   const openDetail = (shop) => {
-//     setActiveShop(shop);
-//     setModalOpen(true);
+//     // Convert "Lag" → "Lat", "Log" → "Lng"
+//     const fixedLocation = location.replace("Lag", "Lat").replace("Log", "Lng");
+
+//     return `https://maps.google.com?q=${encodeURIComponent(
+//       fixedLocation
+//     )}&output=embed`;
 //   };
 
 //   const openDeletePasscode = (shop) => {
@@ -113,13 +118,26 @@
 //       });
 //   };
 
-//   // const getPhotoUrl = (photo) => {
-//   //   if (!photo) return null;
-//   //   return `http://38.60.244.108:3000/uploads/${photo}`; // adjust path if needed
-//   // };
+//   const openDetail = (shop) => {
+//   setActiveShop(shop);
+//   setModalOpen(true);
+// };
+
+//   // ---------------- PAGINATION LOGIC ----------------
+//   const totalPages = Math.ceil(filteredShopkeepers.length / itemsPerPage);
+//   const startIndex = (currentPage - 1) * itemsPerPage;
+//   const paginatedShopkeepers = filteredShopkeepers.slice(
+//     startIndex,
+//     startIndex + itemsPerPage
+//   );
+
+//   // Reset page when searching
+//   useEffect(() => {
+//     setCurrentPage(1);
+//   }, [searchTerm]);
 
 //   return (
-//     <div>
+//     <div className="pt-4">
 //       {/* Alerts */}
 //       <div className="fixed top-4 right-4 flex flex-col gap-2 z-50">
 //         {alerts.map((msg, i) => (
@@ -166,7 +184,7 @@
 //                 "Date & Time",
 //                 "Action",
 //               ].map((col) => (
-//                 <th key={col} className="p-3 text-left">
+//                 <th key={col} className="p-3 text-center">
 //                   {col}
 //                 </th>
 //               ))}
@@ -174,14 +192,14 @@
 //           </thead>
 
 //           <tbody>
-//             {filteredShopkeepers.length === 0 ? (
+//             {paginatedShopkeepers.length === 0 ? (
 //               <tr>
 //                 <td colSpan={8} className="text-center p-6 text-gray-500">
 //                   No results found.
 //                 </td>
 //               </tr>
 //             ) : (
-//               filteredShopkeepers.map((shop) => (
+//               paginatedShopkeepers.map((shop) => (
 //                 <tr
 //                   key={shop.id}
 //                   className={`border-t ${
@@ -194,76 +212,132 @@
 //                 >
 //                   <td className="p-3">{shop.id}</td>
 
-//                   <td className="p-3 flex items-center gap-2">
-//                     {shop.photo ? (
-//                       <img
-//                         src={`http://38.60.244.108:3000/shop-uploads/${shop.photo}`}
-//                         alt={shop.shop_name}
-//                         className="size-10 object-cover rounded-full"
-//                       />
-//                     ) : (
-//                       <div className="w-10 h-10 rounded-full bg-[#B476FF] flex items-center justify-center text-white font-semibold">
-//                         {shop.shop_name?.charAt(0).toUpperCase() || "?"}
-//                       </div>
-//                     )}
-//                     <div>{shop.shopkeeper_name}</div>
+//                   <td className="p-1 text-center md:p-3">
+//                     <div className="p-1 text-center md:p-3 flex items-center gap-2">
+//                       {shop.photo ? (
+//                         <img
+//                           src={`http://38.60.244.108:3000/shop-uploads/${shop.photo}`}
+//                           alt={shop.shop_name}
+//                           className="size-10 object-cover rounded-full"
+//                         />
+//                       ) : (
+//                         <div className="w-10 h-10 rounded-full bg-[#B476FF] flex items-center justify-center text-white font-semibold">
+//                           {shop.shop_name?.charAt(0).toUpperCase() || "?"}
+//                         </div>
+//                       )}
+//                       <div>{shop.shopkeeper_name}</div>
+//                     </div>
 //                   </td>
-//                   <td className="p-3">{shop.shop_name}</td>
+//                   <td className="p-1 text-center md:p-3 text-xs md:text-sm">
+//                     {shop.shop_name}
+//                   </td>
 
-//                   <td className="p-3">{shop.email}</td>
-//                   <td className="p-3">{shop.phone}</td>
+//                   <td className="p-1 text-center md:p-3 text-xs md:text-sm">
+//                     {shop.email}
+//                   </td>
+//                   <td className="p-1 text-center md:p-3 text-xs md:text-sm">
+//                     {shop.phone}
+//                   </td>
 
 //                   {/* Status */}
-//                   <td className="px-4 py-2 space-x-1">
-//                     <button
-//                       onClick={() => toggleStatus(shop, "active")}
-//                       disabled={!!actionLoading[shop.id]}
-//                       className={`px-2 py-1 text-xs rounded ${
-//                         shop.status === "active"
-//                           ? "bg-green-500 text-white"
-//                           : "bg-green-100 text-green-800"
-//                       }`}
-//                     >
-//                       Active
-//                     </button>
-//                     <button
-//                       onClick={() => toggleStatus(shop, "warning")}
-//                       disabled={!!actionLoading[shop.id]}
-//                       className={`px-2 py-1 text-xs rounded ${
-//                         shop.status === "warning"
-//                           ? "bg-red-500 text-white"
-//                           : "bg-red-100 text-red-800"
-//                       }`}
-//                     >
-//                       Warning
-//                     </button>
+//                   <td className="p-1 text-center md:p-3 text-xs md:text-sm">
+//                     <div className="flex items-center justify-center gap-2 md:flex-col 2xl:flex-row">
+//                       <button
+//                         onClick={() => toggleStatus(shop, "active")}
+//                         disabled={!!actionLoading[shop.id]}
+//                         className={`w-[80px] py-1 text-xs md:text-sm rounded ${
+//                           shop.status === "active"
+//                             ? "bg-green-500 text-white"
+//                             : "bg-green-200 text-green-800"
+//                         }`}
+//                       >
+//                         Active
+//                       </button>
+//                       <button
+//                         onClick={() => toggleStatus(shop, "warning")}
+//                         disabled={!!actionLoading[shop.id]}
+//                         className={`w-[80px] py-1 text-xs md:text-sm rounded  ${
+//                           shop.status === "warning"
+//                             ? "bg-red-500 text-white"
+//                             : "bg-red-200 text-red-800"
+//                         }`}
+//                       >
+//                         Warning
+//                       </button>
+//                     </div>
 //                   </td>
 
-//                   <td className="p-3">
+//                   <td className="p-1 text-center md:p-3 text-xs md:text-sm">
 //                     {splitDateTime(shop.created_at)[0]} <br />
 //                     {splitDateTime(shop.created_at)[1]}
 //                   </td>
 
-//                   <td className="p-3 flex gap-2  ">
-//                     <button
-//                       className="px-3 py-1 rounded-full bg-[#B476FF] text-white text-xs"
-//                       onClick={() => openDetail(shop)}
-//                     >
-//                       Detail
-//                     </button>
-//                     <button
-//                       className="px-3 py-1 rounded-full bg-red-500 text-white text-xs flex items-center gap-1"
-//                       onClick={() => openDeletePasscode(shop)}
-//                     >
-//                       <Trash2 className="h-4 w-4" />
-//                       Delete
-//                     </button>
+//                   <td className="p-1 text-center md:p-3 text-xs md:text-sm">
+//                     <div className="flex items-center justify-center gap-2 md:flex-col 2xl:flex-row">
+//                       <button
+//                         className="w-[80px] py-1 rounded bg-[#B476FF] text-white text-xs sm:text-sm"
+//                         onClick={() => openDetail(shop)}
+//                       >
+//                         Detail
+//                       </button>
+//                       <button
+//                         className="w-[80px] py-1 rounded bg-red-500 text-white text-xs sm:text-sm flex items-center gap-1 justify-center"
+//                         onClick={() => openDeletePasscode(shop)}
+//                       >
+//                         {/* <Trash2 className="h-4 w-4" /> */}
+//                         Delete
+//                       </button>
+//                     </div>
 //                   </td>
 //                 </tr>
 //               ))
 //             )}
 //           </tbody>
 //         </table>
+//       </div>
+
+//       {/* ---------------- PAGINATION UI ---------------- */}
+//       <div className="flex justify-end items-center gap-2 mt-4">
+//         {/* Prev */}
+//         <button
+//           disabled={currentPage === 1}
+//           onClick={() => setCurrentPage((p) => p - 1)}
+//           className={`px-3 py-1 rounded-lg border shadow-sm${
+//             currentPage === 1
+//               ? "opacity-40 cursor-not-allowed"
+//               : "hover:bg-gray-100"
+//           }`}
+//         >
+//           Prev
+//         </button>
+
+//         {/* Page Numbers */}
+//         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+//           <button
+//             key={page}
+//             onClick={() => setCurrentPage(page)}
+//             className={`px-3 py-1 rounded-lg border shadow-sm ${
+//               currentPage === page
+//                 ? "bg-[#B476FF] text-white"
+//                 : "hover:bg-gray-100"
+//             }`}
+//           >
+//             {page}
+//           </button>
+//         ))}
+
+//         {/* Next */}
+//         <button
+//           disabled={currentPage === totalPages || totalPages === 0}
+//           onClick={() => setCurrentPage((p) => p + 1)}
+//           className={`px-3 py-1 rounded-lg border shadow-sm ${
+//             currentPage === totalPages || totalPages === 0
+//               ? "opacity-40 cursor-not-allowed"
+//               : "hover:bg-gray-100"
+//           }`}
+//         >
+//           Next
+//         </button>
 //       </div>
 
 //       {/* SHOP DETAIL MODAL */}
@@ -325,7 +399,12 @@
 
 //             {activeShop.location && (
 //               <div className="col-span-2 mt-4">
-//                 <div className="font-semibold text-gray-600">Location Map</div>
+//                 <div className="font-semibold text-gray-600">Location</div>
+
+//                 {/* Show original text */}
+//                 {/* <div className="text-gray-800 mb-2">{activeShop.location}</div> */}
+
+//                 {/* Correct map */}
 //                 <iframe
 //                   src={getMapUrl(activeShop.location)}
 //                   className="w-full h-56 rounded-lg border mt-1"
@@ -357,7 +436,7 @@
 //               onChange={(e) => setPasscode(e.target.value)}
 //               onKeyDown={(e) => e.key === "Enter" && doDelete()}
 //             />
-//             <div className="flex justify-end gap-2">
+//             <div className="flex justify-between gap-2">
 //               <button
 //                 onClick={() => setPasscodeModal(false)}
 //                 className="px-4 py-1.5 border rounded-lg hover:bg-gray-100"
@@ -430,14 +509,24 @@ export default function ShopkeeperTable() {
   const getPhoto = (photo) => photo || null;
   const formatDateShort = (date) =>
     date ? new Date(date).toLocaleString() : "-";
-  const getMapUrl = (location) =>
-    location
-      ? `https://maps.google.com?q=${encodeURIComponent(location)}&output=embed`
-      : null;
 
-  const openDetail = (shop) => {
-    setActiveShop(shop);
-    setModalOpen(true);
+  // ---------------- LOCATION PARSER ----------------
+  const parseLocation = (loc) => {
+    if (!loc) return { lat: null, lon: null };
+    const match = loc.match(/Lag\s*([0-9.\-]+),\s*Log\s*([0-9.\-]+)/i);
+    if (!match) return { lat: null, lon: null };
+    return { lat: Number(match[1]), lon: Number(match[2]) };
+  };
+
+  const getMapUrl = (location) => {
+    const { lat, lon } = parseLocation(location);
+    if (!lat || !lon) return null;
+
+    // OpenStreetMap embed
+    const delta = 0.01;
+    return `https://www.openstreetmap.org/export/embed.html?bbox=${
+      lon - delta
+    }%2C${lat - delta}%2C${lon + delta}%2C${lat + delta}&layer=mapnik&marker=${lat}%2C${lon}`;
   };
 
   const openDeletePasscode = (shop) => {
@@ -492,9 +581,14 @@ export default function ShopkeeperTable() {
           err.response?.data?.message || "Failed to update status",
         ])
       )
-      .finally(() => {
-        setActionLoading((prev) => ({ ...prev, [shop.id]: false }));
-      });
+      .finally(() =>
+        setActionLoading((prev) => ({ ...prev, [shop.id]: false }))
+      );
+  };
+
+  const openDetail = (shop) => {
+    setActiveShop(shop);
+    setModalOpen(true);
   };
 
   // ---------------- PAGINATION LOGIC ----------------
@@ -505,7 +599,6 @@ export default function ShopkeeperTable() {
     startIndex + itemsPerPage
   );
 
-  // Reset page when searching
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
@@ -537,7 +630,6 @@ export default function ShopkeeperTable() {
           />
         </div>
 
-        {/* Export button */}
         <button className="flex items-center gap-1.5 px-4 py-2 text-xs bg-white shadow-sm rounded-full hover:bg-gray-50">
           <Download className="h-4 w-4" /> Export
         </button>
@@ -658,7 +750,6 @@ export default function ShopkeeperTable() {
                         className="w-[80px] py-1 rounded bg-red-500 text-white text-xs sm:text-sm flex items-center gap-1 justify-center"
                         onClick={() => openDeletePasscode(shop)}
                       >
-                        {/* <Trash2 className="h-4 w-4" /> */}
                         Delete
                       </button>
                     </div>
@@ -672,7 +763,6 @@ export default function ShopkeeperTable() {
 
       {/* ---------------- PAGINATION UI ---------------- */}
       <div className="flex justify-end items-center gap-2 mt-4">
-        {/* Prev */}
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage((p) => p - 1)}
@@ -685,7 +775,6 @@ export default function ShopkeeperTable() {
           Prev
         </button>
 
-        {/* Page Numbers */}
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
           <button
             key={page}
@@ -700,7 +789,6 @@ export default function ShopkeeperTable() {
           </button>
         ))}
 
-        {/* Next */}
         <button
           disabled={currentPage === totalPages || totalPages === 0}
           onClick={() => setCurrentPage((p) => p + 1)}
@@ -771,14 +859,32 @@ export default function ShopkeeperTable() {
               </div>
             </div>
 
+            {/* LOCATION MAP */}
             {activeShop.location && (
               <div className="col-span-2 mt-4">
-                <div className="font-semibold text-gray-600">Location Map</div>
-                <iframe
-                  src={getMapUrl(activeShop.location)}
-                  className="w-full h-56 rounded-lg border mt-1"
-                  loading="lazy"
-                ></iframe>
+                <div className="font-semibold text-gray-600">Location</div>
+
+                {(() => {
+                  const { lat, lon } = parseLocation(activeShop.location);
+
+                  if (!lat || !lon) {
+                    return <div className="text-gray-800">No location</div>;
+                  }
+
+                  return (
+                    <div className="mt-2">
+                      <iframe
+                        src={getMapUrl(activeShop.location)}
+                        className="w-full h-56 rounded-lg border"
+                        loading="lazy"
+                      ></iframe>
+
+                      <p className="text-xs text-gray-500 mt-1">
+                        {lat}, {lon}
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
             )}
           </div>
@@ -825,3 +931,4 @@ export default function ShopkeeperTable() {
     </div>
   );
 }
+
