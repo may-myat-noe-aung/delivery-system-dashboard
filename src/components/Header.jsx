@@ -401,8 +401,8 @@ const Header = () => {
                 alt="profile"
               />
               <div>
-                <p className="text-sm font-bold text-[#B476FF]">Su Su Khin</p>
-                <p className="text-xs text-[#B476FF]">Admin</p>
+                <p className="text-sm font-bold text-[#B476FF]">May</p>
+                <p className="text-xs text-[#B476FF]">Owner</p>
               </div>
             </button>
 
