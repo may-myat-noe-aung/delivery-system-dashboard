@@ -18,8 +18,10 @@ import AssignDeliveryMan from "./pages/AssignDeliveryMan";
 import ChatPage from "./pages/ChatPage";
 import MenuListPage from "./pages/MenuListPage";
 import MenuDetail from "./components/Shop/MenuDetail";
+import LoginPage from "./pages/LoginPage";
 
 const router = createBrowserRouter([
+  { path: "/login", element: <LoginPage /> },
   {
     path: "/",
     element: <Layout />,
@@ -67,10 +69,10 @@ const router = createBrowserRouter([
         path: "/delivery/track-delivery-men",
         element: <TrackDeliveryMen />,
       },
-      {
-        path: "/salehistory",
-        element: <SaleHistoryPage />,
-      },
+      // {
+      //   path: "/salehistory",
+      //   element: <SaleHistoryPage />,
+      // },
       {
         path: "/report",
         element: <ReportPage />,

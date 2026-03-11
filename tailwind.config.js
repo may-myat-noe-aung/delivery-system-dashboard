@@ -13,7 +13,10 @@ export default {
     extend: {
       backgroundImage:{
         'custom-gradient':'linear-gradient(to top, #ebc0fd 0%, #d9ded8 100%)',
-      }
+      },
+       colors: {
+        primary: "#B476FF",
+      },
     },
   },
   plugins: [require("flowbite/plugin")],

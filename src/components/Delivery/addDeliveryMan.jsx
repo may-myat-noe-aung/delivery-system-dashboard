@@ -20,7 +20,7 @@
 
 //   const fetchDeliveryMen = async () => {
 //     try {
-//       const res = await axios.get("http://38.60.244.108:3000/deliverymen");
+//       const res = await axios.get("http://38.60.244.137:3000/deliverymen");
 //       setDeliveryMen(res.data);
 //     } catch (err) {
 //       console.error(err);
@@ -92,7 +92,7 @@
 
 //   const fetchDeliveryMen = async () => {
 //     try {
-//       const res = await axios.get("http://38.60.244.108:3000/deliverymen");
+//       const res = await axios.get("http://38.60.244.137:3000/deliverymen");
 //       setDeliveryMen(res.data);
 //     } catch (err) {
 //       console.error(err);
@@ -160,7 +160,7 @@ const AddDeliveryMan = () => {
 
   const fetchDeliveryMen = async () => {
     try {
-      const res = await axios.get("http://38.60.244.108:3000/deliverymen");
+      const res = await axios.get("http://38.60.244.137:3000/deliverymen");
       setDeliveryMen(res.data);
     } catch (err) {
       console.error(err);

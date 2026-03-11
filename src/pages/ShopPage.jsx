@@ -34,7 +34,7 @@
 //   useEffect(() => {
 //     const fetchShops = async () => {
 //       try {
-//         const res = await axios.get("http://38.60.244.108:3000/shops");
+//         const res = await axios.get("http://38.60.244.137:3000/shops");
 //         setShops(res.data);
 //       } catch (err) {
 //         console.error(err);
@@ -71,7 +71,7 @@ const ShopPage = () => {
   useEffect(() => {
     const fetchShops = async () => {
       try {
-        const res = await axios.get("http://38.60.244.108:3000/shops");
+        const res = await axios.get("http://38.60.244.137:3000/shops");
         setShops(res.data);
       } catch (err) {
         console.error("Failed to fetch shops:", err);

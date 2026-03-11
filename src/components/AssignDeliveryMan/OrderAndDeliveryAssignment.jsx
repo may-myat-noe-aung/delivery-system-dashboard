@@ -166,8 +166,6 @@
 
 // export default AdminRestaurantOrderAssignment;
 
-
-
 // import React, { useState, useMemo } from "react";
 // import { Bell, User, X, Search } from "lucide-react";
 
@@ -733,7 +731,6 @@
 //   );
 // }
 
-
 import React, { useState, useMemo } from "react";
 import { Bell, User, X, Search } from "lucide-react";
 
@@ -800,7 +797,7 @@ export default function AdminRestaurantOrderAssignment() {
   ];
   const updateOrderStatus = (orderId, newStatus) => {
     setOrders((prev) =>
-      prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+      prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
     );
   };
   const getRestaurantOrderCount = (restaurant) =>
@@ -817,7 +814,7 @@ export default function AdminRestaurantOrderAssignment() {
         orderId: o.id,
         text: `Order #${o.id} confirmed by ${o.restaurant}`,
         read: false,
-      }))
+      })),
   );
   const [showNoti, setShowNoti] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -831,24 +828,24 @@ export default function AdminRestaurantOrderAssignment() {
   // derived
   const confirmedOrders = useMemo(
     () => orders.filter((o) => o.status === "confirmed"),
-    [orders]
+    [orders],
   );
   const assignments = useMemo(
     () => orders.filter((o) => o.assignedTo !== null),
-    [orders]
+    [orders],
   );
 
   // functions
   const markNotificationRead = (id) => {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
     );
   };
 
   // 👉 changed: open restaurant detail instead of one order
   const openOrderDetail = (order) => {
     const sameRestaurantOrders = orders.filter(
-      (o) => o.restaurant === order.restaurant
+      (o) => o.restaurant === order.restaurant,
     );
     setSelectedOrders(sameRestaurantOrders);
     setDetailModalOpen(true);
@@ -872,11 +869,11 @@ export default function AdminRestaurantOrderAssignment() {
       prev.map((o) =>
         o.id === orderId
           ? { ...o, assignedTo: deliveryManId, status: "assigned" }
-          : o
-      )
+          : o,
+      ),
     );
     setNotifications((prev) =>
-      prev.map((n) => (n.orderId === orderId ? { ...n, read: true } : n))
+      prev.map((n) => (n.orderId === orderId ? { ...n, read: true } : n)),
     );
     closeAssignModal();
   };
@@ -884,8 +881,8 @@ export default function AdminRestaurantOrderAssignment() {
   const reassign = (orderId) => {
     setOrders((prev) =>
       prev.map((o) =>
-        o.id === orderId ? { ...o, assignedTo: null, status: "confirmed" } : o
-      )
+        o.id === orderId ? { ...o, assignedTo: null, status: "confirmed" } : o,
+      ),
     );
   };
 
@@ -896,8 +893,6 @@ export default function AdminRestaurantOrderAssignment() {
     <div className="min-h-screen bg-gray-50 flex">
       {/* Main */}
       <main className="flex-1 p-6">
-   
-
         {/* Confirmed Orders Table */}
         <section className="bg-white shadow rounded p-4">
           <div className="flex items-center justify-between mb-3">
@@ -921,56 +916,59 @@ export default function AdminRestaurantOrderAssignment() {
                   <th className="py-2">Actions</th>
                 </tr>
               </thead>
-             <tbody>
-  {Array.from(
-    new Map(
-      confirmedOrders.map((o) => [o.restaurant, o])
-    ).values()
-  )
-    .filter((o) =>
-      `${o.id} ${o.customer} ${o.restaurant}`
-        .toLowerCase()
-        .includes(filter.toLowerCase())
-    )
-    .map((o) => (
-      <tr key={o.restaurant} className="border-t">
-        <td className="py-3">#{o.id}</td>
-        <td className="py-3">{o.customer}</td>
-        <td className="py-3 flex items-center gap-2">
-          {o.restaurant}
-          {getRestaurantOrderCount(o.restaurant) > 1 && (
-            <span className="text-xs text-blue-600 px-2 py-0.5 rounded bg-blue-100">
-              {getRestaurantOrderCount(o.restaurant)} orders
-            </span>
-          )}
-        </td>
+              <tbody>
+                {Array.from(
+                  new Map(
+                    confirmedOrders.map((o) => [o.restaurant, o]),
+                  ).values(),
+                )
+                  .filter((o) =>
+                    `${o.id} ${o.customer} ${o.restaurant}`
+                      .toLowerCase()
+                      .includes(filter.toLowerCase()),
+                  )
+                  .map((o) => (
+                    <tr key={o.restaurant} className="border-t">
+                      <td className="py-3">#{o.id}</td>
+                      <td className="py-3">{o.customer}</td>
+                      <td className="py-3 flex items-center gap-2">
+                        {o.restaurant}
+                        {getRestaurantOrderCount(o.restaurant) > 1 && (
+                          <span className="text-xs text-blue-600 px-2 py-0.5 rounded bg-blue-100">
+                            {getRestaurantOrderCount(o.restaurant)} orders
+                          </span>
+                        )}
+                      </td>
 
-        <td className="py-3">{o.items.join(", ")}</td>
-        <td className="py-3 text-xs text-gray-600">{o.location}</td>
-        <td className="py-3">${o.total.toFixed(2)}</td>
-        <td className="py-3">
-          {o.assignedTo ? getDeliveryManById(o.assignedTo)?.name : "-"}
-        </td>
-        <td className="py-3">
-          <div className="flex gap-2">
-            <button
-              onClick={() => openOrderDetail(o)}
-              className="px-3 py-1 rounded bg-gray-100 text-sm"
-            >
-              Detail
-            </button>
-            <button
-              onClick={() => openAssignModal(o)}
-              className="px-3 py-1 rounded bg-blue-600 text-white text-sm"
-            >
-              Assign
-            </button>
-          </div>
-        </td>
-      </tr>
-    ))}
-</tbody>
-
+                      <td className="py-3">{o.items.join(", ")}</td>
+                      <td className="py-3 text-xs text-gray-600">
+                        {o.location}
+                      </td>
+                      <td className="py-3">${o.total.toFixed(2)}</td>
+                      <td className="py-3">
+                        {o.assignedTo
+                          ? getDeliveryManById(o.assignedTo)?.name
+                          : "-"}
+                      </td>
+                      <td className="py-3">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => openOrderDetail(o)}
+                            className="px-3 py-1 rounded bg-gray-100 text-sm"
+                          >
+                            Detail
+                          </button>
+                          <button
+                            onClick={() => openAssignModal(o)}
+                            className="px-3 py-1 rounded bg-blue-600 text-white text-sm"
+                          >
+                            Assign
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
             </table>
           </div>
         </section>
@@ -1213,4 +1211,4 @@ export default function AdminRestaurantOrderAssignment() {
       </main>
     </div>
   );
-} 
+}

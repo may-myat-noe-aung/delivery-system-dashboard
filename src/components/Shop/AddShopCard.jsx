@@ -25,7 +25,7 @@
 //   useEffect(() => {
 //     const interval = setInterval(() => {
 //       axios
-//         .get("http://38.60.244.108:3000/shops")
+//         .get("http://38.60.244.137:3000/shops")
 //         .then((res) => setShops(res.data))
 //         .catch((err) => console.error("API Error:", err));
 //     }, 500);
@@ -86,7 +86,7 @@
 //                 <div className="flex items-center gap-4">
 //                   {shop.photo ? (
 //                     <img
-//                       src={`http://38.60.244.108:3000/shop-uploads/${shop.photo}`}
+//                       src={`http://38.60.244.137:3000/shop-uploads/${shop.photo}`}
 //                       alt={shop.shop_name}
 //                       className="w-24 h-24 object-cover rounded"
 //                     />
@@ -179,7 +179,7 @@ const AddShopCard = ({ onDetail }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       axios
-        .get("http://38.60.244.108:3000/shops")
+        .get("http://38.60.244.137:3000/shops")
         .then((res) => setShops(res.data))
         .catch((err) => console.error("API Error:", err));
     }, 500);
@@ -196,29 +196,56 @@ const AddShopCard = ({ onDetail }) => {
   return (
     <section className="w-full overflow-y-auto h-full pl-8 scrollbar-hide">
       {/* Search + Filter */}
-      <div className="flex flex-col sm:flex-row items-center justify-between py-6 bg-[#F6F6F6] sticky top-0 z-20 gap-4 sm:gap-0">
-        <div className="relative flex items-center w-full max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#B476FF]" />
-          <input
-            type="text"
-            placeholder={`Search by ${filterBy}`}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-full border border-[#B476FF] focus:ring-2 focus:ring-[#B476FF] text-sm shadow-sm"
-          />
-        </div>
+   <div className="flex flex-col sm:flex-row items-center justify-between py-6 
+  bg-[#F6F6F6] dark:bg-gray-900 
+  sticky top-0 z-20 gap-4 sm:gap-0 px-4 rounded-xl">
 
-        <select
-          value={filterBy}
-          onChange={(e) => setFilterBy(e.target.value)}
-          className="border border-[#B476FF] text-[#B476FF] rounded-full px-3 py-2 text-sm bg-white shadow-sm focus:ring-2 focus:ring-[#B476FF]"
-        >
-          <option value="shop_name">Shop Name</option>
-          <option value="id">ID</option>
-          <option value="shopkeeper_name">Shopkeeper</option>
-          <option value="email">Email</option>
-        </select>
-      </div>
+  {/* SEARCH */}
+  <div className="relative flex items-center w-full max-w-sm">
+    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#B476FF]" />
+    
+    <input
+      type="text"
+      placeholder={`Search by ${filterBy}`}
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      className="
+        w-full pl-10 pr-4 py-2 rounded-full
+        border border-[#B476FF]
+        bg-white dark:bg-gray-800
+        text-gray-800 dark:text-gray-100
+        placeholder-gray-400 dark:placeholder-gray-400
+        focus:ring-2 focus:ring-[#B476FF]
+        focus:outline-none
+        text-sm shadow-sm
+        
+      "
+    />
+  </div>
+
+  {/* FILTER SELECT */}
+  <select
+    value={filterBy}
+    onChange={(e) => setFilterBy(e.target.value)}
+    className="
+      border border-[#B476FF]
+      text-[#B476FF]
+      bg-white dark:bg-gray-800
+      dark:text-[#B476FF]
+      rounded-full px-4 py-2
+      text-sm shadow-sm
+      focus:ring-2 focus:ring-[#B476FF]
+      focus:outline-none
+      
+    "
+  >
+    <option value="shop_name">Shop Name</option>
+    <option value="id">ID</option>
+    <option value="shopkeeper_name">Shopkeeper</option>
+    <option value="email">Email</option>
+  </select>
+
+</div>
 
       {/* Cards */}
       <div className="mb-6">
@@ -240,7 +267,7 @@ const AddShopCard = ({ onDetail }) => {
                 <div className="flex items-center gap-4">
                   {shop.photo ? (
                     <img
-                      src={`http://38.60.244.108:3000/shop-uploads/${shop.photo}`}
+                      src={`http://38.60.244.137:3000/shop-uploads/${shop.photo}`}
                       alt={shop.shop_name}
                       className="w-24 h-24 object-cover rounded"
                     />

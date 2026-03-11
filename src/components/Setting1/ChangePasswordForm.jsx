@@ -30,7 +30,7 @@
 //   useEffect(() => {
 //     const fetchEmails = async () => {
 //       try {
-//         const res = await fetch("http://38.60.244.108:3000/admin");
+//         const res = await fetch("http://38.60.244.137:3000/admin");
 //         const json = await res.json();
 //         if (json.success && Array.isArray(json.data)) {
 //           const sorted = json.data
@@ -119,7 +119,7 @@
 //     setLoadingPwd(true);
 
 //     try {
-//       const res = await fetch("http://38.60.244.108:3000/admin/verify-owner-passcode", {
+//       const res = await fetch("http://38.60.244.137:3000/admin/verify-owner-passcode", {
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
 //         body: JSON.stringify({ email, password, passcode }),
@@ -311,7 +311,7 @@ export default function ChangePasswordForm({ email }) {
   useEffect(() => {
     const fetchEmails = async () => {
       try {
-        const res = await fetch("http://38.60.244.108:3000/admin");
+        const res = await fetch("http://38.60.244.137:3000/admin");
         const json = await res.json();
         if (json.success && Array.isArray(json.data)) {
           const sorted = json.data
@@ -400,7 +400,7 @@ export default function ChangePasswordForm({ email }) {
     setLoadingPwd(true);
 
     try {
-      const res = await fetch("http://38.60.244.108:3000/admin/verify-owner-passcode", {
+      const res = await fetch("http://38.60.244.137:3000/admin/verify-owner-passcode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, passcode }),
@@ -438,7 +438,7 @@ export default function ChangePasswordForm({ email }) {
   // Handle keyboard navigation for email dropdown
 
   return (
-<div className="w-full bg-[#1f1f1f] border border-gray-700 rounded-xl p-5">
+<div className="w-full  border border-gray-700 rounded-xl p-5">
   <h4 className="text-lg font-semibold mb-4 text-[#B476FF]">Change Password</h4>
   <div className="space-y-5 w-full">
     {/* Email Dropdown */}

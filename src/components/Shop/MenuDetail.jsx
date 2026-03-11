@@ -14,7 +14,7 @@
 
 //     const fetchMenu = async () => {
 //       try {
-//         const res = await axios.get(`http://38.60.244.108:3000/menu/${shopId}`);
+//         const res = await axios.get(`http://38.60.244.137:3000/menu/${shopId}`);
 //         // Find the clicked menu by menuId
 //         const foundMenu = res.data.menus.find((m) => m.id === menuId);
 //         setMenu(foundMenu);
@@ -33,7 +33,7 @@
 //     if (!photo) return null;
 //     return photo.startsWith("http")
 //       ? photo
-//       : `http://38.60.244.108:3000/uploads/${photo}`;
+//       : `http://38.60.244.137:3000/uploads/${photo}`;
 //   };
 
 //   if (loading) return <p className="p-6 text-[#B476FF]">Loading...</p>;
@@ -99,7 +99,7 @@ export default function MenuDetail() {
 
     const fetchMenu = async () => {
       try {
-        const res = await axios.get(`http://38.60.244.108:3000/menu/${shopId}`);
+        const res = await axios.get(`http://38.60.244.137:3000/menu/${shopId}`);
         // Find the clicked menu by menuId
         const foundMenu = res.data.menus.find((m) => m.id === menuId);
         setMenu(foundMenu);
@@ -118,7 +118,7 @@ export default function MenuDetail() {
     if (!photo) return null;
     return photo.startsWith("http")
       ? photo
-      : `http://38.60.244.108:3000/uploads/${photo}`;
+      : `http://38.60.244.137:3000/uploads/${photo}`;
   };
 
   if (loading)

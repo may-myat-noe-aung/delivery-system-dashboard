@@ -31,7 +31,7 @@ const Aside = () => {
     { label: "Dashboards", icon: LayoutDashboard, to: "/" },
     { label: "Shop", icon: Store, to: "/shop" },
     // { label: "Menu", icon: Utensils, to: "/menu" },
-    { label: "Orders Receive", icon: BookOpen, to: "/orders/received" },
+    // { label: "Orders Receive", icon: BookOpen, to: "/orders/received" },
     {
       label: "Delivery",
       icon: Truck,
@@ -41,10 +41,10 @@ const Aside = () => {
         { label: "Track Delivery Man", to: "/delivery/track-delivery-men" },
       ],
     },
-    { label: "Sales History", icon: Receipt, to: "/salehistory" },
+    // { label: "Sales History", icon: Receipt, to: "/salehistory" },
     { label: "Report", icon: BarChart2, to: "/report" },
     { label: "Management", icon: Users, to: "/management" },
-    { label: "Chat", icon: MessageSquareMore, to: "/chat" },
+    // { label: "Chat", icon: MessageSquareMore, to: "/chat" },
     { label: "Setting", icon: Settings, to: "/setting" },
   ];
 

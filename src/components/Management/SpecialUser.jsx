@@ -3,21 +3,22 @@ import { Download, Search, Trash2 } from "lucide-react";
 import axios from "axios";
 import { useAlert } from "../../AlertContext";
 
-export default function UserTable() {
-  const [users, setUsers] = useState([]);
+export default function SpecialUser() {
+  const [specialUsers, setSpecialUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [activeUser, setActiveUser] = useState(null);
   const [passcodeModal, setPasscodeModal] = useState(false);
   const [passcode, setPasscode] = useState("");
   const passcodeInputRef = useRef(null);
-  const { showAlert, confirm } = useAlert();
-  const [specialModal, setSpecialModal] = useState(false);
-  const [specialUser, setSpecialUser] = useState(null);
+  const [specialLoading, setSpecialLoading] = useState({});
 
   const [actionLoading, setActionLoading] = useState({});
   const [alerts, setAlerts] = useState([]);
-  // const [specialLoading, setSpecialLoading] = useState({});
+  const { showAlert } = useAlert();
+
+  const [confirmModal, setConfirmModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   // ---------------- PAGINATION STATES ----------------
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,15 +28,10 @@ export default function UserTable() {
   useEffect(() => {
     const interval = setInterval(() => {
       axios
-        .get("http://38.60.244.137:3000/users")
-        .then((res) => {
-          // filter out special users
-          const nonSpecialUsers = res.data.filter((u) => u.special !== 1);
-          setUsers(nonSpecialUsers);
-        })
+        .get("http://38.60.244.137:3000/special-users")
+        .then((res) => setSpecialUsers(res.data))
         .catch((err) => console.error("API Error:", err));
     }, 500);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -45,7 +41,7 @@ export default function UserTable() {
     return [date, time.slice(0, 8)];
   };
 
-  const filteredUsers = users.filter((user) => {
+  const filteredUsers = specialUsers.filter((user) => {
     const term = searchTerm.toLowerCase();
     return (
       user.name?.toLowerCase().includes(term) ||
@@ -85,9 +81,9 @@ export default function UserTable() {
     if (passcode === "234567") {
       setActionLoading((prev) => ({ ...prev, [activeUser.id]: true }));
       axios
-        .delete(`http://38.60.244.137:3000/users/${activeUser.id}`)
+        .delete(`http://38.60.244.137:3000/special-users/${activeUser.id}`)
         .then((res) => {
-          setUsers((prev) => prev.filter((u) => u.id !== activeUser.id));
+          setSpecialUsers((prev) => prev.filter((u) => u.id !== activeUser.id));
           setAlerts((prev) => [
             ...prev,
             res.data.message || "Deleted successfully",
@@ -117,36 +113,13 @@ export default function UserTable() {
       : null;
 
   const toggleStatus = (user, newStatus) => {
-    // const toggleSpecialUser = (user) => {
-    //   setSpecialLoading((prev) => ({ ...prev, [user.id]: true }));
-
-    //   axios
-    //     .patch(`http://38.60.244.137:3000/special-users/${user.id}`)
-    //     .then((res) => {
-    //       setAlerts((prev) => [
-    //         ...prev,
-    //         res.data.message || "User marked as special",
-    //       ]);
-    //       // remove user from table locally since now special === 1
-    //       setUsers((prev) => prev.filter((u) => u.id !== user.id));
-    //     })
-    //     .catch((err) =>
-    //       setAlerts((prev) => [
-    //         ...prev,
-    //         err.response?.data?.message || "Failed to mark special",
-    //       ])
-    //     )
-    //     .finally(() =>
-    //       setSpecialLoading((prev) => ({ ...prev, [user.id]: false }))
-    //     );
-    // };
     setActionLoading((prev) => ({ ...prev, [user.id]: true }));
     axios
-      .patch(`http://38.60.244.137:3000/users/status/${user.id}`, {
+      .patch(`http://38.60.244.137:3000/special-users/status/${user.id}`, {
         status: newStatus,
       })
       .then((res) => {
-        setUsers((prev) =>
+        setSpecialUsers((prev) =>
           prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)),
         );
         setAlerts((prev) => [...prev, res.data.message || "Status updated"]);
@@ -162,95 +135,99 @@ export default function UserTable() {
       });
   };
 
-  const [specialLoading, setSpecialLoading] = useState({});
+  const toggleSpecialUser = (user) => {
+    setSpecialLoading((prev) => ({ ...prev, [user.id]: true }));
 
-  // const toggleSpecialUser = (user, orderId) => {
-  //   setSpecialLoading((prev) => ({ ...prev, [user.id]: true }));
-
-  //   axios
-  //     .patch(`http://38.60.244.137:3000/special-users/${user.id}`, {
-  //       orderId: orderId,
-  //     })
-  //     .then((res) => {
-  //       setAlerts((prev) => [
-  //         ...prev,
-  //         res.data.message || "User marked as special",
-  //       ]);
-  //       // Optionally, you can update user locally to show checkbox state
-  //       setUsers((prev) =>
-  //         prev.map((u) =>
-  //           u.id === user.id ? { ...u, isSpecial: !u.isSpecial } : u,
-  //         ),
-  //       );
-  //     })
-  //     .catch((err) =>
-  //       setAlerts((prev) => [
-  //         ...prev,
-  //         err.response?.data?.message || "Failed to mark special",
-  //       ]),
-  //     )
-  //     .finally(() =>
-  //       setSpecialLoading((prev) => ({ ...prev, [user.id]: false })),
-  //     );
-  // };
-  // const handleSpecialCheckbox = async (user, orderId) => {
-  //   try {
-  //     // Optional: ask for confirmation first
-  //     const ok = await confirm(`Do you want to mark ${user.name} as special?`);
-  //     if (!ok) return;
-
-  //     setSpecialLoading((prev) => ({ ...prev, [user.id]: true }));
-
-  //     const res = await axios.patch(
-  //       `http://38.60.244.137:3000/special-users/${user.id}`,
-  //       { orderId }
-  //     );
-
-  //     // Update table locally
-  //     setUsers((prev) =>
-  //       prev.map((u) => (u.id === user.id ? { ...u, isSpecial: !u.isSpecial } : u))
-  //     );
-
-  //     // Show API message in alert modal
-  //     showAlert(res.data.message || "User marked as special", "success");
-  //   } catch (err) {
-  //     showAlert(
-  //       err.response?.data?.message || "Failed to mark special",
-  //       "error"
-  //     );
-  //   } finally {
-  //     setSpecialLoading((prev) => ({ ...prev, [user.id]: false }));
-  //   }
-  // };
-  const handleSpecialCheckbox = (user) => {
-    setSpecialUser(user);
-    setSpecialModal(true);
-  };
-
-  const confirmSpecialUser = async () => {
-    if (!specialUser) return;
-
-    try {
-      setSpecialLoading((prev) => ({ ...prev, [specialUser.id]: true }));
-
-      const res = await axios.patch(
-        `http://38.60.244.137:3000/special-users/${specialUser.id}`,
-        { orderId: "O002" },
-      );
-
-      setUsers((prev) => prev.filter((u) => u.id !== specialUser.id));
-
-      showAlert(res.data.message || "User marked as special", "success");
-    } catch (err) {
-      showAlert(
-        err.response?.data?.message || "Failed to mark special",
-        "error",
-      );
-    } finally {
-      setSpecialLoading((prev) => ({ ...prev, [specialUser.id]: false }));
-      setSpecialModal(false);
+    if (!user.special) {
+      // Make special user (your existing logic)
+      axios
+        .patch(`http://38.60.244.137:3000/special-users/${user.id}`, {
+          orderId: "O002",
+        })
+        .then((res) => {
+          setSpecialUsers((prev) =>
+            prev.map((u) => (u.id === user.id ? { ...u, special: true } : u)),
+          );
+          setAlerts((prev) => [
+            ...prev,
+            res.data.message || "User marked as special",
+          ]);
+        })
+        .catch((err) =>
+          setAlerts((prev) => [
+            ...prev,
+            err.response?.data?.message || "Failed to mark special",
+          ]),
+        )
+        .finally(() =>
+          setSpecialLoading((prev) => ({ ...prev, [user.id]: false })),
+        );
+    } else {
+      // Remove from special → make non-special
+      axios
+        .patch(`http://38.60.244.137:3000/non-special-users/${user.id}`)
+        .then((res) => {
+          setSpecialUsers((prev) =>
+            prev.map((u) => (u.id === user.id ? { ...u, special: false } : u)),
+          );
+          setAlerts((prev) => [
+            ...prev,
+            res.data.message || "User removed from special",
+          ]);
+        })
+        .catch((err) =>
+          setAlerts((prev) => [
+            ...prev,
+            err.response?.data?.message || "Failed to remove special",
+          ]),
+        )
+        .finally(() =>
+          setSpecialLoading((prev) => ({ ...prev, [user.id]: false })),
+        );
     }
   };
+
+  const confirmSpecialUser = () => {
+    if (!selectedUser) return;
+
+    setSpecialLoading((prev) => ({ ...prev, [selectedUser.id]: true }));
+
+    const request = selectedUser.special
+      ? axios.patch(
+          `http://38.60.244.137:3000/non-special-users/${selectedUser.id}`,
+        )
+      : axios.patch(
+          `http://38.60.244.137:3000/special-users/${selectedUser.id}`,
+          {
+            orderId: "O002",
+          },
+        );
+
+    request
+      .then((res) => {
+        setSpecialUsers((prev) =>
+          prev.map((u) =>
+            u.id === selectedUser.id
+              ? { ...u, special: !selectedUser.special }
+              : u,
+          ),
+        );
+
+        showAlert(res.data.message || "Updated successfully", "success");
+      })
+      .catch((err) => {
+        showAlert(err.response?.data?.message || "Failed to update", "error");
+      })
+      .finally(() => {
+        setSpecialLoading((prev) => ({
+          ...prev,
+          [selectedUser.id]: false,
+        }));
+        setConfirmModal(false);
+        setSelectedUser(null);
+      });
+  };
+
   return (
     <div className="">
       {/* Alerts */}
@@ -301,9 +278,9 @@ export default function UserTable() {
         {/* Table Card */}
         <div
           className="bg-[#1a2030]/80 backdrop-blur-xl 
-                    border border-slate-700 
-                    rounded-3xl shadow-2xl 
-                    p-6 overflow-x-auto"
+            border border-slate-700 
+            rounded-3xl shadow-2xl 
+            p-6 overflow-x-auto"
         >
           <table className="min-w-full text-sm">
             <thead className="text-slate-400 border-b border-slate-700 bg-slate-900/40">
@@ -332,7 +309,7 @@ export default function UserTable() {
               {paginatedUsers.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="text-center py-6 text-slate-400 text-sm"
                   >
                     No results found.
@@ -342,8 +319,7 @@ export default function UserTable() {
                 paginatedUsers.map((user) => (
                   <tr
                     key={user.id}
-                    className={`border-b border-slate-800 
-              transition-all duration-300
+                    className={`border-b border-slate-800 transition-all duration-300
               ${
                 user.status === "active"
                   ? "bg-green-500/10 hover:bg-green-500/10"
@@ -352,15 +328,30 @@ export default function UserTable() {
                     : "hover:bg-slate-800/40"
               }`}
                   >
-                    <td className="py-4">
+                    {/* ---------- Special User Checkbox ---------- */}
+                    <td className="py-4 text-center">
+                      {/* <input
+  type="checkbox"
+  checked={user.special || false}  // checked if special
+  disabled={!!specialLoading[user.id]}
+onChange={() => {
+  setSelectedUser(user);
+  setConfirmModal(true);
+}}
+  className="w-5 h-5 text-purple-500 bg-slate-800 border-slate-700 rounded focus:ring-2 focus:ring-purple-500"
+/> */}
                       <input
                         type="checkbox"
-                        checked={user.special === 1}
+                        checked={user.special || false}
                         disabled={!!specialLoading[user.id]}
-                        onChange={() => handleSpecialCheckbox(user)}
+                        onChange={() => {
+                          setSelectedUser(user);
+                          setConfirmModal(true);
+                        }}
                         className="w-5 h-5 text-purple-500 bg-slate-800 border-slate-700 rounded focus:ring-2 focus:ring-purple-500"
                       />
                     </td>
+
                     <td className="py-4">{user.id}</td>
 
                     <td className="py-4">
@@ -374,9 +365,9 @@ export default function UserTable() {
                         ) : (
                           <div
                             className="w-10 h-10 rounded-full 
-                                      bg-purple-500/30 
-                                      flex items-center justify-center 
-                                      text-purple-300 font-semibold"
+                              bg-purple-500/30 
+                              flex items-center justify-center 
+                              text-purple-300 font-semibold"
                           >
                             {user.name?.charAt(0).toUpperCase() || "?"}
                           </div>
@@ -394,11 +385,11 @@ export default function UserTable() {
                           onClick={() => toggleStatus(user, "active")}
                           disabled={!!actionLoading[user.id]}
                           className={`px-3 py-1.5 rounded-xl text-xs transition-all
-                        ${
-                          user.status === "active"
-                            ? "bg-green-500/30 text-green-300 border border-green-400/40"
-                            : "bg-green-500/10 text-green-400 border border-green-500/20"
-                        }`}
+                    ${
+                      user.status === "active"
+                        ? "bg-green-500/30 text-green-300 border border-green-400/40"
+                        : "bg-green-500/10 text-green-400 border border-green-500/20"
+                    }`}
                         >
                           Active
                         </button>
@@ -407,11 +398,11 @@ export default function UserTable() {
                           onClick={() => toggleStatus(user, "warning")}
                           disabled={!!actionLoading[user.id]}
                           className={`px-3 py-1.5 rounded-xl text-xs transition-all
-                        ${
-                          user.status === "warning"
-                            ? "bg-red-500/30 text-red-300 border border-red-400/40"
-                            : "bg-red-500/10 text-red-400 border border-red-500/20"
-                        }`}
+                    ${
+                      user.status === "warning"
+                        ? "bg-red-500/30 text-red-300 border border-red-400/40"
+                        : "bg-red-500/10 text-red-400 border border-red-500/20"
+                    }`}
                         >
                           Warning
                         </button>
@@ -430,10 +421,10 @@ export default function UserTable() {
                         <button
                           onClick={() => openDetail(user)}
                           className="px-3 py-1.5 rounded-xl 
-                                 bg-purple-500/20 text-purple-300 
-                                 border border-purple-500/30
-                                 hover:bg-purple-500/40 hover:text-white 
-                                 transition-all text-xs"
+                           bg-purple-500/20 text-purple-300 
+                           border border-purple-500/30
+                           hover:bg-purple-500/40 hover:text-white 
+                           transition-all text-xs"
                         >
                           Detail
                         </button>
@@ -441,10 +432,10 @@ export default function UserTable() {
                         <button
                           onClick={() => openDeletePasscode(user)}
                           className="px-3 py-1.5 rounded-xl 
-                                 bg-red-500/20 text-red-400 
-                                 border border-red-500/30
-                                 hover:bg-red-500/40 hover:text-white 
-                                 transition-all text-xs"
+                           bg-red-500/20 text-red-400 
+                           border border-red-500/30
+                           hover:bg-red-500/40 hover:text-white 
+                           transition-all text-xs"
                         >
                           Delete
                         </button>
@@ -741,32 +732,40 @@ export default function UserTable() {
         </div>
       )}
 
-      {specialModal && (
+      {confirmModal && selectedUser && (
         <div className="fixed inset-0 z-40 flex items-center justify-center backdrop-blur-sm">
+          {/* Overlay */}
           <div
             className="absolute inset-0 bg-black/70"
-            onClick={() => setSpecialModal(false)}
+            onClick={() => setConfirmModal(false)}
           />
 
+          {/* Modal */}
           <div
             className="relative bg-[#1a2030] border border-slate-700 
-    rounded-xl p-6 w-[320px] text-white shadow-2xl"
+      rounded-xl p-6 w-[320px] text-white shadow-2xl"
           >
             <h3 className="text-lg font-semibold text-purple-400 mb-3">
-              Mark Special User
+              {selectedUser.special
+                ? "Remove Special User"
+                : "Mark Special User"}
             </h3>
 
             <p className="text-sm text-slate-300 mb-6">
-              Do you want to mark{" "}
+              {selectedUser.special
+                ? "Do you want to remove "
+                : "Do you want to mark "}
               <span className="text-purple-400 text-lg font-medium">
-                {specialUser?.name}
+                {selectedUser?.name}
               </span>{" "}
-              as special user?
+              {selectedUser.special
+                ? "from special users?"
+                : "as special user?"}
             </p>
 
-            <div className="flex justify-between ">
+            <div className="flex justify-between">
               <button
-                onClick={() => setSpecialModal(false)}
+                onClick={() => setConfirmModal(false)}
                 className="px-4 py-1.5 rounded-lg border border-slate-700 
           hover:bg-slate-700 text-sm"
               >
@@ -775,10 +774,11 @@ export default function UserTable() {
 
               <button
                 onClick={confirmSpecialUser}
+                disabled={specialLoading[selectedUser?.id]}
                 className="px-4 py-1.5 rounded-lg bg-purple-600 
           hover:bg-purple-700 text-sm"
               >
-                Yes
+                {specialLoading[selectedUser?.id] ? "Processing..." : "Yes"}
               </button>
             </div>
           </div>

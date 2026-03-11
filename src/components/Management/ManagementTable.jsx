@@ -1,64 +1,28 @@
-// import React, { useState } from "react";
-// import PendingShopsFull from "./PendingShopsFull";
-// import UserTable from "./tables/UserTable";
-// import ShopkeeperTable from "./tables/ShopkeeperTable";
-// import DeliveryTable from "./tables/DeliveryTable";
-
-// export default function ManagementTable() {
-//   const [selectedTab, setSelectedTab] = useState("User");
-
-//   return (
-//     <div>
-//       <PendingShopsFull />
-
-//       {/* Tabs */}
-//       <div className="flex gap-6 mb-6">
-//         {["User", "Shopkeeper", "Delivery"].map((tab) => (
-//           <button
-//             key={tab}
-//             className={`py-2 px-6 rounded-full ${
-//               selectedTab === tab
-//                 ? "bg-[#B476FF] text-white"
-//                 : "bg-gray-100 text-gray-600"
-//             }`}
-//             onClick={() => setSelectedTab(tab)}
-//           >
-//             {tab}
-//           </button>
-//         ))}
-//       </div>
-
-//       {/* Table Switch */}
-//       {selectedTab === "User" && <UserTable />}
-//       {selectedTab === "Shopkeeper" && <ShopkeeperTable />}
-//       {selectedTab === "Delivery" && <DeliveryTable />}
-//     </div>
-//   );
-// }
 
 import React, { useState } from "react";
 import PendingShopsFull from "./PendingShopsFull";
 import UserTable from "./UserTable";
 import DeliveryTable from "./DeliveryTable";
 import ShopkeeperTable from "./ShopkeeperTable";
+import SpecialUser from "./SpecialUser";
 
 export default function ManagementTable() {
   const [selectedTab, setSelectedTab] = useState("User");
 
   return (
-    <div>
+    <div className="text-white">
       <PendingShopsFull />
 
-      <div className="mt-4 border border-gray-200 rounded-2xl p-6 ">
+      <div className="mt-4 bg-[#1a1f2b] border border-[#2c2f44] rounded-2xl p-6 shadow-2xl">
         {/* Tabs */}
         <div className="flex gap-6 ">
-          {["User", "Shopkeeper", "Delivery"].map((tab) => (
+          {["User", "Special User", "Shopkeeper", "Delivery"].map((tab) => (
             <button
               key={tab}
-              className={`py-2 px-6 rounded-full ${
+              className={`py-2 px-6 rounded-full text-sm font-medium transition-all duration-200 ${
                 selectedTab === tab
-                  ? "bg-[#B476FF] text-white"
-                  : "bg-gray-100 text-gray-600"
+                  ? " bg-[#B476FF] to-purple-600 text-white shadow-lg"
+                  : "bg-[#2c2f44] text-gray-300 hover:bg-[#3a3f5c]"
               }`}
               onClick={() => setSelectedTab(tab)}
             >
@@ -68,8 +32,9 @@ export default function ManagementTable() {
         </div>
 
         {/* Table Switch */}
-        <div className="">
+        <div className=" mb-10">
           {selectedTab === "User" && <UserTable />}
+          {selectedTab === "Special User" && <SpecialUser />}
           {selectedTab === "Shopkeeper" && <ShopkeeperTable />}
           {selectedTab === "Delivery" && <DeliveryTable />}
         </div>

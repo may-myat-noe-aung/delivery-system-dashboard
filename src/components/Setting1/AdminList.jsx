@@ -23,7 +23,7 @@
 //   useEffect(() => {
 //     const fetchAccounts = async () => {
 //       try {
-//         const res = await fetch("http://38.60.244.108:3000/admin");
+//         const res = await fetch("http://38.60.244.137:3000/admin");
 //         const data = await res.json();
 //         if (data.success) {
 //           const filtered = data.data.filter((a) => a.role !== "owner");
@@ -144,7 +144,7 @@
 //     try {
 //       setDeleting(true);
 //       const verify = await fetch(
-//         "http://38.60.244.108:3000/admin/verify-owner-passcode",
+//         "http://38.60.244.137:3000/admin/verify-owner-passcode",
 //         {
 //           method: "POST",
 //           headers: { "Content-Type": "application/json" },
@@ -159,7 +159,7 @@
 //       }
 
 //       const res = await fetch(
-//         `http://38.60.244.108:3000/admin/${deleteTarget.id}`,
+//         `http://38.60.244.137:3000/admin/${deleteTarget.id}`,
 //         {
 //           method: "DELETE",
 //         }
@@ -278,7 +278,7 @@
 //                   <td className="py-2 px-3">
 //                     {a.photo ? (
 //                       <img
-//                         src={`http://38.60.244.108:3000/admin-uploads/${a.photo}`}
+//                         src={`http://38.60.244.137:3000/admin-uploads/${a.photo}`}
 //                         alt={a.name}
 //                         className="w-10 h-10 rounded-full object-cover mx-auto"
 //                       />
@@ -401,7 +401,7 @@ export default function AdminList() {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const res = await fetch("http://38.60.244.108:3000/admin");
+        const res = await fetch("http://38.60.244.137:3000/admin");
         const data = await res.json();
         if (data.success) {
           const filtered = data.data.filter((a) => a.role !== "owner");
@@ -539,7 +539,7 @@ export default function AdminList() {
                   <td className="py-2 px-3">
                     {a.photo ? (
                       <img
-                        src={`http://38.60.244.108:3000/admin-uploads/${a.photo}`}
+                        src={`http://38.60.244.137:3000/admin-uploads/${a.photo}`}
                         className="w-10 h-10 rounded-full mx-auto"
                       />
                     ) : (

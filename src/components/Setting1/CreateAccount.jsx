@@ -90,7 +90,7 @@
 
 //     try {
 //       setSaving(true);
-//       const res = await fetch("http://38.60.244.108:3000/admin", {
+//       const res = await fetch("http://38.60.244.137:3000/admin", {
 //         method: "POST",
 //         body: formData,
 //       });
@@ -137,7 +137,7 @@
 
 //     try {
 //       const res = await fetch(
-//         "http://38.60.244.108:3000/admin/verify-owner-passcode",
+//         "http://38.60.244.137:3000/admin/verify-owner-passcode",
 //         {
 //           method: "POST",
 //           headers: { "Content-Type": "application/json" },
@@ -560,7 +560,7 @@ export default function CreateAccount() {
 
     try {
       setSaving(true);
-      const res = await fetch("http://38.60.244.108:3000/admin", {
+      const res = await fetch("http://38.60.244.137:3000/admin", {
         method: "POST",
         body: formData,
       });
@@ -607,7 +607,7 @@ export default function CreateAccount() {
 
     try {
       const res = await fetch(
-        "http://38.60.244.108:3000/admin/verify-owner-passcode",
+        "http://38.60.244.137:3000/admin/verify-owner-passcode",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -19,7 +19,7 @@
 
 //   const fetchShops = async () => {
 //     try {
-//       const res = await axios.get("http://38.60.244.108:3000/shops-approve");
+//       const res = await axios.get("http://38.60.244.137:3000/shops-approve");
 
 //       if (res.data.message) {
 //         alert(res.data.message);
@@ -69,7 +69,7 @@ export default function ShopApprove() {
 
   const fetchShops = async () => {
     try {
-      const res = await axios.get("http://38.60.244.108:3000/shops-approve");
+      const res = await axios.get("http://38.60.244.137:3000/shops-approve");
 
       // Optional: show API message
       if (res.data.message) {

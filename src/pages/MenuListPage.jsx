@@ -21,7 +21,7 @@
 //     const timeout = setTimeout(() => {
 //       const fetchData = async () => {
 //         try {
-//           const url = `http://38.60.244.108:3000/menu/${shopId}`;
+//           const url = `http://38.60.244.137:3000/menu/${shopId}`;
 //           console.log("Fetching menu from:", url);
 
 //           const res = await axios.get(url);
@@ -44,7 +44,7 @@
 
 //   const getPhotoUrl = (photo) => {
 //     if (!photo) return null;
-//     return `http://38.60.244.108:3000/menu-uploads/${photo}`;
+//     return `http://38.60.244.137:3000/menu-uploads/${photo}`;
 //   };
 
 //   if (loading) return <p className="p-6 text-[#B476FF]">Loading...</p>;
@@ -149,11 +149,11 @@ export default function MenuListPage() {
   // ✅ NEW: fetchMenus function (centralized)
   const fetchMenus = async () => {
     try {
-      const url = `http://38.60.244.108:3000/menu/${shopId}?t=${Date.now()}`;
-      console.log("Fetching menu from:", url);
+      const url = `http://38.60.244.137:3000/menu/${shopId}?t=${Date.now()}`;
+      // console.log("Fetching menu from:", url);
 
       const res = await axios.get(url);
-      console.log("API RESPONSE:", res.data);
+      // console.log("API RESPONSE:", res.data);
 
       // force re-render
       setMenus([...(res.data.menus || [])]);
@@ -186,7 +186,7 @@ export default function MenuListPage() {
 
   const getPhotoUrl = (photo) => {
     if (!photo) return null;
-    return `http://38.60.244.108:3000/menu-uploads/${photo}`;
+    return `http://38.60.244.137:3000/menu-uploads/${photo}`;
   };
 
   if (loading) return <p className="p-6 text-[#B476FF]">Loading...</p>;
