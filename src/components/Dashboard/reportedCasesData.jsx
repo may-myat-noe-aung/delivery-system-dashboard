@@ -1,4 +1,5 @@
 // import React, { useState } from "react";
+// import { useTheme } from "../ThemeProvider"; // adjust path if needed
 // import {
 //   ResponsiveContainer,
 //   PieChart,
@@ -35,6 +36,7 @@
 // const COLORS_CASES = ["#8b5cf6", "#f87171", "#60a5fa"];
 
 // export default function ReportedCasesCard() {
+//   const { dark } = useTheme();
 //   const [filter, setFilter] = useState("day"); // current filter
 //   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -48,23 +50,27 @@
 //       ? "This Month"
 //       : "This Year";
 
+//   const cardBg = dark ? "bg-gray-800 text-gray-100 border-gray-700" : "bg-white text-gray-800 border-gray-200";
+//   const dropdownBg = dark ? "bg-gray-700 text-gray-100 border-gray-600" : "bg-white text-gray-800 border-gray-200";
+//   const dropdownHover = dark ? "hover:bg-gray-600" : "hover:bg-gray-100";
+
 //   return (
-//     <div className="col-span-1 bg-white p-4 rounded-2xl shadow">
+//     <div className={`col-span-1 p-4 rounded-2xl shadow ${cardBg} border`}>
 //       <div className="flex justify-between items-center mb-4 relative">
-//         <h2 className="text-lg font-semibold text-gray-800">Reported Cases</h2>
+//         <h2 className="text-lg font-semibold">{filterLabel === "This Day" ? "Reported Cases" : "Reported Cases"}</h2>
 
 //         {/* Dropdown */}
 //         <div className="relative">
 //           <button
 //             onClick={() => setDropdownOpen((prev) => !prev)}
-//             className="text-sm text-white font-medium bg-[#a855f7] px-3 py-1 rounded-lg flex items-center justify-center gap-2"
+//             className="text-sm font-medium bg-[#a855f7] px-3 py-1 rounded-lg flex items-center justify-center gap-2 text-white"
 //           >
 //             {filterLabel}
 //             <ChevronDown className="w-4 h-4" />
 //           </button>
 
 //           {dropdownOpen && (
-//             <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+//             <div className={`absolute right-0 mt-2 w-36 rounded-lg shadow-lg z-10 border ${dropdownBg}`}>
 //               {["day", "week", "month", "year"].map((item) => (
 //                 <div
 //                   key={item}
@@ -72,7 +78,7 @@
 //                     setFilter(item); // ✅ change chart data
 //                     setDropdownOpen(false); // close dropdown
 //                   }}
-//                   className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+//                   className={`px-4 py-2 text-sm cursor-pointer ${dropdownHover}`}
 //                 >
 //                   {item === "day"
 //                     ? "This Day"
@@ -107,16 +113,24 @@
 //                 />
 //               ))}
 //             </Pie>
-//             <Tooltip />
-//             <Legend />
+//             <Tooltip
+//               contentStyle={{
+//                 backgroundColor: dark ? "#1f2937" : "#fff",
+//                 borderColor: dark ? "#374151" : "#ccc",
+//                 color: dark ? "#f3f4f6" : "#111827",
+//               }}
+//             />
+//             <Legend
+//               wrapperStyle={{ color: dark ? "#f3f4f6" : "#111827" }}
+//             />
 //           </PieChart>
 //         </ResponsiveContainer>
 //       </div>
 //     </div>
 //   );
 // }
+
 import React, { useState } from "react";
-import { useTheme } from "../ThemeProvider"; // adjust path if needed
 import {
   ResponsiveContainer,
   PieChart,
@@ -150,14 +164,13 @@ const reportedCasesData = {
     { name: "Not sent", value: 300 },
   ],
 };
+
 const COLORS_CASES = ["#8b5cf6", "#f87171", "#60a5fa"];
 
 export default function ReportedCasesCard() {
-  const { dark } = useTheme();
-  const [filter, setFilter] = useState("day"); // current filter
+  const [filter, setFilter] = useState("day");
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // 🔁 Label for current filter
   const filterLabel =
     filter === "day"
       ? "This Day"
@@ -167,14 +180,11 @@ export default function ReportedCasesCard() {
       ? "This Month"
       : "This Year";
 
-  const cardBg = dark ? "bg-gray-800 text-gray-100 border-gray-700" : "bg-white text-gray-800 border-gray-200";
-  const dropdownBg = dark ? "bg-gray-700 text-gray-100 border-gray-600" : "bg-white text-gray-800 border-gray-200";
-  const dropdownHover = dark ? "hover:bg-gray-600" : "hover:bg-gray-100";
-
   return (
-    <div className={`col-span-1 p-4 rounded-2xl shadow ${cardBg} border`}>
+    <div className="col-span-1 p-4 rounded-2xl shadow bg-gray-800 text-gray-100 border border-gray-700">
+      {/* Header */}
       <div className="flex justify-between items-center mb-4 relative">
-        <h2 className="text-lg font-semibold">{filterLabel === "This Day" ? "Reported Cases" : "Reported Cases"}</h2>
+        <h2 className="text-lg font-semibold">Reported Cases</h2>
 
         {/* Dropdown */}
         <div className="relative">
@@ -187,15 +197,15 @@ export default function ReportedCasesCard() {
           </button>
 
           {dropdownOpen && (
-            <div className={`absolute right-0 mt-2 w-36 rounded-lg shadow-lg z-10 border ${dropdownBg}`}>
+            <div className="absolute right-0 mt-2 w-36 bg-gray-700 border border-gray-600 rounded-lg shadow-lg z-10">
               {["day", "week", "month", "year"].map((item) => (
                 <div
                   key={item}
                   onClick={() => {
-                    setFilter(item); // ✅ change chart data
-                    setDropdownOpen(false); // close dropdown
+                    setFilter(item);
+                    setDropdownOpen(false);
                   }}
-                  className={`px-4 py-2 text-sm cursor-pointer ${dropdownHover}`}
+                  className="px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 cursor-pointer"
                 >
                   {item === "day"
                     ? "This Day"
@@ -230,16 +240,16 @@ export default function ReportedCasesCard() {
                 />
               ))}
             </Pie>
+
             <Tooltip
               contentStyle={{
-                backgroundColor: dark ? "#1f2937" : "#fff",
-                borderColor: dark ? "#374151" : "#ccc",
-                color: dark ? "#f3f4f6" : "#111827",
+                backgroundColor: "#1f2937",
+                borderColor: "#374151",
+                color: "#f3f4f6",
               }}
             />
-            <Legend
-              wrapperStyle={{ color: dark ? "#f3f4f6" : "#111827" }}
-            />
+
+            <Legend wrapperStyle={{ color: "#f3f4f6" }} />
           </PieChart>
         </ResponsiveContainer>
       </div>

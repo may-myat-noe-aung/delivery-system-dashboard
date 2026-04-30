@@ -80,38 +80,16 @@ const AddShopCard = ({ shops, onDetail, onViewShopDetails }) => {
                 <p className="font-semibold text-gray-200">Address</p>
                 <p>{shop.address}</p>
               </div>
-
-              {/* Status */}
-              <div className="text-xs text-gray-300 flex items-center gap-1">
-                <CheckCircle size={14} /> Status: {shop.status}
-              </div>
-
-              {/* Permission */}
-              <div className="text-xs text-gray-300 flex items-center gap-1">
-                <ShieldCheck size={14} /> Permission: {shop.permission}
-              </div>
-
-              {/* Created */}
-              <div className="text-xs text-gray-300 flex items-center gap-1">
-                <CalendarDays size={14} /> Created: {shop.created_at}
-              </div>
-
               {/* Buttons */}
-              <div className="flex items-center justify-between ">
-                <button
-                  onClick={() => onViewShopDetails(shop.id)}
-                  className="bg-gray-700 text-[#B476FF] px-3 py-2 rounded-md text-sm font-semibold flex items-center justify-center gap-2 hover:bg-gray-600 transition-colors "
-                >
-                  {/* <User size={16} />  */}
-                  View Shop Details
-                </button>
+              <div className="flex items-center justify-end ">
+             
 
                 <button
                   onClick={() => onDetail(shop.id)}
                   className="bg-[#B476FF] text-white px-3 py-2 rounded-md text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#9c5bcc] transition-colors"
                 >
                   {/* <Eye size={16} />  */}
-                  View Menus
+                  View All Reports
                 </button>
               </div>
             </div>
@@ -127,49 +105,3 @@ const AddShopCard = ({ shops, onDetail, onViewShopDetails }) => {
 
 export default AddShopCard;
 
-//  <div
-//       className="flex flex-col sm:flex-row items-center justify-between pb-6 pt-4
-//       bg-gray-800 
-//       sticky top-0 z-20 gap-4 sm:gap-0 px-4 rounded-xl border border-gray-700"
-//     >
-//       {/* SEARCH */}
-//       <div className="relative flex items-center w-full max-w-sm">
-//         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#B476FF]" />
-//         <input
-//           type="text"
-//           placeholder={`Search by ${filterBy}`}
-//           value={searchTerm}
-//           onChange={(e) => setSearchTerm(e.target.value)}
-//           className="
-//             w-full pl-10 pr-4 py-2 rounded-full
-//             border border-gray-600
-//             bg-gray-700
-//             text-gray-100
-//             placeholder-gray-400
-//             focus:ring-2 focus:ring-[#B476FF]
-//             focus:outline-none
-//             text-sm shadow-sm
-//           "
-//         />
-//       </div>
-
-//       {/* FILTER SELECT */}
-//       <select
-//         value={filterBy}
-//         onChange={(e) => setFilterBy(e.target.value)}
-//         className="
-//           border border-gray-600
-//           text-gray-100
-//           bg-gray-700
-//           rounded-full px-4 py-2
-//           text-sm shadow-sm
-//           focus:ring-2 focus:ring-[#B476FF]
-//           focus:outline-none
-//         "
-//       >
-//         <option value="shop_name">Shop Name</option>
-//         <option value="id">ID</option>
-//         <option value="shopkeeper_name">Shopkeeper</option>
-//         <option value="email">Email</option>
-//       </select>
-//     </div>

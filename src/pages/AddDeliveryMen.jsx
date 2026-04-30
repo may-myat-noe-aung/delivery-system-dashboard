@@ -1,12 +1,12 @@
-import React from 'react'
-import AddDeliveryMan from '../components/Delivery/AddDeliveryMan'
+import React from "react";
+import AddDeliveryMan from "../components/TrackDelivery/AddDeliveryMan";
 
 const AddDeliveryMen = () => {
   return (
-    <section className='h-[900px]  overflow-y-auto  max-w-8xl px-4 py-6 '>     
-<AddDeliveryMan />
+    <section className="min-h-screen overflow-y-auto max-w-8xl py-6 bg-gray-900 text-gray-100">
+      <AddDeliveryMan />
     </section>
-  )
-}
+  );
+};
 
-export default AddDeliveryMen
+export default AddDeliveryMen;

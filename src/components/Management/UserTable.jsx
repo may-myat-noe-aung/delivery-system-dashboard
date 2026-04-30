@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { Download, Search, Trash2 } from "lucide-react";
 import axios from "axios";
 import { useAlert } from "../../AlertContext";
+import UserDetailModal from "./UserDetailModal";
 
 export default function UserTable() {
+  const { showAlert, confirm } = useAlert();
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -11,12 +13,10 @@ export default function UserTable() {
   const [passcodeModal, setPasscodeModal] = useState(false);
   const [passcode, setPasscode] = useState("");
   const passcodeInputRef = useRef(null);
-  const { showAlert, confirm } = useAlert();
   const [specialModal, setSpecialModal] = useState(false);
   const [specialUser, setSpecialUser] = useState(null);
 
   const [actionLoading, setActionLoading] = useState({});
-  const [alerts, setAlerts] = useState([]);
   // const [specialLoading, setSpecialLoading] = useState({});
 
   // ---------------- PAGINATION STATES ----------------
@@ -74,40 +74,78 @@ export default function UserTable() {
     setModalOpen(true);
   };
 
+  // const openDeletePasscode = (user) => {
+  //   setActiveUser(user);
+  //   setPasscode("");
+  //   setPasscodeModal(true);
+  //   setTimeout(() => passcodeInputRef.current?.focus(), 100);
+  // };
   const openDeletePasscode = (user) => {
     setActiveUser(user);
-    setPasscode("");
+    setPasscode(""); // reset
     setPasscodeModal(true);
     setTimeout(() => passcodeInputRef.current?.focus(), 100);
   };
 
-  const doDelete = () => {
-    if (passcode === "234567") {
-      setActionLoading((prev) => ({ ...prev, [activeUser.id]: true }));
-      axios
-        .delete(`http://38.60.244.137:3000/users/${activeUser.id}`)
-        .then((res) => {
-          setUsers((prev) => prev.filter((u) => u.id !== activeUser.id));
-          setAlerts((prev) => [
-            ...prev,
-            res.data.message || "Deleted successfully",
-          ]);
-        })
-        .catch((err) =>
-          setAlerts((prev) => [
-            ...prev,
-            err.response?.data?.message || "Delete failed",
-          ]),
-        )
-        .finally(() => {
-          setActionLoading((prev) => ({ ...prev, [activeUser.id]: false }));
-          setPasscodeModal(false);
-        });
-    } else {
-      setAlerts((prev) => [...prev, "Incorrect passcode"]);
-    }
-  };
+  // const doDelete = () => {
+  //   if (passcode === "234567") {
+  //     setActionLoading((prev) => ({ ...prev, [activeUser.id]: true }));
 
+  //     axios
+  //       .delete(`http://38.60.244.137:3000/users/${activeUser.id}`)
+  //       .then((res) => {
+  //         setUsers((prev) => prev.filter((u) => u.id !== activeUser.id));
+
+  //         setAlerts((prev) => [
+  //           ...prev,
+  //           res.data.message || "User deleted successfully",
+  //         ]);
+  //       })
+  //       .catch((err) =>
+  //         setAlerts((prev) => [
+  //           ...prev,
+  //           err.response?.data?.message || "Delete failed",
+  //         ]),
+  //       )
+  //       .finally(() => {
+  //         setActionLoading((prev) => ({ ...prev, [activeUser.id]: false }));
+  //         setPasscodeModal(false);
+  //         setPasscode("");
+  //       });
+  //   } else {
+  //     setAlerts((prev) => [...prev, "Incorrect passcode"]);
+  //   }
+  // };
+  const doDelete = () => {
+  if (passcode !== "234567") {
+    showAlert("Incorrect passcode", "error");
+    return;
+  }
+
+  setActionLoading((prev) => ({ ...prev, [activeUser.id]: true }));
+
+  axios
+    .delete(`http://38.60.244.137:3000/users/${activeUser.id}`)
+    .then((res) => {
+      setUsers((prev) => prev.filter((u) => u.id !== activeUser.id));
+
+      showAlert(
+        res.data?.message || "User deleted successfully",
+        "success"
+      );
+    })
+    .catch((err) => {
+      showAlert(
+        err.response?.data?.message || "Delete failed",
+        "error"
+      );
+    })
+    .finally(() => {
+      setActionLoading((prev) => ({ ...prev, [activeUser.id]: false }));
+      setPasscodeModal(false);
+      setPasscode("");
+    });
+};
   const getPhoto = (photo) => photo || "https://via.placeholder.com/80";
   const formatDateShort = (date) =>
     date ? new Date(date).toLocaleString() : "-";
@@ -116,159 +154,121 @@ export default function UserTable() {
       ? `https://maps.google.com?q=${encodeURIComponent(location)}&output=embed`
       : null;
 
-  const toggleStatus = (user, newStatus) => {
-    // const toggleSpecialUser = (user) => {
-    //   setSpecialLoading((prev) => ({ ...prev, [user.id]: true }));
-
-    //   axios
-    //     .patch(`http://38.60.244.137:3000/special-users/${user.id}`)
-    //     .then((res) => {
-    //       setAlerts((prev) => [
-    //         ...prev,
-    //         res.data.message || "User marked as special",
-    //       ]);
-    //       // remove user from table locally since now special === 1
-    //       setUsers((prev) => prev.filter((u) => u.id !== user.id));
-    //     })
-    //     .catch((err) =>
-    //       setAlerts((prev) => [
-    //         ...prev,
-    //         err.response?.data?.message || "Failed to mark special",
-    //       ])
-    //     )
-    //     .finally(() =>
-    //       setSpecialLoading((prev) => ({ ...prev, [user.id]: false }))
-    //     );
-    // };
-    setActionLoading((prev) => ({ ...prev, [user.id]: true }));
-    axios
-      .patch(`http://38.60.244.137:3000/users/status/${user.id}`, {
-        status: newStatus,
-      })
-      .then((res) => {
-        setUsers((prev) =>
-          prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)),
-        );
-        setAlerts((prev) => [...prev, res.data.message || "Status updated"]);
-      })
-      .catch((err) =>
-        setAlerts((prev) => [
-          ...prev,
-          err.response?.data?.message || "Failed to update status",
-        ]),
-      )
-      .finally(() => {
-        setActionLoading((prev) => ({ ...prev, [user.id]: false }));
-      });
-  };
-
-  const [specialLoading, setSpecialLoading] = useState({});
-
-  // const toggleSpecialUser = (user, orderId) => {
-  //   setSpecialLoading((prev) => ({ ...prev, [user.id]: true }));
-
+  // const toggleStatus = (user, newStatus) => {
+  //   setActionLoading((prev) => ({ ...prev, [user.id]: true }));
   //   axios
-  //     .patch(`http://38.60.244.137:3000/special-users/${user.id}`, {
-  //       orderId: orderId,
+  //     .patch(`http://38.60.244.137:3000/users/status/${user.id}`, {
+  //       status: newStatus,
   //     })
   //     .then((res) => {
-  //       setAlerts((prev) => [
-  //         ...prev,
-  //         res.data.message || "User marked as special",
-  //       ]);
-  //       // Optionally, you can update user locally to show checkbox state
   //       setUsers((prev) =>
-  //         prev.map((u) =>
-  //           u.id === user.id ? { ...u, isSpecial: !u.isSpecial } : u,
-  //         ),
+  //         prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)),
   //       );
+  //       setAlerts((prev) => [...prev, res.data.message || "Status updated"]);
   //     })
   //     .catch((err) =>
   //       setAlerts((prev) => [
   //         ...prev,
-  //         err.response?.data?.message || "Failed to mark special",
+  //         err.response?.data?.message || "Failed to update status",
   //       ]),
   //     )
-  //     .finally(() =>
-  //       setSpecialLoading((prev) => ({ ...prev, [user.id]: false })),
-  //     );
+  //     .finally(() => {
+  //       setActionLoading((prev) => ({ ...prev, [user.id]: false }));
+  //     });
   // };
-  // const handleSpecialCheckbox = async (user, orderId) => {
-  //   try {
-  //     // Optional: ask for confirmation first
-  //     const ok = await confirm(`Do you want to mark ${user.name} as special?`);
-  //     if (!ok) return;
 
-  //     setSpecialLoading((prev) => ({ ...prev, [user.id]: true }));
+  const toggleStatus = (user, newStatus) => {
+  setActionLoading((prev) => ({ ...prev, [user.id]: true }));
 
-  //     const res = await axios.patch(
-  //       `http://38.60.244.137:3000/special-users/${user.id}`,
-  //       { orderId }
-  //     );
+  axios
+    .patch(`http://38.60.244.137:3000/users/status/${user.id}`, {
+      status: newStatus,
+    })
+    .then((res) => {
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === user.id ? { ...u, status: newStatus } : u
+        )
+      );
 
-  //     // Update table locally
-  //     setUsers((prev) =>
-  //       prev.map((u) => (u.id === user.id ? { ...u, isSpecial: !u.isSpecial } : u))
-  //     );
+      showAlert(res.data?.message || "Status updated", "success");
+    })
+    .catch((err) => {
+      showAlert(
+        err.response?.data?.message || "Failed to update status",
+        "error"
+      );
+    })
+    .finally(() => {
+      setActionLoading((prev) => ({ ...prev, [user.id]: false }));
+    });
+};
+  const [specialLoading, setSpecialLoading] = useState({});
 
-  //     // Show API message in alert modal
-  //     showAlert(res.data.message || "User marked as special", "success");
-  //   } catch (err) {
-  //     showAlert(
-  //       err.response?.data?.message || "Failed to mark special",
-  //       "error"
-  //     );
-  //   } finally {
-  //     setSpecialLoading((prev) => ({ ...prev, [user.id]: false }));
-  //   }
-  // };
   const handleSpecialCheckbox = (user) => {
     setSpecialUser(user);
     setSpecialModal(true);
   };
 
-  const confirmSpecialUser = async () => {
-    if (!specialUser) return;
+  // const confirmSpecialUser = async () => {
+  //   if (!specialUser) return;
 
-    try {
-      setSpecialLoading((prev) => ({ ...prev, [specialUser.id]: true }));
+  //   try {
+  //     setSpecialLoading((prev) => ({ ...prev, [specialUser.id]: true }));
 
-      const res = await axios.patch(
-        `http://38.60.244.137:3000/special-users/${specialUser.id}`,
-        { orderId: "O002" },
-      );
+  //     const res = await axios.patch(
+  //       `http://38.60.244.137:3000/special-users/${specialUser.id}`,
+  //       // { orderId: "O002" },
+  //     );
 
-      setUsers((prev) => prev.filter((u) => u.id !== specialUser.id));
+  //     setUsers((prev) => prev.filter((u) => u.id !== specialUser.id));
 
-      showAlert(res.data.message || "User marked as special", "success");
-    } catch (err) {
-      showAlert(
-        err.response?.data?.message || "Failed to mark special",
-        "error",
-      );
-    } finally {
-      setSpecialLoading((prev) => ({ ...prev, [specialUser.id]: false }));
-      setSpecialModal(false);
-    }
-  };
+  //     showAlert(res.data.message || "User marked as special", "success");
+  //   } catch (err) {
+  //     showAlert(
+  //       err.response?.data?.message || "Failed to mark special",
+  //       "error",
+  //     );
+  //   } finally {
+  //     setSpecialLoading((prev) => ({ ...prev, [specialUser.id]: false }));
+  //     setSpecialModal(false);
+  //   }
+  // };
+const confirmSpecialUser = async () => {
+  if (!specialUser) return;
+
+  try {
+    setSpecialLoading((prev) => ({
+      ...prev,
+      [specialUser.id]: true,
+    }));
+
+    const res = await axios.patch(
+      `http://38.60.244.137:3000/special-users/${specialUser.id}`
+    );
+
+    setUsers((prev) =>
+      prev.filter((u) => u.id !== specialUser.id)
+    );
+
+    showAlert(res.data?.message || "Marked as special user", "success");
+  } catch (err) {
+    showAlert(
+      err.response?.data?.message || "Failed to mark special",
+      "error"
+    );
+  } finally {
+    setSpecialLoading((prev) => ({
+      ...prev,
+      [specialUser.id]: false,
+    }));
+
+    setSpecialModal(false);
+  }
+};
   return (
     <div className="">
-      {/* Alerts */}
       <div className="text-white mt-8 mb-8">
-        {/* Alerts */}
-        <div className="fixed top-4 right-4 flex flex-col gap-3 z-50">
-          {alerts.map((msg, i) => (
-            <div
-              key={i}
-              className="bg-purple-500/20 border border-purple-500/40 
-                     text-purple-300 px-4 py-2 rounded-xl 
-                     backdrop-blur-md shadow-lg text-sm"
-            >
-              {msg}
-            </div>
-          ))}
-        </div>
-
         {/* Search + Export */}
         <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
           <div className="relative w-full max-w-sm">
@@ -499,202 +499,6 @@ export default function UserTable() {
         </div>
       </div>
 
-      {/* ---------------- PAGINATION UI ---------------- */}
-
-      {/* USER DETAIL MODAL */}
-      {/* {modalOpen && activeUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-2 md:p-4">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setModalOpen(false)}
-          />
-          <div className="relative bg-white rounded-2xl p-4 md:p-6 w-full max-w-[800px] shadow-2xl border border-purple-200 max-h-[90vh] overflow-auto">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-[#B476FF] to-purple-600 bg-clip-text text-transparent">
-                User Details - {activeUser.id}
-              </h3>
-              <button
-                className="text-gray-500 hover:text-black"
-                onClick={() => setModalOpen(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 items-center gap-4">
-              <div className="flex flex-col items-center">
-                {activeUser.photo ? (
-                  <img
-                    src={activeUser.photo}
-                    className="w-36 h-36 md:w-44 md:h-44 rounded-xl border shadow-md object-cover"
-                    alt={activeUser.name}
-                  />
-                ) : (
-                  <div className="w-36 h-36 md:w-44 md:h-44 rounded-xl border shadow-md bg-[#B476FF] flex items-center justify-center text-white text-3xl md:text-4xl font-bold">
-                    {activeUser.name
-                      ? activeUser.name
-                          .split(" ")
-                          .map((n) => n.charAt(0).toUpperCase())
-                          .join("")
-                      : "?"}
-                  </div>
-                )}
-              </div>
-
-              <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
-                {[
-                  ["Name", activeUser.name],
-                  ["Email", activeUser.email],
-                  ["Phone", activeUser.phone],
-                  ["Status", activeUser.status],
-                  ["Created At", formatDateShort(activeUser.created_at)],
-                  ["Location", activeUser.location || "-"],
-                ].map(([label, value]) => (
-                  <div key={label}>
-                    <div className="font-semibold text-gray-600">{label}</div>
-                    <div className="text-gray-800">{value}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="col-span-3 mt-4">
-                {activeUser.location && (
-                  <div className="col-span-2">
-                    <div className="font-semibold text-gray-600">
-                      Location Map
-                    </div>
-                    <iframe
-                      src={getMapUrl(activeUser.location)}
-                      className="w-full h-56 rounded-lg border mt-1"
-                      loading="lazy"
-                    ></iframe>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )} */}
-      {/* USER DETAIL MODAL - DARK THEME */}
-      {modalOpen && activeUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-2 md:p-4">
-          {/* Overlay */}
-          <div
-            className="absolute inset-0 bg-black/70"
-            onClick={() => setModalOpen(false)}
-          />
-
-          {/* Modal Box */}
-          <div className="relative bg-slate-900 rounded-2xl p-4 md:p-6 w-full max-w-[800px] shadow-2xl border border-slate-700 max-h-[90vh] overflow-auto text-white">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
-                User Details - {activeUser.id}
-              </h3>
-              <button
-                className="text-gray-400 hover:text-white"
-                onClick={() => setModalOpen(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 items-center gap-4">
-              {/* Photo */}
-              <div className="flex flex-col items-center">
-                {activeUser.photo ? (
-                  <img
-                    src={activeUser.photo}
-                    className="w-36 h-36 md:w-44 md:h-44 rounded-xl border border-slate-700 shadow-md object-cover"
-                    alt={activeUser.name}
-                  />
-                ) : (
-                  <div className="w-36 h-36 md:w-44 md:h-44 rounded-xl border border-slate-700 shadow-md bg-purple-700 flex items-center justify-center text-white text-3xl md:text-4xl font-bold">
-                    {activeUser.name
-                      ? activeUser.name
-                          .split(" ")
-                          .map((n) => n.charAt(0).toUpperCase())
-                          .join("")
-                      : "?"}
-                  </div>
-                )}
-              </div>
-
-              {/* Info Fields */}
-              <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4 text-sm">
-                {[
-                  ["Name", activeUser.name],
-                  ["Email", activeUser.email],
-                  ["Phone", activeUser.phone],
-                  ["Status", activeUser.status],
-                  ["Created At", formatDateShort(activeUser.created_at)],
-                  ["Location", activeUser.location || "-"],
-                ].map(([label, value]) => (
-                  <div key={label}>
-                    <div className="font-semibold text-gray-400">{label}</div>
-                    <div className="text-gray-200">{value}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Map */}
-              <div className="col-span-3 mt-4">
-                {activeUser.location && (
-                  <div className="col-span-2">
-                    <div className="font-semibold text-gray-400">
-                      Location Map
-                    </div>
-                    <iframe
-                      src={getMapUrl(activeUser.location)}
-                      className="w-full h-56 rounded-lg border border-slate-700 mt-1"
-                      loading="lazy"
-                    ></iframe>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* PASSCODE MODAL */}
-      {/* {passcodeModal && (
-        <div className="fixed inset-0 z-30 flex items-center justify-center backdrop-blur-sm p-2">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setPasscodeModal(false)}
-          />
-          <div className="relative bg-white rounded-xl p-4 md:p-6 w-full max-w-[330px] shadow-2xl border border-purple-200">
-            <h3 className="text-lg font-bold text-center bg-gradient-to-r from-[#B476FF] to-purple-600 bg-clip-text text-transparent mb-4">
-              Enter Passcode
-            </h3>
-            <input
-              ref={passcodeInputRef}
-              type="password"
-              className="border rounded-lg w-full px-3 py-2 mb-4 focus:ring-2 focus:ring-[#B476FF]"
-              placeholder="Passcode"
-              value={passcode}
-              onChange={(e) => setPasscode(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && doDelete()}
-            />
-            <div className="flex flex-col sm:flex-row justify-between gap-2">
-              <button
-                onClick={() => setPasscodeModal(false)}
-                className="px-4 py-1.5 border rounded-lg hover:bg-gray-100 w-full sm:w-auto"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={doDelete}
-                className="px-4 py-1.5 bg-gradient-to-r from-[#B476FF] to-purple-600 text-white rounded-lg shadow hover:opacity-90 w-full sm:w-auto"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
       {/* PASSCODE MODAL - DARK THEME */}
       {passcodeModal && (
         <div className="fixed inset-0 z-30 flex items-center justify-center backdrop-blur-sm p-2">
@@ -784,6 +588,14 @@ export default function UserTable() {
           </div>
         </div>
       )}
+      {/* USER DETAIL MODAL */}
+      <UserDetailModal
+        modalOpen={modalOpen}
+        activeUser={activeUser}
+        onClose={() => setModalOpen(false)}
+        formatDateShort={formatDateShort}
+        getMapUrl={getMapUrl}
+      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import TrackDeliveryMan from "../components/Delivery/DeliveryStatistic";
+import TrackDeliveryMan from "../components/TrackDelivery/TrackDeliveryMan";
 
 const TrackDeliveryMen = () => {
   return (

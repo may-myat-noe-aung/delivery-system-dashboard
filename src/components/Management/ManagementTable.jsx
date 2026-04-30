@@ -13,7 +13,7 @@ export default function ManagementTable() {
     <div className="text-white">
       <PendingShopsFull />
 
-      <div className="mt-4 bg-[#1a1f2b] border border-[#2c2f44] rounded-2xl p-6 shadow-2xl">
+      <div className="">
         {/* Tabs */}
         <div className="flex gap-6 ">
           {["User", "Special User", "Shopkeeper", "Delivery"].map((tab) => (

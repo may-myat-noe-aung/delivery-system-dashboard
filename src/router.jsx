@@ -10,7 +10,7 @@ import ReportPage from "./pages/ReportPage";
 import ManagementPage from "./pages/ManagementPage";
 import SettingPage from "./pages/SettingPage";
 import AddDeliveryMen from "./pages/AddDeliveryMen";
-import TrackDeliveryMen from "./pages/TrackDeliveryMen";
+import TrackDeliveryMen from "./pages/TrackDeliveryMenPage";
 import Account from "./components/Setting/Account";
 import Preference from "./components/Setting/Preference";
 import OrderReceivePage from "./pages/OrderReceivePage";
@@ -19,6 +19,8 @@ import ChatPage from "./pages/ChatPage";
 import MenuListPage from "./pages/MenuListPage";
 import MenuDetail from "./components/Shop/MenuDetail";
 import LoginPage from "./pages/LoginPage";
+import ShopDetailsModal from "./components/Management/ShopDetailsModal";
+import ReportTable from "./components/Report/ReportTable";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -35,6 +37,10 @@ const router = createBrowserRouter([
       {
         path: "/shop",
         element: <ShopPage />,
+      },
+      {
+        path: "/shop/details/:id",
+        element: <ShopDetailsModal />,
       },
       {
         path: "/menu",
@@ -65,10 +71,10 @@ const router = createBrowserRouter([
         path: "/delivery/add-delivery-men",
         element: <AddDeliveryMen />,
       },
-      {
-        path: "/delivery/track-delivery-men",
-        element: <TrackDeliveryMen />,
-      },
+      // {
+      //   path: "/delivery/track-delivery-men",
+      //   element: <TrackDeliveryMen />,
+      // },
       // {
       //   path: "/salehistory",
       //   element: <SaleHistoryPage />,
@@ -76,6 +82,10 @@ const router = createBrowserRouter([
       {
         path: "/report",
         element: <ReportPage />,
+      },
+      {
+        path: "/reports/:shopId",
+        element: <ReportTable />,
       },
       {
         path: "/management",

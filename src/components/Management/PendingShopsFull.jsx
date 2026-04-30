@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import axios from "axios";
 import { Search } from "lucide-react";
+import ShopDetailsModal from "./ShopDetailsModal";
+import { useAlert } from "../../AlertContext";
 
 function formatDateShort(dtString) {
   if (!dtString) return "-";
@@ -23,6 +25,8 @@ export default function PendingShopsFull() {
   const [query, setQuery] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+
+  const { showAlert } = useAlert();
 
   const [page, setPage] = useState(1);
   const pageSize = 5;
@@ -56,6 +60,27 @@ export default function PendingShopsFull() {
       setLoading(false);
     }
   };
+  const formatLocation = (location) => {
+  if (!location) return "-";
+
+  // If it's normal text like "Home"
+  if (!location.includes("Lag") && !location.includes("Log")) {
+    return location;
+  }
+
+  try {
+    const latMatch = location.match(/Lag\s([0-9.\-]+)/);
+    const lngMatch = location.match(/Log\s([0-9.\-]+)/);
+
+    if (latMatch && lngMatch) {
+      return `📍 ${latMatch[1]}, ${lngMatch[1]}`;
+    }
+
+    return location;
+  } catch {
+    return location;
+  }
+};
 
   // FILTER AND PAGINATION
   const filtered = useMemo(() => {
@@ -119,48 +144,51 @@ export default function PendingShopsFull() {
     if (e.key === "Enter") doAction();
   };
 
-  const doAction = async () => {
-    if (passcode !== "234567") {
-      window.apiAlert("Incorrect Passcode");
-      return;
+const doAction = async () => {
+  if (passcode !== "234567") {
+    showAlert("Incorrect Passcode", "error");
+    return;
+  }
+
+  setPasscodeModal(false);
+  setActionLoading((p) => ({ ...p, [actionId]: true }));
+
+  try {
+    let url = "";
+
+    if (actionType === "approve") {
+      url = `http://38.60.244.137:3000/shops/approve/${actionId}`;
+    } else if (actionType === "reject") {
+      url = `http://38.60.244.137:3000/shops/reject/${actionId}`;
     }
 
-    setPasscodeModal(false);
-    setModalOpen(false);
-    setActiveShop(null);
+    const res = await axios.patch(url);
 
-    const url = `http://38.60.244.137:3000/shops/${actionType}/${actionId}`;
-    setActionLoading((p) => ({ ...p, [actionId]: true }));
+    // ✅ Remove from UI
+    setShops((prev) => prev.filter((s) => s.id !== actionId));
 
-    try {
-      const res = await axios.patch(url);
+    // ✅ Use API message
+    const message =
+      res?.data?.message ||
+      (actionType === "approve"
+        ? "Shop Approved Successfully!"
+        : "Shop Rejected Successfully!");
 
-      setShops((prev) => prev.filter((s) => s.id !== actionId));
+    showAlert(message, "success");
+  } catch (err) {
+    console.error(err);
 
-      const message =
-        res?.data?.message ||
-        (actionType === "approve"
-          ? "Successfully Accepted!"
-          : "Successfully Rejected!");
-
-      window.apiAlert(message);
-    } catch (err) {
-      window.apiAlert("Action Failed");
-    } finally {
-      setActionLoading((p) => ({ ...p, [actionId]: false }));
-    }
-  };
-
-  const parseLocation = (loc) => {
-    if (!loc) return { lat: null, lon: null };
-    const match = loc.match(/Lag\s*([0-9.\-]+),\s*Log\s*([0-9.\-]+)/i);
-    if (!match) return { lat: null, lon: null };
-    return { lat: Number(match[1]), lon: Number(match[2]) };
-  };
-
+    showAlert(
+      err?.response?.data?.message || "Action Failed",
+      "error"
+    );
+  } finally {
+    setActionLoading((p) => ({ ...p, [actionId]: false }));
+  }
+};
   return (
     <div className="">
-      <div className="mt-4 rounded-2xl p-4 mb-6 bg-[#1a1f2b] border border-[#2c2f44]">
+   
         <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-[#B476FF] to-purple-600 bg-clip-text text-transparent">
           Confirm Shops
         </h2>
@@ -180,7 +208,7 @@ export default function PendingShopsFull() {
               className="w-full pl-10 pr-4 py-2 rounded-full border border-neutral-700 bg-neutral-900 text-white focus:ring-2 focus:ring-[#B476FF] text-sm shadow-sm"
             />
           </div>
-{/* 
+          {/* 
           <div className="flex flex-col sm:flex-row items-center gap-2">
             <input
               type="date"
@@ -246,7 +274,7 @@ export default function PendingShopsFull() {
 
                     {/* PHOTO */}
                     <td
-                      className="p-2 sm:p-3 flex items-center gap-2 cursor-pointer"
+                      className="p-2 sm:p-3 flex items-center justify-center gap-2 cursor-pointer"
                       onClick={() => {
                         setActiveShop(s);
                         setModalOpen(true);
@@ -259,7 +287,7 @@ export default function PendingShopsFull() {
                           className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-full border border-[#2c2f44]"
                         />
                       ) : (
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#B476FF] flex items-center justify-center text-white font-semibold mx-auto">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#B476FF] flex items-center justify-center text-white font-semibold ">
                           {s.shop_name?.charAt(0).toUpperCase() || "?"}
                         </div>
                       )}
@@ -282,7 +310,7 @@ export default function PendingShopsFull() {
                       {s.items}
                     </td>
                     <td className="p-2 sm:p-3 text-xs sm:text-center">
-                      {s.address}
+                      {s.address ||  "-"}
                     </td>
                     <td className="p-2 sm:p-3 text-xs sm:text-center">
                       {splitDateTime(s.created_at)[0]} <br />
@@ -293,14 +321,14 @@ export default function PendingShopsFull() {
                       <button
                         onClick={() => openPasscode(s.id, "reject")}
                         disabled={!!actionLoading[s.id]}
-                        className="px-3 py-1 text-white rounded-xl shadow bg-gradient-to-r from-red-500 to-red-600 hover:opacity-90 disabled:opacity-40 text-xs sm:text-sm"
+                        className="px-3 py-1 text-white rounded-xl shadow  bg-red-600 hover:opacity-90 disabled:opacity-40 text-xs sm:text-sm"
                       >
                         {actionLoading[s.id] ? "..." : "Reject"}
                       </button>
                       <button
                         onClick={() => openPasscode(s.id, "approve")}
                         disabled={!!actionLoading[s.id]}
-                        className="px-3 py-1 text-white rounded-xl shadow bg-gradient-to-r from-green-500 to-green-600 hover:opacity-90 disabled:opacity-40 text-xs sm:text-sm"
+                        className="px-3 py-1 text-white rounded-xl shadow  bg-purple-500 hover:opacity-90 disabled:opacity-40 text-xs sm:text-sm"
                       >
                         {actionLoading[s.id] ? "..." : "Accept"}
                       </button>
@@ -345,7 +373,6 @@ export default function PendingShopsFull() {
 
         {/* MODALS */}
         {/* Add backdrop bg-black/50 and adjust modal bg to bg-[#1e2235], text-white, border-[#2c2f44] */}
-      </div>
 
       {/* PASSCODE MODAL */}
       {passcodeModal && (
@@ -394,114 +421,13 @@ export default function PendingShopsFull() {
       )}
 
       {/* SHOP DETAILS MODAL */}
-      {modalOpen && activeShop && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-2">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/60"
-            onClick={() => setModalOpen(false)}
-          />
-
-          {/* Modal Box */}
-          <div className="relative bg-[#1e2235] rounded-2xl p-4 sm:p-6 w-full max-w-[800px] shadow-2xl border border-[#2c2f44] max-h-[90vh] overflow-auto text-white">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-              <h3 className="text-xl font-bold bg-gradient-to-r from-[#B476FF] to-purple-600 bg-clip-text text-transparent">
-                Shop Details - {activeShop.id}
-              </h3>
-              <button
-                className="text-gray-400 hover:text-white"
-                onClick={() => setModalOpen(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex flex-col items-center">
-                {activeShop.photo ? (
-                  <img
-                    src={`http://38.60.244.137:3000/shop-uploads/${activeShop.photo}`}
-                    alt={activeShop.shop_name}
-                    className="w-44 h-44 sm:w-44 sm:h-44 object-cover rounded-xl border border-[#2c2f44] shadow-md"
-                  />
-                ) : (
-                  <div className="w-44 h-44 rounded-xl border border-[#2c2f44] shadow-md bg-[#B476FF] flex items-center justify-center text-white text-4xl font-bold">
-                    {activeShop.shop_name?.charAt(0).toUpperCase() || "?"}
-                  </div>
-                )}
-              </div>
-
-              <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                {[
-                  ["Shopkeeper", activeShop.shopkeeper_name],
-                  ["Email", activeShop.email],
-                  ["Phone", activeShop.phone],
-                  ["Items", activeShop.items],
-                  ["Status", activeShop.status],
-                  ["Permission", activeShop.permission],
-                  ["Created At", formatDateShort(activeShop.created_at)],
-                  ["Address", activeShop.address],
-                ].map(([label, value]) => (
-                  <div key={label}>
-                    <div className="font-semibold text-gray-400">{label}</div>
-                    <div className="text-gray-200">{value}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* LOCATION MAP */}
-              <div className="col-span-3">
-                <div className="font-semibold text-gray-400">Location Map</div>
-                {(() => {
-                  const { lat, lon } = parseLocation(activeShop.location);
-
-                  if (!lat || !lon) {
-                    return <div className="text-gray-200">No location</div>;
-                  }
-
-                  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${
-                    lon - 0.01
-                  }%2C${lat - 0.01}%2C${lon + 0.01}%2C${lat + 0.01}&layer=mapnik&marker=${lat}%2C${lon}`;
-
-                  return (
-                    <div className="mt-2">
-                      <iframe
-                        src={mapUrl}
-                        className="w-full h-64 rounded-lg border border-[#2c2f44]"
-                        title="Shop Location Map"
-                        loading="lazy"
-                      ></iframe>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {lat}, {lon}
-                      </p>
-                    </div>
-                  );
-                })()}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="mt-6 flex flex-col sm:flex-row gap-2 justify-end">
-              <button
-                onClick={() => openPasscode(activeShop.id, "reject")}
-                disabled={!!actionLoading[activeShop.id]}
-                className="px-4 py-2 text-white rounded-xl shadow bg-gradient-to-r from-red-500 to-red-600 hover:opacity-90 disabled:opacity-40"
-              >
-                {actionLoading[activeShop.id] ? "..." : "Reject"}
-              </button>
-              <button
-                onClick={() => openPasscode(activeShop.id, "approve")}
-                disabled={!!actionLoading[activeShop.id]}
-                className="px-4 py-2 text-white rounded-xl shadow bg-gradient-to-r from-green-500 to-green-600 hover:opacity-90 disabled:opacity-40"
-              >
-                {actionLoading[activeShop.id] ? "..." : "Accept"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ShopDetailsModal
+        modalOpen={modalOpen}
+        activeShop={activeShop}
+        setModalOpen={setModalOpen}
+        openPasscode={openPasscode}
+        actionLoading={actionLoading}
+      />
     </div>
   );
 }

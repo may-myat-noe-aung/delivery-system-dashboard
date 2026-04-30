@@ -1,10 +1,11 @@
-
-
 import React, { useState, useEffect, useRef } from "react";
 import { Download, Search, Trash2 } from "lucide-react";
 import axios from "axios";
+import ShopkeeperDetailModal from "./ShopkeeperDetailModal";
+import { useAlert } from "../../AlertContext";
 
 export default function ShopkeeperTable() {
+  const { showAlert } = useAlert();
   const [shopkeepers, setShopkeepers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -13,7 +14,7 @@ export default function ShopkeeperTable() {
   const [passcode, setPasscode] = useState("");
   const passcodeInputRef = useRef(null);
   const [actionLoading, setActionLoading] = useState({});
-  const [alerts, setAlerts] = useState([]);
+
 
   // ---------------- PAGINATION STATES ----------------
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,7 +24,7 @@ export default function ShopkeeperTable() {
   useEffect(() => {
     const interval = setInterval(() => {
       axios
-        .get("http://38.60.244.137:3000/shops")
+        .get("http://38.60.244.137:3000/shops-approve")
         .then((res) => setShopkeepers(res.data))
         .catch((err) => console.error("API Error:", err));
     }, 500);
@@ -106,61 +107,84 @@ export default function ShopkeeperTable() {
   //   }
   // };
 
-  const doDelete = () => {
+const doDelete = async () => {
+  if (passcode !== "234567") {
+    showAlert("Incorrect passcode", "error");
+    return;
+  }
+
   if (!activeShop) return;
 
-  setActionLoading((prev) => ({ ...prev, [activeShop.id]: true }));
+  try {
+    setActionLoading((prev) => ({
+      ...prev,
+      [activeShop.id]: true,
+    }));
 
-  // Step 1: Verify passcode via API
-  axios
-    .patch("http://38.60.244.137:3000/admin/verify-admin-passcode", {
-      passcode: passcode,
-    })
-    .then((res) => {
-      // ✅ Passcode correct, now delete the shop
-      return axios.delete(`http://38.60.244.137:3000/shops/${activeShop.id}`);
-    })
-    .then((res) => {
-      // Update UI after successful deletion
-      setShopkeepers((prev) => prev.filter((s) => s.id !== activeShop.id));
-      setAlerts((prev) => [
-        ...prev,
-        res.data.message || "Deleted successfully",
-      ]);
-      setPasscodeModal(false);
-    })
-    .catch((err) => {
-      // Handle incorrect passcode or delete failure
-      const msg =
-        err.response?.data?.message || "Passcode incorrect or delete failed";
-      setAlerts((prev) => [...prev, msg]);
-    })
-    .finally(() => {
-      setActionLoading((prev) => ({ ...prev, [activeShop.id]: false }));
-    });
+    const res = await axios.delete(
+      `http://38.60.244.137:3000/shops/${activeShop.id}`
+    );
+
+    setShopkeepers((prev) =>
+      prev.filter((s) => s.id !== activeShop.id)
+    );
+
+    // ✅ API MESSAGE FIRST
+    showAlert(
+      res.data?.message || "Deleted successfully",
+      "success"
+    );
+
+    setPasscodeModal(false);
+    setPasscode("");
+    setActiveShop(null);
+  } catch (err) {
+    showAlert(
+      err.response?.data?.message || "Delete failed",
+      "error"
+    );
+  } finally {
+    setActionLoading((prev) => ({
+      ...prev,
+      [activeShop.id]: false,
+    }));
+  }
 };
-  const toggleStatus = (shop, newStatus) => {
-    setActionLoading((prev) => ({ ...prev, [shop.id]: true }));
-    axios
-      .patch(`http://38.60.244.137:3000/shops/status/${shop.id}`, {
-        status: newStatus,
-      })
-      .then((res) => {
-        setShopkeepers((prev) =>
-          prev.map((s) => (s.id === shop.id ? { ...s, status: newStatus } : s))
-        );
-        setAlerts((prev) => [...prev, res.data.message || "Status updated"]);
-      })
-      .catch((err) =>
-        setAlerts((prev) => [
-          ...prev,
-          err.response?.data?.message || "Failed to update status",
-        ])
+
+const toggleStatus = async (shop, newStatus) => {
+  try {
+    setActionLoading((prev) => ({
+      ...prev,
+      [shop.id]: true,
+    }));
+
+    const res = await axios.patch(
+      `http://38.60.244.137:3000/shops/status/${shop.id}`,
+      { status: newStatus }
+    );
+
+    setShopkeepers((prev) =>
+      prev.map((s) =>
+        s.id === shop.id ? { ...s, status: newStatus } : s
       )
-      .finally(() =>
-        setActionLoading((prev) => ({ ...prev, [shop.id]: false }))
-      );
-  };
+    );
+
+    showAlert(
+      res.data?.message || `Status updated to ${newStatus}`,
+      "success"
+    );
+  } catch (err) {
+    showAlert(
+      err.response?.data?.message || "Failed to update status",
+      "error"
+    );
+  } finally {
+    setActionLoading((prev) => ({
+      ...prev,
+      [shop.id]: false,
+    }));
+  }
+};
 
   const openDetail = (shop) => {
     setActiveShop(shop);
@@ -183,19 +207,7 @@ export default function ShopkeeperTable() {
     <div className="">
 
   <div className="pt-4 text-white">
-    {/* Alerts */}
-    <div className="fixed top-4 right-4 flex flex-col gap-3 z-50">
-      {alerts.map((msg, i) => (
-        <div
-          key={i}
-          className="bg-purple-500/20 border border-purple-500/40 
-          text-purple-300 px-4 py-2 rounded-xl 
-          backdrop-blur-md shadow-lg text-sm"
-        >
-          {msg}
-        </div>
-      ))}
-    </div>
+  
 
     {/* Search + Export */}
     <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
@@ -419,128 +431,8 @@ export default function ShopkeeperTable() {
     </div>
   </div>
 
-
-      {/* SHOP DETAIL MODAL */}
-{/* SHOP DETAIL MODAL - DARK UI */}
-{modalOpen && activeShop && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md">
-    <div
-      className="absolute inset-0 bg-black/60"
-      onClick={() => setModalOpen(false)}
-    />
-
-    <div
-      className="relative w-[min(850px,95%)] max-h-[90vh] overflow-auto
-      bg-[#1a2030]/90 backdrop-blur-2xl
-      border border-slate-700
-      rounded-3xl shadow-2xl p-8 text-white"
-    >
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h3
-          className="text-xl font-bold 
-          bg-gradient-to-r from-purple-400 to-purple-600 
-          bg-clip-text text-transparent"
-        >
-          Shop Details - {activeShop.id}
-        </h3>
-
-        <button
-          className="text-slate-400 hover:text-white transition"
-          onClick={() => setModalOpen(false)}
-        >
-          ✕
-        </button>
-      </div>
-
-      {/* Content */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-        {/* Photo */}
-        <div className="flex flex-col items-center">
-          {activeShop.photo ? (
-            <img
-              src={`http://38.60.244.137:3000/shop-uploads/${activeShop.photo}`}
-              className="w-48 h-48 rounded-2xl 
-              border border-slate-700 
-              shadow-lg object-cover"
-              alt={activeShop.name}
-            />
-          ) : (
-            <div
-              className="w-48 h-48 rounded-2xl 
-              bg-purple-500/30 
-              border border-purple-500/40
-              flex items-center justify-center 
-              text-purple-300 text-4xl font-bold"
-            >
-              {activeShop.name
-                ? activeShop.name
-                    .split(" ")
-                    .map((n) => n.charAt(0).toUpperCase())
-                    .join("")
-                : "?"}
-            </div>
-          )}
-        </div>
-
-        {/* Info Grid */}
-        <div className="md:col-span-2 grid grid-cols-2 gap-5 text-sm">
-          {[
-            ["Shop Name", activeShop.shop_name],
-            ["Shopkeeper", activeShop.name],
-            ["Email", activeShop.email],
-            ["Phone", activeShop.phone],
-            ["Status", activeShop.status],
-            ["Created At", formatDateShort(activeShop.created_at)],
-          ].map(([label, value]) => (
-            <div key={label}>
-              <div className="text-slate-400 text-xs tracking-wide">
-                {label}
-              </div>
-              <div className="text-white font-medium break-words">
-                {value || "-"}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* LOCATION MAP */}
-      {activeShop.location && (
-        <div className="mt-8">
-          <div className="text-slate-400 text-sm mb-2">Location</div>
-
-          {(() => {
-            const { lat, lon } = parseLocation(activeShop.location);
-
-            if (!lat || !lon) {
-              return <div className="text-slate-300">No location</div>;
-            }
-
-            return (
-              <div>
-                <iframe
-                  src={getMapUrl(activeShop.location)}
-                  className="w-full h-60 rounded-2xl 
-                  border border-slate-700 
-                  shadow-lg"
-                  loading="lazy"
-                ></iframe>
-
-                <p className="text-xs text-slate-500 mt-2">
-                  {lat}, {lon}
-                </p>
-              </div>
-            );
-          })()}
-        </div>
-      )}
-    </div>
-  </div>
-)}
-
  {/* PASSCODE MODAL - DARK UI */}
-{passcodeModal && (
+{/* {passcodeModal && (
   <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md">
     <div
       className="absolute inset-0 bg-black/60"
@@ -601,7 +493,60 @@ export default function ShopkeeperTable() {
       </div>
     </div>
   </div>
+)} */}
+
+{passcodeModal && (
+  <div className="fixed inset-0 z-30 flex items-center justify-center backdrop-blur-sm p-2">
+    {/* Overlay */}
+    <div
+      className="absolute inset-0 bg-black/70"
+      onClick={() => setPasscodeModal(false)}
+    />
+
+    {/* Modal Box */}
+    <div className="relative bg-slate-900 rounded-xl p-4 md:p-6 w-full max-w-[330px] shadow-2xl border border-slate-700 text-white">
+      
+      {/* Header */}
+      <h3 className="text-lg font-bold text-center bg-gradient-to-r text-[#B476FF] bg-clip-text mb-4">
+        Enter Passcode
+      </h3>
+
+      {/* Input */}
+      <input
+        ref={passcodeInputRef}
+        type="password"
+        className="border border-slate-700 rounded-lg w-full px-3 py-2 mb-4 bg-slate-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
+        placeholder="Passcode"
+        value={passcode}
+        onChange={(e) => setPasscode(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && doDelete()}
+      />
+
+      {/* Buttons */}
+      <div className="flex flex-col sm:flex-row justify-between gap-2">
+        <button
+          onClick={() => setPasscodeModal(false)}
+          className="px-4 py-1.5 border border-slate-700 rounded-lg hover:bg-slate-700 w-full sm:w-auto"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={doDelete}
+          className="px-4 py-1.5 bg-[#B476FF] text-white rounded-lg shadow hover:opacity-90 w-full sm:w-auto"
+        >
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
 )}
+
+<ShopkeeperDetailModal
+  open={modalOpen}
+  shop={activeShop}
+  onClose={() => setModalOpen(false)}
+/>
     </div>
   );
 }

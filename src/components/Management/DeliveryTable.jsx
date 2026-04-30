@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Download, Search, Trash2 } from "lucide-react";
 import axios from "axios";
+import DeliveryDetailsModal from "./DeliveryDetailsModal";
+import { useAlert } from "../../AlertContext";
 
 export default function DeliveryTable() {
   const [deliverymen, setDeliverymen] = useState([]);
@@ -12,7 +14,8 @@ export default function DeliveryTable() {
   const passcodeInputRef = useRef(null);
 
   const [actionLoading, setActionLoading] = useState({});
-  const [alerts, setAlerts] = useState([]);
+
+  const { showAlert } = useAlert();
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -67,33 +70,66 @@ export default function DeliveryTable() {
     setTimeout(() => passcodeInputRef.current?.focus(), 100);
   };
 
-  const doDelete = () => {
-    if (passcode === "234567") {
-      setActionLoading((prev) => ({ ...prev, [activeUser.id]: true }));
-      axios
-        .delete(`http://38.60.244.137:3000/deliverymen/${activeUser.id}`)
-        .then((res) => {
-          setDeliverymen((prev) => prev.filter((u) => u.id !== activeUser.id));
-          setAlerts((prev) => [
-            ...prev,
-            res.data.message || "Deleted successfully",
-          ]);
-        })
-        .catch((err) =>
-          setAlerts((prev) => [
-            ...prev,
-            err.response?.data?.message || "Delete failed",
-          ]),
-        )
-        .finally(() => {
-          setActionLoading((prev) => ({ ...prev, [activeUser.id]: false }));
-          setPasscodeModal(false);
-        });
-    } else {
-      setAlerts((prev) => [...prev, "Incorrect passcode"]);
-    }
-  };
+  // const doDelete = () => {
+  //   if (passcode === "234567") {
+  //     setActionLoading((prev) => ({ ...prev, [activeUser.id]: true }));
+  //     axios
+  //       .delete(`http://38.60.244.137:3000/deliverymen/${activeUser.id}`)
+  //       .then((res) => {
+  //         setDeliverymen((prev) => prev.filter((u) => u.id !== activeUser.id));
+  //         setAlerts((prev) => [
+  //           ...prev,
+  //           res.data.message || "Deleted successfully",
+  //         ]);
+  //       })
+  //       .catch((err) =>
+  //         setAlerts((prev) => [
+  //           ...prev,
+  //           err.response?.data?.message || "Delete failed",
+  //         ]),
+  //       )
+  //       .finally(() => {
+  //         setActionLoading((prev) => ({ ...prev, [activeUser.id]: false }));
+  //         setPasscodeModal(false);
+  //       });
+  //   } else {
+  //     setAlerts((prev) => [...prev, "Incorrect passcode"]);
+  //   }
+  // };
 
+  const doDelete = () => {
+  if (passcode === "234567") {
+    setActionLoading((prev) => ({ ...prev, [activeUser.id]: true }));
+
+    axios
+      .delete(`http://38.60.244.137:3000/deliverymen/${activeUser.id}`)
+      .then((res) => {
+        setDeliverymen((prev) =>
+          prev.filter((u) => u.id !== activeUser.id)
+        );
+
+        showAlert(
+          res.data.message || "Deleted successfully",
+          "success"
+        );
+      })
+      .catch((err) => {
+        showAlert(
+          err.response?.data?.message || "Delete failed",
+          "error"
+        );
+      })
+      .finally(() => {
+        setActionLoading((prev) => ({
+          ...prev,
+          [activeUser.id]: false,
+        }));
+        setPasscodeModal(false);
+      });
+  } else {
+    showAlert("Incorrect passcode", "error");
+  }
+};
   const getPhoto = (photo) => photo || "https://via.placeholder.com/80";
   const formatDateShort = (date) =>
     date ? new Date(date).toLocaleString() : "-";
@@ -102,48 +138,64 @@ export default function DeliveryTable() {
       ? `https://maps.google.com?q=${encodeURIComponent(location)}&output=embed`
       : null;
 
-  const toggleStatus = (delivery, newStatus) => {
-    setActionLoading((prev) => ({ ...prev, [delivery.id]: true }));
-    axios
-      .patch(`http://38.60.244.137:3000/deliverymen/status/${delivery.id}`, {
-        status: newStatus,
-      })
-      .then((res) => {
-        setDeliverymen((prev) =>
-          prev.map((u) =>
-            u.id === delivery.id ? { ...u, status: newStatus } : u,
-          ),
-        );
-        setAlerts((prev) => [...prev, res.data.message || "Status updated"]);
-      })
-      .catch((err) =>
-        setAlerts((prev) => [
-          ...prev,
-          err.response?.data?.message || "Failed to update status",
-        ]),
-      )
-      .finally(() => {
-        setActionLoading((prev) => ({ ...prev, [delivery.id]: false }));
-      });
-  };
+  // const toggleStatus = (delivery, newStatus) => {
+  //   setActionLoading((prev) => ({ ...prev, [delivery.id]: true }));
+  //   axios
+  //     .patch(`http://38.60.244.137:3000/deliverymen/status/${delivery.id}`, {
+  //       status: newStatus,
+  //     })
+  //     .then((res) => {
+  //       setDeliverymen((prev) =>
+  //         prev.map((u) =>
+  //           u.id === delivery.id ? { ...u, status: newStatus } : u,
+  //         ),
+  //       );
+  //       setAlerts((prev) => [...prev, res.data.message || "Status updated"]);
+  //     })
+  //     .catch((err) =>
+  //       setAlerts((prev) => [
+  //         ...prev,
+  //         err.response?.data?.message || "Failed to update status",
+  //       ]),
+  //     )
+  //     .finally(() => {
+  //       setActionLoading((prev) => ({ ...prev, [delivery.id]: false }));
+  //     });
+  // };
+const toggleStatus = (delivery, newStatus) => {
+  setActionLoading((prev) => ({ ...prev, [delivery.id]: true }));
 
+  axios
+    .patch(
+      `http://38.60.244.137:3000/deliverymen/status/${delivery.id}`,
+      { status: newStatus }
+    )
+    .then((res) => {
+      setDeliverymen((prev) =>
+        prev.map((u) =>
+          u.id === delivery.id ? { ...u, status: newStatus } : u
+        )
+      );
+
+      showAlert(res.data.message || "Status updated", "success");
+    })
+    .catch((err) => {
+      showAlert(
+        err.response?.data?.message || "Failed to update status",
+        "error"
+      );
+    })
+    .finally(() => {
+      setActionLoading((prev) => ({
+        ...prev,
+        [delivery.id]: false,
+      }));
+    });
+};
   return (
     <div className="">
-      {/* Alerts */}
       <div className="pt-4 text-white">
-        {/* Alerts */}
-        <div className="fixed top-4 right-4 flex flex-col gap-3 z-50">
-          {alerts.map((msg, i) => (
-            <div
-              key={i}
-              className="bg-purple-500/20 border border-purple-500/40 
-          text-purple-300 px-4 py-2 rounded-xl 
-          backdrop-blur-md shadow-lg text-sm"
-            >
-              {msg}
-            </div>
-          ))}
-        </div>
+    
 
         {/* Search + Export */}
         <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
@@ -375,77 +427,7 @@ export default function DeliveryTable() {
     Next
   </button>
 </div>
-      {/* USER DETAIL MODAL - DARK UI */}
-      {modalOpen && activeUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md p-4 sm:p-6">
-          <div
-            className="absolute inset-0 bg-black/60"
-            onClick={() => setModalOpen(false)}
-          />
 
-          <div
-            className="relative w-full max-w-[800px]
-      bg-[#1a2030]/90 backdrop-blur-2xl
-      border border-slate-700
-      rounded-3xl shadow-2xl p-6
-      max-h-[90vh] overflow-auto text-white"
-          >
-            <div className="flex justify-between items-center mb-6">
-              <h3
-                className="text-lg sm:text-xl font-bold
-        bg-gradient-to-r from-purple-400 to-purple-600
-        bg-clip-text text-transparent"
-              >
-                User Details - {activeUser.id}
-              </h3>
-              <button
-                className="text-slate-400 hover:text-white"
-                onClick={() => setModalOpen(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 items-center gap-6">
-              <div className="flex flex-col items-center">
-                {activeUser.photo ? (
-                  <img
-                    src={`http://38.60.244.137:3000/deliverymen-uploads/${activeUser.photo}`}
-                    className="w-36 h-36 sm:w-44 sm:h-44 rounded-xl border border-slate-700 shadow-md object-cover"
-                    alt={activeUser.name}
-                  />
-                ) : (
-                  <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-xl border border-slate-700 shadow-md bg-purple-500/30 flex items-center justify-center text-white text-3xl sm:text-4xl font-bold">
-                    {activeUser.name
-                      ? activeUser.name
-                          .split(" ")
-                          .map((n) => n.charAt(0).toUpperCase())
-                          .join("")
-                      : "?"}
-                  </div>
-                )}
-              </div>
-
-              <div className="md:col-span-2 grid grid-cols-2 gap-6 text-sm">
-                {[
-                  ["Name", activeUser.name],
-                  ["Email", activeUser.email],
-                  ["Phone", activeUser.phone],
-                  ["Status", activeUser.status],
-                  ["Created At", formatDateShort(activeUser.created_at)],
-                ].map(([label, value]) => (
-                  <div key={label}>
-                    <div className="font-semibold text-slate-400">{label}</div>
-                    <div className="text-white break-words">{value}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Passcode Modal */}
       {/* PASSCODE MODAL - DARK UI */}
       {passcodeModal && (
         <div className="fixed inset-0 z-30 flex items-center justify-center backdrop-blur-md p-4">
@@ -501,6 +483,12 @@ export default function DeliveryTable() {
           </div>
         </div>
       )}
+
+      <DeliveryDetailsModal
+  open={modalOpen}
+  user={activeUser}
+  onClose={() => setModalOpen(false)}
+/>
     </div>
   );
 }
