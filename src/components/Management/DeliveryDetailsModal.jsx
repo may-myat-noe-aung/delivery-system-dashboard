@@ -75,7 +75,7 @@ export default function DeliveryDetailsModal({
 
             {user.photo ? (
               <img
-                src={`http://38.60.244.137:3000/deliverymen-uploads/${user.photo}`}
+                src={`https://api.pwezayshops.com/deliverymen-uploads/${user.photo}`}
                 className="w-44 h-44 rounded-2xl object-cover border border-[#2c2f44]"
                 alt={user.name}
               />
@@ -120,7 +120,7 @@ export default function DeliveryDetailsModal({
           </div>
 
           {/* LOCATION (Shop-style map footer) */}
-          <div className="col-span-3 bg-[#1e2235] p-4 rounded-2xl border border-[#2c2f44] hover:border-purple-500/30 transition mt-2">
+          {/* <div className="col-span-3 bg-[#1e2235] p-4 rounded-2xl border border-[#2c2f44] hover:border-purple-500/30 transition mt-2">
 
             <p className="text-sm text-gray-400 mb-2">Location</p>
 
@@ -153,7 +153,7 @@ export default function DeliveryDetailsModal({
                 </div>
               </>
             )}
-          </div>
+          </div> */}
 
         </div>
 

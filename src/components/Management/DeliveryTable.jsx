@@ -23,7 +23,7 @@ export default function DeliveryTable() {
   useEffect(() => {
     const interval = setInterval(() => {
       axios
-        .get("http://38.60.244.137:3000/deliverymen")
+        .get("https://api.pwezayshops.com/deliverymen")
         .then((res) => setDeliverymen(res.data))
         .catch((err) => console.error("API Error:", err));
     }, 500);
@@ -69,68 +69,94 @@ export default function DeliveryTable() {
     setPasscodeModal(true);
     setTimeout(() => passcodeInputRef.current?.focus(), 100);
   };
+//   const doDelete = () => {
+//   if (passcode === "234567") {
+//     setActionLoading((prev) => ({ ...prev, [activeUser.id]: true }));
 
-  // const doDelete = () => {
-  //   if (passcode === "234567") {
-  //     setActionLoading((prev) => ({ ...prev, [activeUser.id]: true }));
-  //     axios
-  //       .delete(`http://38.60.244.137:3000/deliverymen/${activeUser.id}`)
-  //       .then((res) => {
-  //         setDeliverymen((prev) => prev.filter((u) => u.id !== activeUser.id));
-  //         setAlerts((prev) => [
-  //           ...prev,
-  //           res.data.message || "Deleted successfully",
-  //         ]);
-  //       })
-  //       .catch((err) =>
-  //         setAlerts((prev) => [
-  //           ...prev,
-  //           err.response?.data?.message || "Delete failed",
-  //         ]),
-  //       )
-  //       .finally(() => {
-  //         setActionLoading((prev) => ({ ...prev, [activeUser.id]: false }));
-  //         setPasscodeModal(false);
-  //       });
-  //   } else {
-  //     setAlerts((prev) => [...prev, "Incorrect passcode"]);
-  //   }
-  // };
+//     axios
+//       .delete(`https://api.pwezayshops.com/deliverymen/${activeUser.id}`)
+//       .then((res) => {
+//         setDeliverymen((prev) =>
+//           prev.filter((u) => u.id !== activeUser.id)
+//         );
 
-  const doDelete = () => {
-  if (passcode === "234567") {
-    setActionLoading((prev) => ({ ...prev, [activeUser.id]: true }));
+//         showAlert(
+//           res.data.message || "Deleted successfully",
+//           "success"
+//         );
+//       })
+//       .catch((err) => {
+//         showAlert(
+//           err.response?.data?.message || "Delete failed",
+//           "error"
+//         );
+//       })
+//       .finally(() => {
+//         setActionLoading((prev) => ({
+//           ...prev,
+//           [activeUser.id]: false,
+//         }));
+//         setPasscodeModal(false);
+//       });
+//   } else {
+//     showAlert("Incorrect passcode", "error");
+//   }
+// };
+const doDelete = async () => {
+  if (!activeUser) return;
 
-    axios
-      .delete(`http://38.60.244.137:3000/deliverymen/${activeUser.id}`)
-      .then((res) => {
-        setDeliverymen((prev) =>
-          prev.filter((u) => u.id !== activeUser.id)
-        );
+  try {
+    // 1. VERIFY PASSCODE (API)
+    const verifyRes = await axios.post(
+      "https://api.pwezayshops.com/admin/verify-admin-passcode",
+      {
+        passcode,
+      }
+    );
 
-        showAlert(
-          res.data.message || "Deleted successfully",
-          "success"
-        );
-      })
-      .catch((err) => {
-        showAlert(
-          err.response?.data?.message || "Delete failed",
-          "error"
-        );
-      })
-      .finally(() => {
-        setActionLoading((prev) => ({
-          ...prev,
-          [activeUser.id]: false,
-        }));
-        setPasscodeModal(false);
-      });
-  } else {
-    showAlert("Incorrect passcode", "error");
+    if (!verifyRes.data?.success) {
+      showAlert(
+        verifyRes.data?.message || "Incorrect passcode",
+        "error"
+      );
+      return;
+    }
+
+    // 2. DELETE AFTER VERIFY SUCCESS
+    setActionLoading((prev) => ({
+      ...prev,
+      [activeUser.id]: true,
+    }));
+
+    const res = await axios.delete(
+      `https://api.pwezayshops.com/deliverymen/${activeUser.id}`
+    );
+
+    setDeliverymen((prev) =>
+      prev.filter((u) => u.id !== activeUser.id)
+    );
+
+    showAlert(
+      res.data?.message || "Deleted successfully",
+      "success"
+    );
+  } catch (err) {
+    showAlert(
+      err?.response?.data?.message || "Passcode verification failed",
+      "error"
+    );
+  } finally {
+    setActionLoading((prev) => ({
+      ...prev,
+      [activeUser.id]: false,
+    }));
+
+    setPasscodeModal(false);
+    setPasscode("");
   }
-};
-  const getPhoto = (photo) => photo || "https://via.placeholder.com/80";
+}; 
+
+const getPhoto = (photo) => photo || "https://via.placeholder.com/80";
   const formatDateShort = (date) =>
     date ? new Date(date).toLocaleString() : "-";
   const getMapUrl = (location) =>
@@ -141,7 +167,7 @@ export default function DeliveryTable() {
   // const toggleStatus = (delivery, newStatus) => {
   //   setActionLoading((prev) => ({ ...prev, [delivery.id]: true }));
   //   axios
-  //     .patch(`http://38.60.244.137:3000/deliverymen/status/${delivery.id}`, {
+  //     .patch(`https://api.pwezayshops.com/deliverymen/status/${delivery.id}`, {
   //       status: newStatus,
   //     })
   //     .then((res) => {
@@ -167,7 +193,7 @@ const toggleStatus = (delivery, newStatus) => {
 
   axios
     .patch(
-      `http://38.60.244.137:3000/deliverymen/status/${delivery.id}`,
+      `https://api.pwezayshops.com/deliverymen/status/${delivery.id}`,
       { status: newStatus }
     )
     .then((res) => {
@@ -287,7 +313,7 @@ const toggleStatus = (delivery, newStatus) => {
                       <div className="flex items-center gap-3">
                         {delivery.photo ? (
                           <img
-                            src={`http://38.60.244.137:3000/deliverymen-uploads/${delivery.photo}`}
+                            src={`https://api.pwezayshops.com/deliverymen-uploads/${delivery.photo}`}
                             alt={delivery.name}
                             className="w-10 h-10 rounded-full object-cover border border-slate-700"
                           />

@@ -1,247 +1,165 @@
-// import React from "react";
-// import { useTheme } from "../ThemeProvider"; // adjust path if needed
-// import { ShoppingBag, List, DollarSign, Users, MapPin } from "lucide-react";
 
-// // ✅ Import icons/images
-// import restaurant from "../../assets/images/restaurant-photo/download.jpeg";
-// import menu from "../../assets/images/menu/menu.avif";
+import React, { useEffect, useState } from "react";
+import { Store, Utensils, Users, DollarSign, Truck } from "lucide-react";
 
-// const summaryData = [
-//   {
-//     title: "Total Shop",
-//     value: "320+",
-//     daily: null,
-//     trend: null,
-//     images: [restaurant, restaurant, restaurant, restaurant],
-//     icon: <ShoppingBag className="w-6 h-6 text-[#B476FF]" />,
-//   },
-//   {
-//     title: "Total Menu",
-//     value: "320+",
-//     daily: null,
-//     trend: null,
-//     images: [menu, menu, menu, menu],
-//     icon: <List className="w-6 h-6 text-[#B476FF]" />,
-//   },
-//   {
-//     title: "Total Income",
-//     value: "320000+",
-//     daily: "Daily income - 300000",
-//     trend: { text: "+1.45% vs last week", color: "text-green-600" },
-//     images: [],
-//     icon: <DollarSign className="w-6 h-6 text-[#B476FF]" />,
-//   },
-//   {
-//     title: "Total Client",
-//     value: "53000+",
-//     daily: "Client Activity - 53%",
-//     trend: { text: "-1.45% vs last week", color: "text-red-600" },
-//     images: [],
-//     icon: <Users className="w-6 h-6 text-[#B476FF]" />,
-//   },
-//   {
-//     title: "Location",
-//     map: true,
-//     images: [],
-//     icon: <MapPin className="w-6 h-6 text-[#B476FF]" />,
-//   },
-// ];
-
-// const SummaryCard = ({ title, value, daily, trend, images, icon, map }) => {
-//   const { dark } = useTheme();
-
-//   const cardBg = dark ? "bg-gray-800 text-gray-100 border-gray-700" : "bg-white text-gray-800 border-gray-100";
-//   const iconBg = dark ? "bg-purple-900" : "bg-purple-100";
-//   const dailyText = dark ? "text-gray-400" : "text-gray-400";
-//   const valueText = dark ? "text-gray-100" : "text-gray-800";
-
-//   return (
-//     <div className={`rounded-2xl shadow-sm border p-4 flex flex-col justify-between h-[200px] mb-6 ${cardBg}`}>
-//       {map ? (
-//         <div className="w-full h-full rounded-xl overflow-hidden relative">
-//           <iframe
-//             title="map"
-//             className="w-full h-full"
-//             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d241317.11609969487!2d72.74109915826098!3d19.08219783956057!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7b63a23a9ac9b%3A0x1bb3cb8a93b8e1b!2sMumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1679151551309!5m2!1sen!2sin"
-//             allowFullScreen=""
-//             loading="lazy"
-//           ></iframe>
-//           {/* Map Buttons */}
-//           <button className="absolute top-2 left-2 bg-white dark:bg-gray-700 px-3 py-1 text-xs rounded-lg shadow">
-//             View larger map
-//           </button>
-//           <div className="absolute bottom-2 right-2 flex flex-col space-y-1">
-//             <button className="bg-purple-500 text-white w-8 h-8 flex items-center justify-center rounded-md text-lg font-bold">
-//               +
-//             </button>
-//             <button className="bg-purple-500 text-white w-8 h-8 flex items-center justify-center rounded-md text-lg font-bold">
-//               −
-//             </button>
-//           </div>
-//         </div>
-//       ) : (
-//         <>
-//           {/* Top: Icon + Title */}
-//           <div className="flex items-center gap-2">
-//             <div className={`p-2 rounded-full ${iconBg}`}>{icon}</div>
-//             <p className="text-sm text-gray-500">{title}</p>
-//           </div>
-
-//           {/* Middle: Value */}
-//           <h3 className={`text-2xl font-semibold mt-2 ${valueText}`}>{value}</h3>
-
-//           {/* Bottom: Daily + Trend */}
-//           {daily && <p className={`text-xs mt-1 ${dailyText}`}>{daily}</p>}
-//           {trend && <p className={`text-xs mt-1 font-medium ${trend.color}`}>{trend.text}</p>}
-
-//           {/* Preview images */}
-//           {images.length > 0 && (
-//             <div className="flex items-center mt-2">
-//               {images.map((img, i) => (
-//                 <img
-//                   key={i}
-//                   src={img}
-//                   alt="preview"
-//                   className="w-12 h-12 rounded-full border-2 border-white -ml-2 first:ml-0 object-cover"
-//                 />
-//               ))}
-//               <div className="w-12 h-12 flex items-center justify-center rounded-full border-2 border-dashed bg-white dark:bg-gray-700 border-gray-300 -ml-2 text-gray-400 text-xs text-center px-2">
-//                 view all
-//               </div>
-//             </div>
-//           )}
-//         </>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default function SummaryCards() {
-//   return (
-//     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-//       {summaryData.map((item, idx) => (
-//         <SummaryCard key={idx} {...item} />
-//       ))}
-//     </div>
-//   );
-// }
-import React from "react";
-import { ShoppingBag, List, DollarSign, Users, MapPin } from "lucide-react";
-
-// ✅ Import icons/images
-import restaurant from "../../assets/images/restaurant-photo/download.jpeg";
-import menu from "../../assets/images/menu/menu.avif";
-
-const summaryData = [
-  {
-    title: "Total Shop",
-    value: "320+",
-    daily: null,
-    trend: null,
-    images: [restaurant, restaurant, restaurant, restaurant],
-    icon: <ShoppingBag className="w-6 h-6 text-[#B476FF]" />,
-  },
-  {
-    title: "Total Menu",
-    value: "320+",
-    daily: null,
-    trend: null,
-    images: [menu, menu, menu, menu],
-    icon: <List className="w-6 h-6 text-[#B476FF]" />,
-  },
-  {
-    title: "Total Income",
-    value: "320000+",
-    daily: "Daily income - 300000",
-    trend: { text: "+1.45% vs last week", color: "text-green-400" },
-    images: [],
-    icon: <DollarSign className="w-6 h-6 text-[#B476FF]" />,
-  },
-  {
-    title: "Total Client",
-    value: "53000+",
-    daily: "Client Activity - 53%",
-    trend: { text: "-1.45% vs last week", color: "text-red-400" },
-    images: [],
-    icon: <Users className="w-6 h-6 text-[#B476FF]" />,
-  },
-  {
-    title: "Location",
-    map: true,
-    images: [],
-    icon: <MapPin className="w-6 h-6 text-[#B476FF]" />,
-  },
-];
-
-const SummaryCard = ({ title, value, daily, trend, images, icon, map }) => {
+/* ================= CARD ================= */
+function DashboardCard({ title, value, icon, gradient, iconBg }) {
   return (
-    <div className="rounded-2xl shadow-sm border border-gray-600 bg-gray-800 text-gray-100 p-4 flex flex-col justify-between h-[200px] mb-6">
-      {map ? (
-        <div className="w-full h-full rounded-xl overflow-hidden relative">
-          <iframe
-            title="map"
-            className="w-full h-full"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d241317.11609969487!2d72.74109915826098!3d19.08219783956057!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7b63a23a9ac9b%3A0x1bb3cb8a93b8e1b!2sMumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1679151551309!5m2!1sen!2sin"
-            loading="lazy"
-          />
+    <div
+      className="
+        relative overflow-hidden rounded-3xl border border-white/10
+        bg-white/5 backdrop-blur-xl
+        p-3 lg:p-4 xl:p-5 2xl:p-6
+        transition-all duration-300 hover:scale-[1.02]
+      "
+    >
+      {/* BG */}
+      <div className={`absolute inset-0 opacity-20 bg-gradient-to-br ${gradient}`} />
 
-          {/* Map Buttons */}
-          <button className="absolute top-2 left-2 bg-gray-700 text-gray-100 px-3 py-1 text-xs rounded-lg shadow">
-            View larger map
-          </button>
+      {/* Glow */}
+      <div
+        className={`absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl ${iconBg} opacity-20`}
+      />
 
-          <div className="absolute bottom-2 right-2 flex flex-col space-y-1">
-            <button className="bg-purple-500 text-white w-8 h-8 flex items-center justify-center rounded-md text-lg font-bold">
-              +
-            </button>
-            <button className="bg-purple-500 text-white w-8 h-8 flex items-center justify-center rounded-md text-lg font-bold">
-              −
-            </button>
-          </div>
+      <div className="relative z-10 flex items-center justify-between">
+        
+        {/* TEXT */}
+        <div>
+          <p className="text-[10px] lg:text-[11px] xl:text-xs 2xl:text-sm text-slate-300">
+            {title}
+          </p>
+
+          <h2 className="mt-1 font-bold text-white text-sm lg:text-base xl:text-lg 2xl:text-xl">
+            {value}
+          </h2>
         </div>
-      ) : (
-        <>
-          {/* Top */}
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-full bg-purple-900">{icon}</div>
-            <p className="text-sm text-gray-400">{title}</p>
-          </div>
 
-          {/* Value */}
-          <h3 className="text-2xl font-semibold mt-2 text-gray-100">{value}</h3>
+        {/* ICON */}
+        <div
+          className={`
+            flex items-center justify-center border border-white/10 rounded-xl
+            ${iconBg}
 
-          {/* Bottom */}
-          {daily && <p className="text-xs mt-1 text-gray-400">{daily}</p>}
-          {trend && <p className={`text-xs mt-1 font-medium ${trend.color}`}>{trend.text}</p>}
-
-          {/* Images */}
-          {images.length > 0 && (
-            <div className="flex items-center mt-2">
-              {images.map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  alt="preview"
-                  className="w-12 h-12 rounded-full border-2 border-gray-800 -ml-2 first:ml-0 object-cover"
-                />
-              ))}
-              <div className="w-12 h-12 flex items-center justify-center rounded-full border-2 border-dashed bg-gray-700 border-gray-600 -ml-2 text-gray-300 text-xs text-center px-2">
-                view all
-              </div>
-            </div>
-          )}
-        </>
-      )}
+            w-8 h-8
+            lg:w-9 lg:h-9
+            xl:w-10 xl:h-10
+            2xl:w-12 2xl:h-12
+          `}
+        >
+          {icon}
+        </div>
+      </div>
     </div>
   );
-};
+}
 
-export default function SummaryCards() {
+/* ================= LOADING ================= */
+function LoadingCard() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-      {summaryData.map((item, idx) => (
-        <SummaryCard key={idx} {...item} />
-      ))}
-    </div>
+    <div className="h-[120px] rounded-3xl bg-white/5 border border-white/10 animate-pulse" />
+  );
+}
+
+/* ================= MAIN ================= */
+export default function SummaryCards() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(
+          "https://api.pwezayshops.com/dashboard-summaries-by-system"
+        );
+
+        const result = await res.json();
+
+        if (result.success) {
+          setData(result.data);
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    const interval = setInterval(fetchData, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading || !data) {
+    return (
+      <section className="grid grid-cols-5 gap-3 lg:gap-4 xl:gap-5 mb-5">
+        {[...Array(5)].map((_, i) => (
+          <LoadingCard key={i} />
+        ))}
+      </section>
+    );
+  }
+
+  return (
+    <section className="grid grid-cols-5 gap-3 lg:gap-4 xl:gap-5 mb-5">
+
+      {/* SHOPS */}
+      <DashboardCard
+        title="Total Shops"
+        value={`${data.total_shops.total} (+${data.total_shops.new_shops})`}
+        icon={
+          <Store className="text-indigo-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+        }
+        gradient="from-indigo-500 to-transparent"
+        iconBg="bg-indigo-500/20"
+      />
+
+      {/* MENU */}
+      <DashboardCard
+        title="Total Menu"
+        value={`${data.total_menu.total} (+${data.total_menu.new_menu})`}
+        icon={
+          <Utensils className="text-emerald-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+        }
+        gradient="from-emerald-500 to-transparent"
+        iconBg="bg-emerald-500/20"
+      />
+
+      {/* CLIENT */}
+      <DashboardCard
+        title="Total Clients"
+        value={`${data.total_client.total} (+${data.total_client.new_users})`}
+        icon={
+          <Users className="text-sky-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+        }
+        gradient="from-sky-500 to-transparent"
+        iconBg="bg-sky-500/20"
+      />
+
+      {/* DELIVERYMEN */}
+      <DashboardCard
+        title="Delivery Men"
+        value={`${data.total_deliverymen.total} (+${data.total_deliverymen.new_deliverymen})`}
+        icon={
+          <Truck className="text-rose-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+        }
+        gradient="from-rose-500 to-transparent"
+        iconBg="bg-rose-500/20"
+      />
+
+      {/* INCOME */}
+      <DashboardCard
+        title="Today System Income"
+        value={`${Number(
+          data.total_delivery_income_today.today_system_income || 0
+        ).toLocaleString()} Ks`}
+        icon={
+          <DollarSign className="text-yellow-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+        }
+        gradient="from-yellow-500 to-transparent"
+        iconBg="bg-yellow-500/20"
+      />
+    </section>
   );
 }

@@ -33,9 +33,7 @@ const Footer = () => {
         @magwaysoftwarehouse
       </div>
 
-      <div className="absolute right-12 text-sm text-gray-400">
-        © 2025
-      </div>
+    
     </footer>
   );
 };

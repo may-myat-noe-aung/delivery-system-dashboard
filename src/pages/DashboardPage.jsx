@@ -1,51 +1,34 @@
-// import React from "react";
-// import SummaryCards from "../components/Dashboard/SummaryCards";
-// import TotalSummaryOfSales from "../components/Dashboard/TotalSummaryOfSales";
-// import TopSellingItems from "../components/Dashboard/TopSellingItems";
-// import TopDeliveryManList from "../components/Dashboard/TopDeliveryManList";
-// import ReportDeliveryOrder from "../components/Dashboard/ReportDeliveryOrder";
-// import CustomerReviews from "../components/Dashboard/CustomerReviews";
-// const DashboardPage = () => {
-//   return (
-//     <section className="  overflow-y-auto  max-w-8xl px-4 py-6">
-//       <SummaryCards />
-//       <TotalSummaryOfSales />
-//       {/* Tables */}
-//       <div className="grid grid-cols-3 gap-4 mb-6">
-//         <TopSellingItems />
-//         <TopDeliveryManList />
-//       </div>
-//       <ReportDeliveryOrder />
-//       <CustomerReviews />
-//     </section>
-//   );
-// };
-
-// export default DashboardPage;
 import React from "react";
 import SummaryCards from "../components/Dashboard/SummaryCards";
-import TotalSummaryOfSales from "../components/Dashboard/TotalSummaryOfSales";
-import TopSellingItems from "../components/Dashboard/TopSellingItems";
 import TopDeliveryManList from "../components/Dashboard/TopDeliveryManList";
-import ReportDeliveryOrder from "../components/Dashboard/ReportDeliveryOrder";
-import CustomerReviews from "../components/Dashboard/CustomerReviews";
+import ShopMenus from "../components/Dashboard/ShopMenus";
+import TopShopsThisMonth from "../components/Dashboard/TopShopsThisMonth";
+import TopLessShopsThisMonth from "../components/Dashboard/TopLessShopsThisMonth";
+import TopMenusThisMonth from "../components/Dashboard/TopMenusThisMonth";
+import TopLessMenusThisMonth from "../components/Dashboard/TopLessMenusThisMonth";
+import SystemOrderChart from "../components/Dashboard/SystemOrderChart";
 
 const DashboardPage = () => {
   return (
-    <section className="min-h-screen overflow-y-auto max-w-8xl px-4 py-6  text-gray-100">
+    <section className="min-h-screen overflow-y-auto  text-gray-100">
       <SummaryCards />
 
-      <TotalSummaryOfSales />
-
-      {/* Tables */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        <TopSellingItems />
-        <TopDeliveryManList />
+      <SystemOrderChart />
+      <div className="grid grid-cols-1  gap-6 my-6">
+        <TopMenusThisMonth className="col-span-1" />
+        <TopLessMenusThisMonth className="col-span-1" />
       </div>
+      <div className="grid grid-cols-1 2xl:grid-cols-2 gap-6 mb-6">
+        <TopShopsThisMonth className="col-span-1" />
+        <TopLessShopsThisMonth className="col-span-1" />
+      </div>
+  <div className="mb-6">
 
-      <ReportDeliveryOrder />
+      <TopDeliveryManList />
+  </div>
 
-      <CustomerReviews />
+
+      <ShopMenus />
     </section>
   );
 };

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import AddShopCard from "../components/Report/AddShopCard";
+import ShopReportList from "../components/Report/ShopReportList";
 import ViewShopDetail from "../components/Shop/ViewShopDetail";
+import ReportSummaryCards from "../components/Report/ReportSummaryCards";
+
 
 const ReportPage = () => {
   const [shops, setShops] = useState([]);
@@ -18,7 +20,7 @@ const ReportPage = () => {
   useEffect(() => {
     const fetchShops = async () => {
       try {
-        const res = await axios.get("http://38.60.244.137:3000/shops-approve");
+        const res = await axios.get("https://api.pwezayshops.com/shops-approve");
         setShops(res.data);
       } catch (err) {
         console.error("Failed to fetch shops:", err);
@@ -30,9 +32,11 @@ const ReportPage = () => {
     fetchShops();
   }, []);
 
-  // ✅ open menu page
-const handleViewReport = (shopId) => {
-  navigate(`/reports/${shopId}`);
+  // ✅ open shop report page
+const handleViewReport = (shop) => {
+  navigate(`/reports/${shop.id}`, {
+    state: { shopName: shop.shop_name }
+  });
 };
 
   // ✅ open modal (Shop Details)
@@ -66,16 +70,20 @@ const handleViewReport = (shopId) => {
   }
 
   return (
-    <section className="flex w-full overflow-y-auto max-w-8xl px-4">
+<>
+      <ReportSummaryCards/>
+
+    <section className="">
 
       {/* ✅ Shop Cards */}
-      <AddShopCard
+      <ShopReportList
         shops={shops}
         onDetail={handleViewReport}
         onViewShopDetails={handleViewShopDetails}
       />
 
     </section>
+</>
   );
 };
 

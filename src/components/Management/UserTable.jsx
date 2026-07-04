@@ -3,6 +3,8 @@ import { Download, Search, Trash2 } from "lucide-react";
 import axios from "axios";
 import { useAlert } from "../../AlertContext";
 import UserDetailModal from "./UserDetailModal";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 export default function UserTable() {
   const { showAlert, confirm } = useAlert();
@@ -27,14 +29,21 @@ export default function UserTable() {
   useEffect(() => {
     const interval = setInterval(() => {
       axios
-        .get("http://38.60.244.137:3000/users")
+        .get("https://api.pwezayshops.com/users")
         .then((res) => {
-          // filter out special users
-          const nonSpecialUsers = res.data.filter((u) => u.special !== 1);
+          const nonSpecialUsers = res.data
+            .filter((u) => u.special !== 1)
+            .map((u) => ({
+              ...u,
+              photoUrl: u.photo
+                ? `http://38.60.244.137:3000/uploads/${u.photo}`
+                : null,
+            }));
+
           setUsers(nonSpecialUsers);
         })
         .catch((err) => console.error("API Error:", err));
-    }, 500);
+    }, 1000); // (recommend 5s, not 500ms)
 
     return () => clearInterval(interval);
   }, []);
@@ -74,79 +83,85 @@ export default function UserTable() {
     setModalOpen(true);
   };
 
-  // const openDeletePasscode = (user) => {
-  //   setActiveUser(user);
-  //   setPasscode("");
-  //   setPasscodeModal(true);
-  //   setTimeout(() => passcodeInputRef.current?.focus(), 100);
-  // };
+  //   const openDeletePasscode = (user) => {
+  //     setActiveUser(user);
+  //     setPasscode(""); // reset
+  //     setPasscodeModal(true);
+  //    useEffect(() => {
+  //   if (passcodeModal) {
+  //     setTimeout(() => passcodeInputRef.current?.focus(), 100);
+  //   }
+  // }, [passcodeModal]);
+  //   };
+  useEffect(() => {
+    if (passcodeModal) {
+      const timer = setTimeout(() => {
+        passcodeInputRef.current?.focus();
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [passcodeModal]);
   const openDeletePasscode = (user) => {
     setActiveUser(user);
-    setPasscode(""); // reset
+    setPasscode("");
     setPasscodeModal(true);
-    setTimeout(() => passcodeInputRef.current?.focus(), 100);
   };
+  const doDelete = async () => {
+    if (!passcode) {
+      showAlert("Enter passcode", "error");
+      return;
+    }
 
-  // const doDelete = () => {
-  //   if (passcode === "234567") {
-  //     setActionLoading((prev) => ({ ...prev, [activeUser.id]: true }));
+    try {
+      setActionLoading((prev) => ({
+        ...prev,
+        [activeUser.id]: true,
+      }));
 
-  //     axios
-  //       .delete(`http://38.60.244.137:3000/users/${activeUser.id}`)
-  //       .then((res) => {
-  //         setUsers((prev) => prev.filter((u) => u.id !== activeUser.id));
+      // 1. VERIFY PASSCODE (API)
+      const verifyRes = await axios.post(
+        "https://api.pwezayshops.com/admin/verify-admin-passcode",
+        {
+          passcode,
+        },
+      );
 
-  //         setAlerts((prev) => [
-  //           ...prev,
-  //           res.data.message || "User deleted successfully",
-  //         ]);
-  //       })
-  //       .catch((err) =>
-  //         setAlerts((prev) => [
-  //           ...prev,
-  //           err.response?.data?.message || "Delete failed",
-  //         ]),
-  //       )
-  //       .finally(() => {
-  //         setActionLoading((prev) => ({ ...prev, [activeUser.id]: false }));
-  //         setPasscodeModal(false);
-  //         setPasscode("");
-  //       });
-  //   } else {
-  //     setAlerts((prev) => [...prev, "Incorrect passcode"]);
-  //   }
-  // };
-  const doDelete = () => {
-  if (passcode !== "234567") {
-    showAlert("Incorrect passcode", "error");
-    return;
-  }
+      if (!verifyRes.data.success) {
+        showAlert(verifyRes.data.message || "Incorrect passcode", "error");
+        return;
+      }
 
-  setActionLoading((prev) => ({ ...prev, [activeUser.id]: true }));
+      // 2. DELETE USER (ONLY AFTER VERIFY SUCCESS)
+      const res = await axios.delete(
+        `https://api.pwezayshops.com/users/${activeUser.id}`,
+      );
 
-  axios
-    .delete(`http://38.60.244.137:3000/users/${activeUser.id}`)
-    .then((res) => {
+      // remove from UI
       setUsers((prev) => prev.filter((u) => u.id !== activeUser.id));
 
-      showAlert(
-        res.data?.message || "User deleted successfully",
-        "success"
-      );
-    })
-    .catch((err) => {
-      showAlert(
-        err.response?.data?.message || "Delete failed",
-        "error"
-      );
-    })
-    .finally(() => {
-      setActionLoading((prev) => ({ ...prev, [activeUser.id]: false }));
+      showAlert(res.data?.message || "User deleted successfully", "success");
+
+      // reset modal
       setPasscodeModal(false);
       setPasscode("");
-    });
+      setActiveUser(null);
+    } catch (err) {
+      console.error(err);
+
+      showAlert(err?.response?.data?.message || "Delete failed", "error");
+    } finally {
+      setActionLoading((prev) => ({
+        ...prev,
+        [activeUser.id]: false,
+      }));
+    }
+  };
+
+const getPhotoUrl = (photo) => {
+  if (!photo) return null;
+  return `https://api.pwezayshops.com/uploads/${photo}`;
 };
-  const getPhoto = (photo) => photo || "https://via.placeholder.com/80";
   const formatDateShort = (date) =>
     date ? new Date(date).toLocaleString() : "-";
   const getMapUrl = (location) =>
@@ -154,118 +169,115 @@ export default function UserTable() {
       ? `https://maps.google.com?q=${encodeURIComponent(location)}&output=embed`
       : null;
 
-  // const toggleStatus = (user, newStatus) => {
-  //   setActionLoading((prev) => ({ ...prev, [user.id]: true }));
-  //   axios
-  //     .patch(`http://38.60.244.137:3000/users/status/${user.id}`, {
-  //       status: newStatus,
-  //     })
-  //     .then((res) => {
-  //       setUsers((prev) =>
-  //         prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)),
-  //       );
-  //       setAlerts((prev) => [...prev, res.data.message || "Status updated"]);
-  //     })
-  //     .catch((err) =>
-  //       setAlerts((prev) => [
-  //         ...prev,
-  //         err.response?.data?.message || "Failed to update status",
-  //       ]),
-  //     )
-  //     .finally(() => {
-  //       setActionLoading((prev) => ({ ...prev, [user.id]: false }));
-  //     });
-  // };
-
   const toggleStatus = (user, newStatus) => {
-  setActionLoading((prev) => ({ ...prev, [user.id]: true }));
+    setActionLoading((prev) => ({ ...prev, [user.id]: true }));
 
-  axios
-    .patch(`http://38.60.244.137:3000/users/status/${user.id}`, {
-      status: newStatus,
-    })
-    .then((res) => {
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === user.id ? { ...u, status: newStatus } : u
-        )
-      );
+    axios
+      .patch(`https://api.pwezayshops.com/users/status/${user.id}`, {
+        status: newStatus,
+      })
+      .then((res) => {
+        setUsers((prev) =>
+          prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)),
+        );
 
-      showAlert(res.data?.message || "Status updated", "success");
-    })
-    .catch((err) => {
-      showAlert(
-        err.response?.data?.message || "Failed to update status",
-        "error"
-      );
-    })
-    .finally(() => {
-      setActionLoading((prev) => ({ ...prev, [user.id]: false }));
-    });
-};
+        showAlert(res.data?.message || "Status updated", "success");
+      })
+      .catch((err) => {
+        showAlert(
+          err.response?.data?.message || "Failed to update status",
+          "error",
+        );
+      })
+      .finally(() => {
+        setActionLoading((prev) => ({ ...prev, [user.id]: false }));
+      });
+  };
   const [specialLoading, setSpecialLoading] = useState({});
 
   const handleSpecialCheckbox = (user) => {
     setSpecialUser(user);
     setSpecialModal(true);
   };
+  const confirmSpecialUser = async () => {
+    if (!specialUser) return;
 
-  // const confirmSpecialUser = async () => {
-  //   if (!specialUser) return;
+    try {
+      setSpecialLoading((prev) => ({
+        ...prev,
+        [specialUser.id]: true,
+      }));
 
-  //   try {
-  //     setSpecialLoading((prev) => ({ ...prev, [specialUser.id]: true }));
+      const res = await axios.patch(
+        `https://api.pwezayshops.com/special-users/${specialUser.id}`,
+      );
 
-  //     const res = await axios.patch(
-  //       `http://38.60.244.137:3000/special-users/${specialUser.id}`,
-  //       // { orderId: "O002" },
-  //     );
+      setUsers((prev) => prev.filter((u) => u.id !== specialUser.id));
 
-  //     setUsers((prev) => prev.filter((u) => u.id !== specialUser.id));
+      showAlert(res.data?.message || "Marked as special user", "success");
+    } catch (err) {
+      showAlert(
+        err.response?.data?.message || "Failed to mark special",
+        "error",
+      );
+    } finally {
+      setSpecialLoading((prev) => ({
+        ...prev,
+        [specialUser.id]: false,
+      }));
 
-  //     showAlert(res.data.message || "User marked as special", "success");
-  //   } catch (err) {
-  //     showAlert(
-  //       err.response?.data?.message || "Failed to mark special",
-  //       "error",
-  //     );
-  //   } finally {
-  //     setSpecialLoading((prev) => ({ ...prev, [specialUser.id]: false }));
-  //     setSpecialModal(false);
-  //   }
-  // };
-const confirmSpecialUser = async () => {
-  if (!specialUser) return;
+      setSpecialModal(false);
+    }
+  };
+  const handleExport = () => {
+    try {
+      const exportData = filteredUsers.map((user) => {
+        const [date, time] = splitDateTime(user.created_at);
 
-  try {
-    setSpecialLoading((prev) => ({
-      ...prev,
-      [specialUser.id]: true,
-    }));
+        return {
+          ID: user.id,
+          Name: user.name,
+          Email: user.email,
+          Phone: user.phone,
+          Status: user.status,
+          Special: user.special === 1 ? "Yes" : "No",
+          Date: date,
+          Time: time,
+        };
+      });
 
-    const res = await axios.patch(
-      `http://38.60.244.137:3000/special-users/${specialUser.id}`
-    );
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
 
-    setUsers((prev) =>
-      prev.filter((u) => u.id !== specialUser.id)
-    );
+      worksheet["!cols"] = [
+        { wch: 12 },
+        { wch: 25 },
+        { wch: 30 },
+        { wch: 18 },
+        { wch: 15 },
+        { wch: 12 },
+        { wch: 15 },
+        { wch: 12 },
+      ];
 
-    showAlert(res.data?.message || "Marked as special user", "success");
-  } catch (err) {
-    showAlert(
-      err.response?.data?.message || "Failed to mark special",
-      "error"
-    );
-  } finally {
-    setSpecialLoading((prev) => ({
-      ...prev,
-      [specialUser.id]: false,
-    }));
+      const workbook = XLSX.utils.book_new();
 
-    setSpecialModal(false);
-  }
-};
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+
+      const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      saveAs(blob, `users_${Date.now()}.xlsx`);
+    } catch (error) {
+      console.error("Export Error:", error);
+      showAlert("Export failed", "error");
+    }
+  };
   return (
     <div className="">
       <div className="text-white mt-8 mb-8">
@@ -288,6 +300,7 @@ const confirmSpecialUser = async () => {
           </div>
 
           <button
+            onClick={handleExport}
             className="flex items-center gap-2 px-4 py-2 
                          rounded-2xl border border-purple-500/40
                          bg-purple-500/10 text-purple-300
@@ -366,18 +379,16 @@ const confirmSpecialUser = async () => {
                     <td className="py-4">
                       <div className="flex items-center gap-3">
                         {user.photo ? (
-                          <img
-                            src={user.photo}
-                            alt={user.name}
-                            className="w-10 h-10 rounded-full object-cover border border-slate-700"
-                          />
+                      <img
+  src={getPhotoUrl(user.photo)}
+  alt={user.name}
+  className="w-10 h-10 rounded-full object-cover border border-slate-700"
+  onError={(e) => {
+    e.target.src = "https://via.placeholder.com/80";
+  }}
+/>
                         ) : (
-                          <div
-                            className="w-10 h-10 rounded-full 
-                                      bg-purple-500/30 
-                                      flex items-center justify-center 
-                                      text-purple-300 font-semibold"
-                          >
+                          <div className="w-10 h-10 rounded-full bg-purple-500/30 flex items-center justify-center text-purple-300 font-semibold">
                             {user.name?.charAt(0).toUpperCase() || "?"}
                           </div>
                         )}
@@ -546,43 +557,52 @@ const confirmSpecialUser = async () => {
       )}
 
       {specialModal && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center backdrop-blur-sm">
+        <div className="fixed inset-0 z-40 flex items-center justify-center px-4 backdrop-blur-md">
+          {/* BACKDROP */}
           <div
             className="absolute inset-0 bg-black/70"
             onClick={() => setSpecialModal(false)}
           />
 
+          {/* MODAL */}
           <div
-            className="relative bg-[#1a2030] border border-slate-700 
-    rounded-xl p-6 w-[320px] text-white shadow-2xl"
+            className="relative w-full max-w-sm rounded-2xl 
+      bg-gradient-to-b from-[#1b2235] to-[#121826]
+      border border-white/10 shadow-2xl p-6"
           >
-            <h3 className="text-lg font-semibold text-purple-400 mb-3">
+            {/* TITLE */}
+            <h3 className="text-xl font-semibold text-center text-purple-400 mb-3">
               Mark Special User
             </h3>
 
-            <p className="text-sm text-slate-300 mb-6">
-              Do you want to mark{" "}
-              <span className="text-purple-400 text-lg font-medium">
+            {/* MESSAGE */}
+            <p className=" text-slate-300 text-center mb-6 leading-relaxed">
+              Mark{" "}
+              <span className="text-purple-300 font-semibold">
                 {specialUser?.name}
               </span>{" "}
-              as special user?
+              as a special user?
             </p>
 
-            <div className="flex justify-between ">
+            {/* BUTTONS */}
+            <div className="flex gap-3">
               <button
                 onClick={() => setSpecialModal(false)}
-                className="px-4 py-1.5 rounded-lg border border-slate-700 
-          hover:bg-slate-700 text-sm"
+                className="flex-1 py-2.5 rounded-xl border border-white/10 
+          bg-white/5 text-slate-300 hover:bg-white/10 
+          transition-all text-sm"
               >
-                No
+                Cancel
               </button>
 
               <button
                 onClick={confirmSpecialUser}
-                className="px-4 py-1.5 rounded-lg bg-purple-600 
-          hover:bg-purple-700 text-sm"
+                className="flex-1 py-2.5 rounded-xl 
+          bg-gradient-to-r from-purple-600 to-indigo-500
+          text-white font-medium hover:opacity-90 
+          transition-all text-sm shadow-lg"
               >
-                Yes
+                Confirm
               </button>
             </div>
           </div>

@@ -1,3 +1,6 @@
+
+
+
 // import React from "react";
 // import { Outlet } from "react-router-dom";
 // import Header from "./Header";
@@ -6,53 +9,58 @@
 
 // const Layout = () => {
 //   return (
-//     <main
-//       className="
-//         min-h-screen w-full relative
-//         bg-gray-100 dark:bg-gray-900
-//         text-gray-900 dark:text-gray-100
-//       "
-//     >
-//       <section className="flex">
-//         <Aside />
+//  <div className="flex h-screen bg-[#0f172a] text-white">
+//       <Aside />
 
-//         <div className="w-full flex flex-col px-10">
-//           <Header />
+//       <div className="flex-1 flex flex-col">
+//         <Header />
+
+//         <div className="flex-1 overflow-y-auto p-8">
 //           <Outlet />
 //         </div>
-//       </section>
 
-//       <div className="absolute bottom-0 w-full">
 //         <Footer />
 //       </div>
-//     </main>
+//     </div>
 //   );
 // };
 
 // export default Layout;
-import React from "react";
+//     <main className="w-full relative ">
+//       {/* <RoleRedirect />  */}
+
+//       <section className="flex">
+//         <Aside />
+//         <div className="w-full flex flex-col min-h-screen bg-neutral-950 text-neutral-100">
+//           <Header />
+//           <Outlet />
+//           <Footer />
+//         </div>
+//       </section>
+//     </main>
+
 import { Outlet } from "react-router-dom";
-import Header from "./Header";
 import Aside from "./Aside";
+import Header from "./Header";
 import Footer from "./Footer";
 
-const Layout = () => {
+
+
+export default function AdminLayout() {
   return (
-    <main className="min-h-screen w-full relative bg-gray-900 text-gray-100">
-      <section className="flex min-h-screen">
-        <Aside />
+    <div className="flex h-screen bg-[#0f172a] text-white">
+      <Aside />
 
-        <div className="w-full flex flex-col px-10">
-          <Header />
-          <div className="flex-1">
-            <Outlet />
-          </div>
+      <div className="flex-1 flex flex-col">
+        <Header />
+
+        <div className="flex-1 overflow-y-auto p-6  ">
+          <Outlet />
         </div>
-      </section>
 
-      <Footer />
-    </main>
+        <Footer />
+      </div>
+    </div>
   );
-};
+}
 
-export default Layout;

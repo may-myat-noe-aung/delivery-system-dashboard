@@ -1,113 +1,171 @@
 import { createBrowserRouter } from "react-router-dom";
+
 import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import NotFoundPage from "./pages/NotFoundPage";
 import DashboardPage from "./pages/DashboardPage";
 import ShopPage from "./pages/ShopPage";
-import MenuPage from "./pages/MenuPage";
 import DeliveryPage from "./pages/DeliveryPage";
-import SaleHistoryPage from "./pages/SaleHistoryPage";
 import ReportPage from "./pages/ReportPage";
 import ManagementPage from "./pages/ManagementPage";
-import SettingPage from "./pages/SettingPage";
-import AddDeliveryMen from "./pages/AddDeliveryMen";
+import AddDeliveryMen from "./pages/AddDeliveryMenPage";
 import TrackDeliveryMen from "./pages/TrackDeliveryMenPage";
-import Account from "./components/Setting/Account";
-import Preference from "./components/Setting/Preference";
-import OrderReceivePage from "./pages/OrderReceivePage";
-import AssignDeliveryMan from "./pages/AssignDeliveryMan";
-import ChatPage from "./pages/ChatPage";
+import AssignDeliveryMan from "./pages/AssignDeliveryManPage";
 import MenuListPage from "./pages/MenuListPage";
-import MenuDetail from "./components/Shop/MenuDetail";
 import LoginPage from "./pages/LoginPage";
 import ShopDetailsModal from "./components/Management/ShopDetailsModal";
 import ReportTable from "./components/Report/ReportTable";
+import SettingPage from "./pages/SettingPage";
+import ManagementPageForShopManager from "./pages/ManagementPageForShopManager";
+import SettingPage2 from "./pages/SettingPage2";
+import SettingPage3 from "./pages/SettingPage3";
 
 const router = createBrowserRouter([
-  { path: "/login", element: <LoginPage /> },
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+
   {
     path: "/",
-    element: <Layout />,
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
     errorElement: <NotFoundPage />,
+
     children: [
       {
-        path: "/",
         index: true,
-        element: <DashboardPage />,
+        element: (
+          <ProtectedRoute allowedRoles={["owner", "manager"]}>
+            <DashboardPage />
+          </ProtectedRoute>
+        ),
       },
-      {
-        path: "/shop",
-        element: <ShopPage />,
-      },
-      {
-        path: "/shop/details/:id",
-        element: <ShopDetailsModal />,
-      },
-      {
-        path: "/menu",
-        element: <MenuPage />,
-      },
-      {
-        path: "shop/menu-list/:shopId",
-        element: <MenuListPage />,
-      },
-      // {
-      //   path: "shop/menu-list/:shopId/detail/:menuId",
-      //   element: <MenuDetail />,
-      // },
 
       {
-        path: "/orders/received",
-        element: <OrderReceivePage />,
+        path: "/shop",
+        element: (
+          <ProtectedRoute allowedRoles={["owner", "manager", "shopmanager"]}>
+            <ShopPage />
+          </ProtectedRoute>
+        ),
       },
+
+      {
+        path: "/shop/details/:id",
+        element: (
+          <ProtectedRoute allowedRoles={["owner", "manager", "shopmanager"]}>
+            <ShopDetailsModal />
+          </ProtectedRoute>
+        ),
+      },
+
+      {
+        path: "/shop/menu-list/:shopId",
+        element: (
+          <ProtectedRoute allowedRoles={["owner", "manager", "shopmanager"]}>
+            <MenuListPage />
+          </ProtectedRoute>
+        ),
+      },
+
       {
         path: "/delivery",
-        element: <DeliveryPage />,
+        element: (
+          <ProtectedRoute allowedRoles={["owner", "manager", "delimanager"]}>
+            <DeliveryPage />
+          </ProtectedRoute>
+        ),
       },
+
       {
-        path: "/orders/assignment",
-        element: <AssignDeliveryMan />,
+        path: "/delivery/assignment",
+        element: (
+          <ProtectedRoute allowedRoles={["owner", "manager", "delimanager"]}>
+            <AssignDeliveryMan />
+          </ProtectedRoute>
+        ),
       },
+
       {
         path: "/delivery/add-delivery-men",
-        element: <AddDeliveryMen />,
+        element: (
+          <ProtectedRoute allowedRoles={["owner", "manager", "delimanager"]}>
+            <AddDeliveryMen />
+          </ProtectedRoute>
+        ),
       },
-      // {
-      //   path: "/delivery/track-delivery-men",
-      //   element: <TrackDeliveryMen />,
-      // },
-      // {
-      //   path: "/salehistory",
-      //   element: <SaleHistoryPage />,
-      // },
+
+      {
+        path: "/delivery/track-delivery-men",
+        element: (
+          <ProtectedRoute allowedRoles={["owner", "manager", "delimanager"]}>
+            <TrackDeliveryMen />
+          </ProtectedRoute>
+        ),
+      },
+
       {
         path: "/report",
-        element: <ReportPage />,
+        element: (
+          <ProtectedRoute allowedRoles={["owner"]}>
+            <ReportPage />
+          </ProtectedRoute>
+        ),
       },
+
       {
         path: "/reports/:shopId",
-        element: <ReportTable />,
+        element: (
+          <ProtectedRoute allowedRoles={["owner"]}>
+            <ReportTable />
+          </ProtectedRoute>
+        ),
       },
+
       {
         path: "/management",
-        element: <ManagementPage />,
+        element: (
+          <ProtectedRoute allowedRoles={["owner"]}>
+            <ManagementPage />
+          </ProtectedRoute>
+        ),
       },
       {
-        path: "/chat",
-        element: <ChatPage />,
+        path: "/shop-management",
+        element: (
+          <ProtectedRoute allowedRoles={["shopmanager"]}>
+            <ManagementPageForShopManager />
+          </ProtectedRoute>
+        ),
       },
+
       {
         path: "/setting",
-        element: <SettingPage />,
-        children: [
-          {
-            path: "account",
-            element: <Account />,
-          },
-          {
-            path: "preference",
-            element: <Preference />,
-          },
-        ],
+        element: (
+          <ProtectedRoute allowedRoles={["owner"]}>
+            <SettingPage />
+          </ProtectedRoute>
+        ),
+      },
+       {
+        path: "/settingForShopmanager",
+        element: (
+          <ProtectedRoute allowedRoles={["shopmanager"]}>
+            <SettingPage2 />
+          </ProtectedRoute>
+        ),
+      },
+        {
+        path: "/settingForDelimanager",
+        element: (
+          <ProtectedRoute allowedRoles={["delimanager"]}>
+            <SettingPage3 />
+          </ProtectedRoute>
+        ),
       },
     ],
   },

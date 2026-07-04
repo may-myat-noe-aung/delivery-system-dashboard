@@ -90,7 +90,7 @@
 
 //             {shop.photo ? (
 //               <img
-//                 src={`http://38.60.244.137:3000/shop-uploads/${shop.photo}`}
+//                 src={`https://api.pwezayshops.com/shop-uploads/${shop.photo}`}
 //                 alt={shop.shop_name}
 //                 className="w-48 h-48 object-cover rounded-2xl border border-[#2c2f44]"
 //               />
@@ -180,6 +180,18 @@ function formatDateShort(dtString) {
   if (isNaN(d)) return dtString;
   return d.toLocaleString();
 }
+const categoryMap = {
+    1:"snack",
+    2:"alcoholic",
+   3: "breakfast",
+    4:"cake",
+    5:"coffee",
+    6:"drink",
+    7:"fastfood",
+    8:"lunch",
+    9:"morning",
+   10: "sweets",
+};
 
 const parseLocation = (loc) => {
   if (!loc) return { lat: null, lon: null, label: "-" };
@@ -206,6 +218,11 @@ export default function ShopkeeperDetailModal({
   if (!open || !shop) return null;
 
   const { lat, lon, label } = parseLocation(shop.location);
+  const renderCategories = (cats = []) => {
+  if (!cats.length) return "-";
+
+  return cats.map((id) => categoryMap[id] || `#${id}`).join(", ");
+};
 
   const mapUrl =
     lat && lon
@@ -263,7 +280,7 @@ export default function ShopkeeperDetailModal({
 
             {shop.photo ? (
               <img
-                src={`http://38.60.244.137:3000/shop-uploads/${shop.photo}`}
+                src={`https://api.pwezayshops.com/shop-uploads/${shop.photo}`}
                 alt={shop.shop_name}
                 className="w-48 h-48 object-cover rounded-2xl border border-[#2c2f44]"
               />
@@ -312,12 +329,31 @@ export default function ShopkeeperDetailModal({
             </div>
 
             {/* PERMISSION */}
-            <div className="bg-[#1e2235] p-4 rounded-xl border border-[#2c2f44]">
+            {/* <div className="bg-[#1e2235] p-4 rounded-xl border border-[#2c2f44]">
               <p className="text-xs text-gray-400">Permission</p>
               <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs border ${permissionColor}`}>
                 {shop.permission}
               </span>
-            </div>
+            </div> */}
+            {/* CATEGORIES */}
+<div className="bg-[#1e2235] p-4 rounded-xl border border-[#2c2f44]">
+  <p className="text-xs text-gray-400">Categories</p>
+
+  <div className="flex flex-wrap gap-2 mt-2">
+    {shop.categories?.length ? (
+      shop.categories.map((id) => (
+        <span
+          key={id}
+          className="px-3 py-1 text-xs rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/30"
+        >
+          {categoryMap[id] || `#${id}`}
+        </span>
+      ))
+    ) : (
+      <span className="text-sm text-gray-400">-</span>
+    )}
+  </div>
+</div>
           </div>
 
           {/* MAP */}

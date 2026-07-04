@@ -1,242 +1,257 @@
-// import React, { useState } from "react";
-// import { ChevronDown } from "lucide-react";
-// import { useTheme } from "../ThemeProvider"; // adjust path to your theme provider
+import React, { useEffect, useState } from "react";
+import { Bike, Star, Phone, MapPin, Download } from "lucide-react";
+import { BiEnvelope } from "react-icons/bi";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
-// // 🔁 Dummy data for delivery men
-// const deliveryMenData = {
-//   day: [
-//     { rank: 1, name: "Kyaw Kyaw", orders: 12, onTime: "95%", rating: 4.8, complaints: 0 },
-//     { rank: 2, name: "Aung Aung", orders: 10, onTime: "90%", rating: 4.6, complaints: 1 },
-//     { rank: 3, name: "Min Min", orders: 8, onTime: "88%", rating: 4.5, complaints: 2 },
-//     { rank: 4, name: "Min Min", orders: 8, onTime: "88%", rating: 4.5, complaints: 2 },
-//     { rank: 5, name: "Min Min", orders: 8, onTime: "88%", rating: 4.5, complaints: 2 },
-//   ],
-//   week: [
-//     { rank: 1, name: "Kyaw Kyaw", orders: 60, onTime: "96%", rating: 4.9, complaints: 1 },
-//     { rank: 2, name: "Aung Aung", orders: 55, onTime: "92%", rating: 4.7, complaints: 2 },
-//     { rank: 3, name: "Min Min", orders: 48, onTime: "89%", rating: 4.5, complaints: 3 },
-//     { rank: 4, name: "Min Min", orders: 48, onTime: "89%", rating: 4.5, complaints: 3 },
-//     { rank: 5, name: "Min Min", orders: 48, onTime: "89%", rating: 4.5, complaints: 3 },
-//   ],
-//   month: [
-//     { rank: 1, name: "Kyaw Kyaw", orders: 220, onTime: "94%", rating: 4.8, complaints: 3 },
-//     { rank: 2, name: "Aung Aung", orders: 200, onTime: "90%", rating: 4.6, complaints: 5 },
-//     { rank: 3, name: "Min Min", orders: 180, onTime: "87%", rating: 4.4, complaints: 4 },
-//     { rank: 4, name: "Min Min", orders: 180, onTime: "87%", rating: 4.4, complaints: 4 },
-//     { rank: 5, name: "Min Min", orders: 180, onTime: "87%", rating: 4.4, complaints: 4 },
-//   ],
-//   year: [
-//     { rank: 1, name: "Kyaw Kyaw", orders: 2400, onTime: "95%", rating: 4.9, complaints: 12 },
-//     { rank: 2, name: "Aung Aung", orders: 2200, onTime: "91%", rating: 4.7, complaints: 18 },
-//     { rank: 3, name: "Min Min", orders: 2000, onTime: "89%", rating: 4.5, complaints: 20 },
-//     { rank: 4, name: "Min Min", orders: 2000, onTime: "89%", rating: 4.5, complaints: 20 },
-//     { rank: 5, name: "Min Min", orders: 2000, onTime: "89%", rating: 4.5, complaints: 20 },
-//   ],
-// };
+export default function TopDeliveryMen() {
+  const [drivers, setDrivers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-// export default function TopDeliveryManList() {
-//   const [filter, setFilter] = useState("day");
-//   const [dropdownOpen, setDropdownOpen] = useState(false);
-//   const { dark } = useTheme();
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      try {
+        const res = await fetch(
+          "https://api.pwezayshops.com/top5deliverymen-by-system",
+        );
 
-//   const cardBg = dark ? "bg-gray-800 text-gray-100" : "bg-white text-gray-800";
-//   const tableHeaderBg = dark ? "bg-gray-700 text-purple-400" : "bg-white text-[#a855f7]";
-//   const tableBorder = dark ? "border-gray-600" : "border-[#a855f7]";
-//   const rowHover = dark ? "hover:bg-gray-700" : "hover:bg-gray-50";
+        const json = await res.json();
 
-//   return (
-//     <div className={`col-span-2 p-4 rounded-2xl shadow ${cardBg}`}>
-//       {/* Header */}
-//       <div className="flex justify-between items-center mb-4 relative">
-//         <h2 className="text-lg font-semibold">{`Top Delivery Man List`}</h2>
+        if (json.success) {
+          setDrivers(json.data || []);
+          setError("");
+        } else {
+          setError("Failed to load delivery men");
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load delivery men");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-//         {/* Dropdown button */}
-//         <div className="relative">
-//           <button
-//             onClick={() => setDropdownOpen(!dropdownOpen)}
-//             className="text-sm text-white font-medium bg-[#a855f7] px-3 py-1 rounded-lg flex items-center justify-center gap-2"
-//           >
-//             {filter === "day"
-//               ? "This Day"
-//               : filter === "week"
-//               ? "This Weekly"
-//               : filter === "month"
-//               ? "This Month"
-//               : "This Year"}
-//             <ChevronDown className="w-4 h-4" />
-//           </button>
+    // initial fetch
+    fetchDrivers();
 
-//           {/* Dropdown menu */}
-//           {dropdownOpen && (
-//             <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10">
-//               {["day", "week", "month", "year"].map((item) => (
-//                 <div
-//                   key={item}
-//                   onClick={() => {
-//                     setFilter(item);
-//                     setDropdownOpen(false);
-//                   }}
-//                   className="px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
-//                 >
-//                   {item === "day"
-//                     ? "This Day"
-//                     : item === "week"
-//                     ? "This Weekly"
-//                     : item === "month"
-//                     ? "This Month"
-//                     : "This Year"}
-//                 </div>
-//               ))}
-//             </div>
-//           )}
-//         </div>
-//       </div>
+    // live refresh every 3 sec
+    const interval = setInterval(fetchDrivers, 1000);
 
-//       {/* Table */}
-//       <div className="overflow-x-auto">
-//         <table className={`w-full text-sm text-left ${dark ? "text-gray-200" : "text-gray-600"}`}>
-//           <thead className={`border-b-2 ${tableBorder} ${tableHeaderBg}`}>
-//             <tr>
-//               <th className="px-4 py-2">Rank</th>
-//               <th className="px-4 py-2">Delivery Man</th>
-//               <th className="px-4 py-2">Total Orders</th>
-//               <th className="px-4 py-2">On-Time Rate (%)</th>
-//               <th className="px-4 py-2">Rating</th>
-//               <th className="px-4 py-2">Complaints</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {deliveryMenData[filter].map((man, index) => (
-//               <tr key={index} className={`border-b ${tableBorder} ${rowHover}`}>
-//                 <td className="px-4 py-2">{man.rank}</td>
-//                 <td className="px-4 py-2 font-medium">{man.name}</td>
-//                 <td className="px-4 py-2">{man.orders}</td>
-//                 <td className="px-4 py-2">{man.onTime}</td>
-//                 <td className="px-4 py-2">{man.rating}</td>
-//                 <td className="px-4 py-2">{man.complaints}</td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       </div>
-//     </div>
-//   );
-// }
-import React, { useState } from "react";
-import { ChevronDown } from "lucide-react";
+    return () => clearInterval(interval);
+  }, []);
 
-// 🔁 Dummy data for delivery men
-const deliveryMenData = {
-  day: [
-    { rank: 1, name: "Kyaw Kyaw", orders: 12, onTime: "95%", rating: 4.8, complaints: 0 },
-    { rank: 2, name: "Aung Aung", orders: 10, onTime: "90%", rating: 4.6, complaints: 1 },
-    { rank: 3, name: "Min Min", orders: 8, onTime: "88%", rating: 4.5, complaints: 2 },
-    { rank: 4, name: "Min Min", orders: 8, onTime: "88%", rating: 4.5, complaints: 2 },
-    { rank: 5, name: "Min Min", orders: 8, onTime: "88%", rating: 4.5, complaints: 2 },
-  ],
-  week: [
-    { rank: 1, name: "Kyaw Kyaw", orders: 60, onTime: "96%", rating: 4.9, complaints: 1 },
-    { rank: 2, name: "Aung Aung", orders: 55, onTime: "92%", rating: 4.7, complaints: 2 },
-    { rank: 3, name: "Min Min", orders: 48, onTime: "89%", rating: 4.5, complaints: 3 },
-    { rank: 4, name: "Min Min", orders: 48, onTime: "89%", rating: 4.5, complaints: 3 },
-    { rank: 5, name: "Min Min", orders: 48, onTime: "89%", rating: 4.5, complaints: 3 },
-  ],
-  month: [
-    { rank: 1, name: "Kyaw Kyaw", orders: 220, onTime: "94%", rating: 4.8, complaints: 3 },
-    { rank: 2, name: "Aung Aung", orders: 200, onTime: "90%", rating: 4.6, complaints: 5 },
-    { rank: 3, name: "Min Min", orders: 180, onTime: "87%", rating: 4.4, complaints: 4 },
-    { rank: 4, name: "Min Min", orders: 180, onTime: "87%", rating: 4.4, complaints: 4 },
-    { rank: 5, name: "Min Min", orders: 180, onTime: "87%", rating: 4.4, complaints: 4 },
-  ],
-  year: [
-    { rank: 1, name: "Kyaw Kyaw", orders: 2400, onTime: "95%", rating: 4.9, complaints: 12 },
-    { rank: 2, name: "Aung Aung", orders: 2200, onTime: "91%", rating: 4.7, complaints: 18 },
-    { rank: 3, name: "Min Min", orders: 2000, onTime: "89%", rating: 4.5, complaints: 20 },
-    { rank: 4, name: "Min Min", orders: 2000, onTime: "89%", rating: 4.5, complaints: 20 },
-    { rank: 5, name: "Min Min", orders: 2000, onTime: "89%", rating: 4.5, complaints: 20 },
-  ],
+const handleExport = () => {
+  try {
+    const exportData = drivers.map((driver, index) => ({
+      Rank: index + 1,
+      DeliveryManID: driver.id,
+      Name: driver.name,
+      Phone: driver.phone || "-",
+      Email: driver.email || "No Email",
+      TotalOrders: driver.total_order,
+      Rating: driver.rating,
+      Status: driver.status,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    worksheet["!cols"] = [
+      { wch: 10 }, // Rank
+      { wch: 18 }, // ID
+      { wch: 30 }, // Name
+      { wch: 20 }, // Phone
+      { wch: 35 }, // Email
+      { wch: 18 }, // Orders
+      { wch: 12 }, // Rating
+      { wch: 15 }, // Status
+    ];
+
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Top Delivery Men"
+    );
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(
+      blob,
+      `top_delivery_men_${new Date()
+        .toISOString()
+        .slice(0, 10)}.xlsx`
+    );
+  } catch (error) {
+    console.error("Export Error:", error);
+    alert("Export failed");
+  }
 };
 
-export default function TopDeliveryManList() {
-  const [filter, setFilter] = useState("day");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
   return (
-    <div className="col-span-2 p-4 rounded-2xl shadow bg-gray-800 text-gray-100">
+    <div className="bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6 mb-2">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4 relative">
-        <h2 className="text-lg font-semibold">Top Delivery Man List</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-xl font-semibold text-white">
+            Top 5 Delivery Men
+          </h2>
 
-        {/* Dropdown button */}
-        <div className="relative">
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="text-sm text-white font-medium bg-[#a855f7] px-3 py-1 rounded-lg flex items-center justify-center gap-2"
-          >
-            {filter === "day"
-              ? "This Day"
-              : filter === "week"
-              ? "This Weekly"
-              : filter === "month"
-              ? "This Month"
-              : "This Year"}
-            <ChevronDown className="w-4 h-4" />
-          </button>
-
-          {/* Dropdown */}
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-36 bg-gray-700 border border-gray-600 rounded-lg shadow-lg z-10">
-              {["day", "week", "month", "year"].map((item) => (
-                <div
-                  key={item}
-                  onClick={() => {
-                    setFilter(item);
-                    setDropdownOpen(false);
-                  }}
-                  className="px-4 py-2 text-sm text-gray-200 hover:bg-gray-600 cursor-pointer"
-                >
-                  {item === "day"
-                    ? "This Day"
-                    : item === "week"
-                    ? "This Weekly"
-                    : item === "month"
-                    ? "This Month"
-                    : "This Year"}
-                </div>
-              ))}
-            </div>
-          )}
+          <p className="text-sm text-neutral-400 mt-1">
+            Best delivery performance this month
+          </p>
         </div>
+        <button
+          onClick={handleExport}
+          className="px-4 py-2 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium hover:bg-indigo-500/20 transition flex items-center gap-1"
+        >
+          <Download size={14} /> Export
+        </button>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left text-gray-200">
-          <thead className="border-b-2 border-gray-600 text-purple-400">
-            <tr>
-              <th className="px-4 py-2">Rank</th>
-              <th className="px-4 py-2">Delivery Man</th>
-              <th className="px-4 py-2">Total Orders</th>
-              <th className="px-4 py-2">On-Time Rate (%)</th>
-              <th className="px-4 py-2">Rating</th>
-              <th className="px-4 py-2">Complaints</th>
+        <table className="w-full min-w-[900px]">
+          {/* Head */}
+          <thead>
+            <tr className="border-b border-slate-700 text-neutral-400 text-sm">
+              <th className="p-4 text-left font-medium">Rank</th>
+              <th className="p-4 text-left font-medium">Delivery Man</th>
+              <th className="p-4 text-center font-medium">Phone</th>
+              <th className="p-4 text-center font-medium">Email</th>
+              <th className="p-4 text-center font-medium">Total Orders</th>
+              <th className="p-4 text-center font-medium">Rating</th>
+              <th className="p-4 text-center font-medium">Status</th>
             </tr>
           </thead>
 
+          {/* Body */}
           <tbody>
-            {deliveryMenData[filter].map((man, index) => (
-              <tr
-                key={index}
-                className="border-b border-gray-600 hover:bg-gray-700"
-              >
-                <td className="px-4 py-2">{man.rank}</td>
-                <td className="px-4 py-2 font-medium">{man.name}</td>
-                <td className="px-4 py-2">{man.orders}</td>
-                <td className="px-4 py-2">{man.onTime}</td>
-                <td className="px-4 py-2">{man.rating}</td>
-                <td className="px-4 py-2">{man.complaints}</td>
+            {loading ? (
+              <tr>
+                <td colSpan={7} className="text-center py-16 text-neutral-400">
+                  Loading delivery men...
+                </td>
               </tr>
-            ))}
+            ) : error ? (
+              <tr>
+                <td colSpan={7} className="text-center py-16 text-red-400">
+                  {error}
+                </td>
+              </tr>
+            ) : drivers.length > 0 ? (
+              drivers.map((driver, index) => (
+                <tr
+                  key={driver.id}
+                  className="border-b border-slate-800 hover:bg-white/[0.03] transition-all duration-200"
+                >
+                  {/* Rank (UNCHANGED UI) */}
+                  <td className="p-4">
+                    <div
+                      className={`h-10 w-10 rounded-2xl flex items-center justify-center font-semibold text-sm ${
+                        index === 0
+                          ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
+                          : index === 1
+                            ? "bg-slate-400/10 text-slate-300 border border-slate-500/20"
+                            : index === 2
+                              ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
+                              : "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
+                      }`}
+                    >
+                      #{index + 1}
+                    </div>
+                  </td>
+
+                  {/* Profile */}
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      {driver.photo ? (
+                        <img
+                          src={`https://api.pwezayshops.com/deliverymen-uploads/${driver.photo}`}
+                          alt={driver.name}
+                          className="w-11 h-11 rounded-2xl object-cover ring-2 ring-indigo-500/20"
+                        />
+                      ) : (
+                        <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-semibold">
+                          {driver.name?.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+
+                      <div>
+                        <h4 className="font-medium text-white">
+                          {driver.name}
+                        </h4>
+
+                        <p className="text-xs text-neutral-500 mt-1">
+                          ID: {driver.id}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Phone */}
+                  <td className="p-4 text-center">
+                    {/* <Phone className="h-4 w-4 text-neutral-500" /> */}
+                    {driver.phone || "-"}
+                  </td>
+
+                  {/* Email */}
+                  <td className="p-4 text-center break-words whitespace-normal max-w-[150px]">
+                    {/* <BiEnvelope className="h-4 w-4 text-neutral-500" /> */}
+                    {driver.email || "No email"}
+                  </td>
+
+                  {/* Orders */}
+                  <td className="p-4 text-center text-indigo-400 font-semibold">
+                    {driver.total_order}
+                  </td>
+
+                  {/* Rating */}
+                  <td className="p-4 text-center">
+                    <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-sm">
+                      <Star className="h-4 w-4 fill-yellow-400" />
+                      {driver.rating}
+                    </div>
+                  </td>
+
+                  {/* Status */}
+                  <td className="p-4 text-center">
+                    <div
+                      className={`px-3 py-1 rounded-full text-xs border inline-flex items-center gap-2 ${
+                        driver.status === "active"
+                          ? "bg-green-500/10 text-green-400 border-green-500/20"
+                          : "bg-red-500/10 text-red-400 border-red-500/20"
+                      }`}
+                    >
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          driver.status === "active"
+                            ? "bg-green-400"
+                            : "bg-red-400"
+                        }`}
+                      />
+
+                      {driver.status === "active" ? "Active" : "Inactive"}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7} className="text-center py-16 text-neutral-500">
+                  No delivery men found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

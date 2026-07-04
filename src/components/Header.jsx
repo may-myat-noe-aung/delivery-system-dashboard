@@ -1,251 +1,274 @@
-// import React, { useState } from "react";
-// import { LogOut, Settings, Sun, Moon } from "lucide-react";
-// import { useTheme } from "./ThemeProvider";
-// import { useNavigate } from "react-router-dom";
+// // import React from "react";
+// // import { Bell, User, Menu } from "lucide-react";
+// // import { useLocation } from "react-router-dom";
+
+// // const Header = ({ collapsed, setCollapsed }) => {
+// //   const location = useLocation();
+
+// //   const getPageTitle = () => {
+// //     const path = location.pathname;
+
+// //     if (path === "/") return "Dashboard";
+// //     if (path.startsWith("/shop")) return "Shop";
+// //     if (path.startsWith("/report")) return "Report";
+// //     if (path.startsWith("/management")) return "Management";
+// //     if (path.startsWith("/shop-management")) return "Management";
+// //     if (path.startsWith("/setting")) return "Settings";
+// //     if (path.startsWith("/delivery/assignment")) return "Assign Delivery";
+// //     if (path.startsWith("/delivery/add-delivery-men"))
+// //       return "Add Delivery Man";
+// //     if (path.startsWith("/delivery/track-delivery-men"))
+// //       return "Track Delivery Man";
+
+// //     return "Dashboard";
+// //   };
+
+// //   return (
+// //     <header className="h-16 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-6">
+// //       {/* Left */}
+// //       <div className="flex items-center gap-4">
+// //         <h1 className="text-xl font-semibold text-[#B476FF]">
+// //           {getPageTitle()}
+// //         </h1>
+// //       </div>
+
+// //       {/* Right */}
+// //       <div className="flex items-center gap-4">
+// //         <button
+// //           className="
+// //             relative
+// //             p-2
+// //             rounded-xl
+// //             bg-gray-800
+// //             hover:bg-gray-700
+// //             transition
+// //           "
+// //         >
+// //           <Bell className="w-5 h-5 text-gray-300" />
+
+// //           <span
+// //             className="
+// //               absolute
+// //               -top-1
+// //               -right-1
+// //               w-2.5
+// //               h-2.5
+// //               bg-red-500
+// //               rounded-full
+// //             "
+// //           />
+// //         </button>
+// //         <div className="w-px h-6 bg-[#B476FF]"></div>
+// //         <div
+// //           className="
+// //             flex items-center gap-3
+           
+// //             py-2
+// //             rounded-xl
+// //           "
+// //         >
+// //           <div
+// //             className="
+// //               w-9 h-9
+// //               rounded-full
+// //               bg-gradient-to-r
+// //               from-purple-500
+// //               to-fuchsia-500
+// //               flex items-center justify-center
+// //             "
+// //           >
+// //             <User className="w-4 h-4 text-white" />
+// //           </div>
+
+// //           <div className="hidden md:block">
+// //             <p className="text-sm font-medium text-white">Admin</p>
+// //             <p className="text-xs text-gray-400">Owner</p>
+// //           </div>
+// //         </div>
+// //       </div>
+// //     </header>
+// //   );
+// // };
+
+// // export default Header;
+
+// import React from "react";
+// import { Bell, User } from "lucide-react";
+// import { useLocation } from "react-router-dom";
+// import SystemNotificationFetcher from "../SystemNotificationFetcher";
 
 // const Header = () => {
-//   const { dark, toggleTheme } = useTheme();
-//   const navigate = useNavigate();
+//   const location = useLocation();
 
-//   const [search, setSearch] = useState("");
-//   const [showProfile, setShowProfile] = useState(false);
+//   const getPageTitle = () => {
+//     const path = location.pathname;
 
-//   const [activeChat, setActiveChat] = useState({
-//     group: "Customers",
-//     name: "May",
-//   });
+//     if (path === "/") return "Dashboard";
+//     if (path.startsWith("/shop")) return "Shop";
+//     if (path.startsWith("/report")) return "Report";
+//     if (path.startsWith("/management")) return "Management";
+//     if (path.startsWith("/shop-management")) return "Management";
+//     if (path.startsWith("/setting")) return "Settings";
+//     if (path.startsWith("/delivery/assignment")) return "Assign Delivery";
+//     if (path.startsWith("/delivery/add-delivery-men")) return "Add Delivery Man";
+//     if (path.startsWith("/delivery/track-delivery-men")) return "Track Delivery Man";
 
-//   const users = {
-//     Customers: ["May", "Customer B", "Customer C"],
-//     Shopkeepers: ["Shopkeeper X", "Shopkeeper Y"],
-//     Delivery: ["Delivery Man 1", "Delivery Man 2", "Delivery Man 3"],
-//   };
-
-//   const [chats, setChats] = useState({
-//     May: [{ from: "May", text: "Hello Admin!", self: false }],
-//     "Customer B": [],
-//     "Customer C": [],
-//     "Shopkeeper X": [],
-//     "Shopkeeper Y": [],
-//     "Delivery Man 1": [],
-//     "Delivery Man 2": [],
-//     "Delivery Man 3": [],
-//   });
-
-//   const [newMessage, setNewMessage] = useState("");
-//   const [recipientSearch, setRecipientSearch] = useState("");
-
-//   const handleSendMessage = () => {
-//     if (!newMessage.trim()) return;
-//     setChats((prev) => ({
-//       ...prev,
-//       [activeChat.name]: [
-//         ...(prev[activeChat.name] || []),
-//         { from: "Admin", text: newMessage, self: true },
-//       ],
-//     }));
-//     setNewMessage("");
-//   };
-
-//   const [notifications] = useState([
-//     { id: 1, type: "Order", text: "New order #101 received 🍔" },
-//     { id: 2, type: "Payment", text: "Payment confirmed 💳" },
-//   ]);
-
-//   const handleLogout = () => {
-//     // Clear tokens or user data here if needed
-//     navigate("/login");
+//     return "Dashboard";
 //   };
 
 //   return (
-//     <>
-//       {/* HEADER */}
-//       <header
-//         className="
-//           flex items-center justify-between py-3 px-4 w-full relative rounded-full
-//           bg-white dark:bg-gray-800
-//           text-gray-800 dark:text-gray-100
-//           shadow-sm
-//         "
-//       >
-//         {/* Search (optional) */}
-//         {/* <div className="relative flex items-center w-full max-w-sm">
-//           <Search className="absolute left-3 h-4 w-4 text-gray-500 dark:text-gray-300" />
-//           <input
-//             type="text"
-//             placeholder="Search dashboard..."
-//             value={search}
-//             onChange={(e) => setSearch(e.target.value)}
-//             className="
-//               pl-9 pr-3 py-2 rounded-full w-full text-sm
-//               bg-gray-100 dark:bg-gray-700
-//               text-gray-800 dark:text-gray-100
-//               placeholder-gray-500 dark:placeholder-gray-300
-//               focus:ring-0 focus:outline-none
-//             "
-//           />
-//         </div> */}
+//     <header className="h-16  border-b border-gray-800 flex items-center justify-between px-6">
 
-//         {/* RIGHT */}
-//         <div className="flex items-center gap-3">
-//           {/* THEME TOGGLE (optional) */}
-//           <button
-//             onClick={toggleTheme}
-//             className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
-//           >
-//             {dark ? <Sun size={16} /> : <Moon size={16} />}
-//           </button>
+//       {/* LEFT */}
+//       <div className="flex items-center gap-4">
+//         <h1 className="text-xl font-semibold text-[#B476FF]">
+//           {getPageTitle()}
+//         </h1>
+//       </div>
 
-//           {/* PROFILE */}
-//           <div className="relative">
-//             <button
-//               onClick={() => setShowProfile(!showProfile)}
-//               className="flex items-center gap-2"
-//             >
-//               <img
-//                 className="w-9 h-9 rounded-full"
-//                 src="https://images.unsplash.com/photo-1499714608240-22fc6ad53fb2"
-//                 alt="profile"
-//               />
-//               <div>
-//                 <p className="text-sm font-bold text-[#B476FF]">May</p>
-//                 <p className="text-xs text-[#B476FF]">Owner</p>
-//               </div>
-//             </button>
+//       {/* RIGHT */}
+//       <div className="flex items-center gap-4">
 
-//             {/* {showProfile && ( */}
+//         {/* 🔔 NOTIFICATION DROPDOWN */}
+//         <SystemNotificationFetcher  />
 
-//             {/* )} */}
+//         <div className="w-px h-6 bg-[#B476FF]"></div>
+
+//         {/* USER */}
+//         <div className="flex items-center gap-3 py-2 rounded-xl">
+
+//           <div className="w-9 h-9 rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500 flex items-center justify-center">
+//             <User className="w-4 h-4 text-white" />
 //           </div>
 
-//           <div className="absolute right-0  w-44 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-2 flex flex-col gap-1">
-//             {/* <button className="flex gap-2 p-2 w-full hover:bg-gray-100 dark:hover:bg-gray-700">
-//                   <Settings size={16} /> Settings
-//                 </button> */}
-//             <button
-//               onClick={handleLogout}
-//               className="flex items-center gap-2 p-2 w-full text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
-//             >
-//               <LogOut size={16} /> Logout
-//             </button>
+//           <div className="hidden md:block">
+//             <p className="text-sm font-medium text-white">Admin</p>
+//             <p className="text-xs text-gray-400">Owner</p>
 //           </div>
+
 //         </div>
-//       </header>
-//     </>
-//   );
-// };
 
-// export default Header;
-
-// import React, { useState } from "react";
-// import { LogOut, Settings } from "lucide-react";
-// import { useNavigate } from "react-router-dom";
-
-// const Header = () => {
-//   const navigate = useNavigate();
-
-//   const [showProfile, setShowProfile] = useState(false);
-
-//   const handleLogout = () => {
-//     navigate("/login");
-//   };
-
-//   return (
-//     <header className="flex items-center justify-between py-3 px-4 w-full relative rounded-full bg-gray-800 text-gray-100 shadow-sm">
-//       {/* RIGHT SIDE */}
-//       <div className="flex items-center gap-3 ml-auto">
-//         {/* PROFILE */}
-//         <div className="relative">
-//           <button
-//             onClick={() => setShowProfile(!showProfile)}
-//             className="flex items-center gap-2"
-//           >
-//             <img
-//               className="w-9 h-9 rounded-full"
-//               src="https://images.unsplash.com/photo-1499714608240-22fc6ad53fb2"
-//               alt="profile"
-//             />
-//             <div className="text-left">
-//               <p className="text-sm font-bold text-[#B476FF]">May</p>
-//               <p className="text-xs text-gray-400">Owner</p>
-//             </div>
-//           </button>
-
-//           {/* DROPDOWN */}
-//           {showProfile && (
-//             <div className="absolute right-0 mt-2 w-44 bg-gray-800 border border-gray-700 shadow-lg rounded-lg p-2 flex flex-col gap-1 z-50">
-//               <button className="flex items-center gap-2 p-2 w-full text-gray-200 hover:bg-gray-700 rounded">
-//                 <Settings size={16} /> Settings
-//               </button>
-
-//               <button
-//                 onClick={handleLogout}
-//                 className="flex items-center gap-2 p-2 w-full text-red-400 hover:bg-gray-700 rounded"
-//               >
-//                 <LogOut size={16} /> Logout
-//               </button>
-//             </div>
-//           )}
-//         </div>
 //       </div>
 //     </header>
 //   );
 // };
 
 // export default Header;
-
-import React, { useState } from "react";
-import { LogOut, Settings } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useAlert } from "../AlertContext";
+import React, { useEffect, useState } from "react";
+import { User } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import SystemNotificationFetcher from "../SystemNotificationFetcher";
 
 const Header = () => {
-  const navigate = useNavigate();
-  const { showAlert, confirm } = useAlert();
+  const location = useLocation();
 
-  const [showProfile, setShowProfile] = useState(false);
+  const [account, setAccount] = useState(null);
 
-  // ✅ Logout with confirm + cookie clear + alert
-  const handleLogout = async () => {
-    const ok = await confirm("Are you sure you want to logout?");
-    if (!ok) return;
+  // Support both Owner and Manager
+  const adminId =
+    localStorage.getItem("adminId") ||
+    localStorage.getItem("userId");
 
-    // 🔐 remove cookies (id + role)
-    document.cookie = "id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-    document.cookie = "role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+  useEffect(() => {
+    if (!adminId) return;
 
-    // 🔔 success alert
-    showAlert("Logged out successfully!", "success");
+    const fetchAdmin = async () => {
+      try {
+        const res = await fetch(
+          `https://api.pwezayshops.com/admin/${adminId}`
+        );
 
-    // ❌ close dropdown
-    setShowProfile(false);
+        const data = await res.json();
 
-    // 🚀 redirect to login
-    navigate("/login", { replace: true });
+        if (
+          data.success &&
+          Array.isArray(data.data) &&
+          data.data.length > 0
+        ) {
+          setAccount(data.data[0]);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchAdmin();
+
+    const interval = setInterval(fetchAdmin, 500);
+
+    return () => clearInterval(interval);
+  }, [adminId]);
+
+  const getPageTitle = () => {
+    const path = location.pathname;
+
+    if (path === "/") return "Dashboard";
+    if (path.startsWith("/shop")) return "Shop";
+    if (path.startsWith("/report")) return "Report";
+    if (path.startsWith("/management")) return "Management";
+    if (path.startsWith("/shop-management")) return "Management";
+    if (path.startsWith("/setting")) return "Settings";
+    if (path.startsWith("/delivery/assignment"))
+      return "Assign Delivery";
+    if (path.startsWith("/delivery/add-delivery-men"))
+      return "Add Delivery Man";
+    if (path.startsWith("/delivery/track-delivery-men"))
+      return "Track Delivery Man";
+
+    return "Dashboard";
   };
 
   return (
-    <header className="flex items-center justify-between py-3 px-4 w-full relative rounded-full bg-gray-800 text-gray-100 shadow-sm">
-      <button
-        onClick={() => setShowProfile(!showProfile)}
-        className="flex items-center gap-2"
-      >
-        <img
-          className="w-9 h-9 rounded-full"
-          src="https://images.unsplash.com/photo-1499714608240-22fc6ad53fb2"
-          alt="profile"
-        />
-        <div className="text-left">
-          <p className="text-sm font-bold text-[#B476FF]">May</p>
-          <p className="text-xs text-gray-400">Owner</p>
+    <header className="h-16 border-b border-gray-800 flex items-center justify-between px-6">
+
+      {/* LEFT */}
+      <div className="flex items-center gap-4">
+        <h1 className="text-xl font-semibold text-[#B476FF]">
+          {getPageTitle()}
+        </h1>
+      </div>
+
+      {/* RIGHT */}
+      <div className="flex items-center gap-4">
+
+        {/* Notification */}
+        <SystemNotificationFetcher />
+
+        <div className="w-px h-6 bg-[#B476FF]" />
+
+        {/* Profile */}
+        <div className="flex items-center gap-3">
+
+          {account?.photo ? (
+            <img
+              src={`https://api.pwezayshops.com/admin-uploads/${account.photo}?t=${Date.now()}`}
+              alt={account.name}
+              className="w-10 h-10 rounded-full object-cover border-2 border-[#B476FF]"
+              onError={(e) => {
+                e.target.style.display = "none";
+              }}
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500 flex items-center justify-center text-white font-semibold">
+              {account?.name
+                ? account.name.charAt(0).toUpperCase()
+                : <User className="w-5 h-5" />}
+            </div>
+          )}
+
+          <div className="hidden md:block">
+            <p className="text-sm font-semibold text-white">
+              {account?.name || "Loading..."}
+            </p>
+
+            <p className="text-xs text-gray-400 capitalize">
+              {account?.role || "-"}
+            </p>
+          </div>
+
         </div>
-      </button>
-      <button
-        onClick={handleLogout}
-        className="flex items-center gap-2 p-2  text-red-400 hover:bg-gray-700 rounded"
-      >
-        <LogOut size={16} /> Logout
-      </button>
+
+      </div>
     </header>
   );
 };

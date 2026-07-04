@@ -1,113 +1,148 @@
-// import React from "react";
-// import { User, CheckCircle, Package, Truck } from "lucide-react";
-// import { useTheme } from "../ThemeProvider";
+import React, { useEffect, useState } from "react";
+import { Truck, UserCheck, PackageCheck, ClipboardList } from "lucide-react";
 
-// export default function DeliverySummary() {
-//   const { dark } = useTheme(); // get dark mode value
+/* ================= CARD ================= */
+function DashboardCard({ title, value, icon, gradient, iconBg }) {
+  return (
+    <div
+      className="
+        relative overflow-hidden rounded-3xl border border-white/10
+        bg-white/5 backdrop-blur-xl
+        p-3 lg:p-4 xl:p-5 2xl:p-6
+        transition-all duration-300 hover:scale-[1.02]
+      "
+    >
+      {/* BG */}
+      <div
+        className={`absolute inset-0 opacity-20 bg-gradient-to-br ${gradient}`}
+      />
 
-//   // Hardcoded data for deliverymen
-//   const deliverymen = [
-//     { id: "D001", name: "John Doe", status: "active", total_order: 10, assign_order: 5 },
-//     { id: "D002", name: "Jane Smith", status: "inactive", total_order: 8, assign_order: 3 },
-//     { id: "D003", name: "Bob Johnson", status: "active", total_order: 15, assign_order: 12 },
-//     { id: "D004", name: "Alice Brown", status: "active", total_order: 20, assign_order: 18 },
-//   ];
+      {/* Glow */}
+      <div
+        className={`absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl ${iconBg} opacity-20`}
+      />
 
-//   // Calculations
-//   const totalDeliverymen = deliverymen.length;
-//   const activeDeliverymen = deliverymen.filter(d => d.status === "active").length;
-//   const totalOrders = deliverymen.reduce((sum, d) => sum + (d.total_order || 0), 0);
-//   const assignedOrders = deliverymen.reduce((sum, d) => sum + (d.assign_order || 0), 0);
+      <div className="relative z-10 flex items-center justify-between">
+        <div>
+          <p className="text-[10px] lg:text-[11px] xl:text-xs 2xl:text-sm text-slate-300">
+            {title}
+          </p>
 
-//   const cards = [
-//     { title: "Total Deliverymen", value: totalDeliverymen, icon: <User size={28} className={dark ? "text-purple-200" : "text-white"} /> },
-//     { title: "Active Deliverymen", value: activeDeliverymen, icon: <CheckCircle size={28} className={dark ? "text-green-300" : "text-green-700"} /> },
-//     { title: "Total Orders", value: totalOrders, icon: <Package size={28} className={dark ? "text-blue-300" : "text-blue-700"} /> },
-//     { title: "Orders Assigned", value: assignedOrders, icon: <Truck size={28} className={dark ? "text-orange-300" : "text-orange-700"} /> },
-//   ];
+          <h2 className="mt-1 font-bold text-white text-sm lg:text-base xl:text-lg 2xl:text-xl">
+            {value}
+          </h2>
+        </div>
 
-//   return (
-//     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-//       {cards.map((card, idx) => (
-//         <div
-//           key={idx}
-//           className={`
-//             rounded-xl shadow p-6 flex items-center justify-between
-//             ${dark ? "bg-gray-800 text-gray-100" : "bg-[#B476FF] text-white"}
-//           `}
-//         >
-//           <div>
-//             <p className={`text-sm mb-2 ${dark ? "text-gray-300" : "text-white"}`}>{card.title}</p>
-//             <p className={`text-2xl font-bold ${dark ? "text-white" : "text-white"}`}>{card.value}</p>
-//           </div>
-//           <div
-//             className={`p-3 rounded-full ${dark ? "bg-gray-700 bg-opacity-50" : "bg-white bg-opacity-30"}`}
-//           >
-//             {card.icon}
-//           </div>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }
+        <div
+          className={`
+            flex items-center justify-center border border-white/10 rounded-xl
+            ${iconBg}
+            w-8 h-8
+            lg:w-9 lg:h-9
+            xl:w-10 xl:h-10
+            2xl:w-12 2xl:h-12
+          `}
+        >
+          {icon}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-import React from "react";
-import { User, CheckCircle, Package, Truck } from "lucide-react";
+/* ================= LOADING ================= */
+function LoadingCard() {
+  return (
+    <div className="h-[120px] rounded-3xl bg-white/5 border border-white/10 animate-pulse" />
+  );
+}
 
+/* ================= MAIN ================= */
 export default function DeliverySummary() {
-  // Hardcoded data for deliverymen
-  const deliverymen = [
-    { id: "D001", name: "John Doe", status: "active", total_order: 10, assign_order: 5 },
-    { id: "D002", name: "Jane Smith", status: "inactive", total_order: 8, assign_order: 3 },
-    { id: "D003", name: "Bob Johnson", status: "active", total_order: 15, assign_order: 12 },
-    { id: "D004", name: "Alice Brown", status: "active", total_order: 20, assign_order: 18 },
-  ];
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const totalDeliverymen = deliverymen.length;
-  const activeDeliverymen = deliverymen.filter(d => d.status === "active").length;
-  const totalOrders = deliverymen.reduce((sum, d) => sum + (d.total_order || 0), 0);
-  const assignedOrders = deliverymen.reduce((sum, d) => sum + (d.assign_order || 0), 0);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(
+          "https://api.pwezayshops.com/deliverymen-summaries-by-system"
+        );
 
-  const cards = [
-    {
-      title: "Total Deliverymen",
-      value: totalDeliverymen,
-      icon: <User size={28} className="text-purple-300" />,
-    },
-    {
-      title: "Active Deliverymen",
-      value: activeDeliverymen,
-      icon: <CheckCircle size={28} className="text-green-400" />,
-    },
-    {
-      title: "Total Orders",
-      value: totalOrders,
-      icon: <Package size={28} className="text-blue-400" />,
-    },
-    {
-      title: "Orders Assigned",
-      value: assignedOrders,
-      icon: <Truck size={28} className="text-orange-400" />,
-    },
-  ];
+        const result = await res.json();
+
+        if (result.success) {
+          setData(result.data);
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    const interval = setInterval(fetchData, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading || !data) {
+    return (
+      <section className="grid grid-cols-4 gap-3 lg:gap-4 xl:gap-5 mb-5">
+        {[...Array(4)].map((_, i) => (
+          <LoadingCard key={i} />
+        ))}
+      </section>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      {cards.map((card, idx) => (
-        <div
-          key={idx}
-          className="rounded-xl shadow p-6 flex items-center justify-between bg-gray-800 text-gray-100"
-        >
-          <div>
-            <p className="text-sm mb-2 text-gray-300">{card.title}</p>
-            <p className="text-2xl font-bold text-white">{card.value}</p>
-          </div>
+    <section className="grid grid-cols-4 gap-3 lg:gap-4 xl:gap-5 mb-5">
+      {/* TOTAL DELIVERYMEN */}
+      <DashboardCard
+        title="Total Delivery Men"
+        value={data.total_deliverymen}
+        icon={
+          <Truck className="text-indigo-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+        }
+        gradient="from-indigo-500 to-transparent"
+        iconBg="bg-indigo-500/20"
+      />
 
-          <div className="p-3 rounded-full bg-gray-700/60">
-            {card.icon}
-          </div>
-        </div>
-      ))}
-    </div>
+      {/* ACTIVE DELIVERYMEN */}
+      <DashboardCard
+        title="Active Delivery Men"
+        value={data.active_deliverymen}
+        icon={
+          <UserCheck className="text-emerald-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+        }
+        gradient="from-emerald-500 to-transparent"
+        iconBg="bg-emerald-500/20"
+      />
+
+      {/* TODAY FINISHED ORDERS */}
+      <DashboardCard
+        title="Today's Finished Orders"
+        value={data.today_orders_finished}
+        icon={
+          <PackageCheck className="text-sky-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+        }
+        gradient="from-sky-500 to-transparent"
+        iconBg="bg-sky-500/20"
+      />
+
+      {/* ALL FINISHED ORDERS */}
+      <DashboardCard
+        title="All Finished Orders"
+        value={data.all_orders_finished}
+        icon={
+          <ClipboardList className="text-rose-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
+        }
+        gradient="from-rose-500 to-transparent"
+        iconBg="bg-rose-500/20"
+      />
+    </section>
   );
 }
