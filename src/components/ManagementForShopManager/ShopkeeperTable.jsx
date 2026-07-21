@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Download, Search, Trash2 } from "lucide-react";
 import axios from "axios";
-import { useAlert } from "../../AlertContext";
 import ShopkeeperDetailModal from "./ShopkeeperDetailModal";
+import { useAlert } from "../../AlertContext";
+
 export default function ShopkeeperTable() {
   const { showAlert } = useAlert();
   const [shopkeepers, setShopkeepers] = useState([]);
@@ -13,16 +14,23 @@ export default function ShopkeeperTable() {
   const [passcode, setPasscode] = useState("");
   const passcodeInputRef = useRef(null);
   const [actionLoading, setActionLoading] = useState({});
-
+  
   // ---------------- PAGINATION STATES ----------------
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const token = localStorage.getItem("token");
 
   // Live fetch every 500ms
   useEffect(() => {
     const interval = setInterval(() => {
       axios
-        .get("https://api.pwezayshops.com/shops-approve")
+        .get("https://api.pwezayshops.com/shops-approve",
+          {
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
+        )
         .then((res) => setShopkeepers(res.data))
         .catch((err) => console.error("API Error:", err));
     }, 500);
@@ -78,42 +86,20 @@ export default function ShopkeeperTable() {
     setTimeout(() => passcodeInputRef.current?.focus(), 500);
   };
 
-  // const doDelete = () => {
-  //   if (passcode === "234567") {
-  //     setActionLoading((prev) => ({ ...prev, [activeShop.id]: true }));
-  //     axios
-  //       .delete(`https://api.pwezayshops.com/shops/${activeShop.id}`)
-  //       .then((res) => {
-  //         setShopkeepers((prev) => prev.filter((s) => s.id !== activeShop.id));
-  //         setAlerts((prev) => [
-  //           ...prev,
-  //           res.data.message || "Deleted successfully",
-  //         ]);
-  //       })
-  //       .catch((err) =>
-  //         setAlerts((prev) => [
-  //           ...prev,
-  //           err.response?.data?.message || "Delete failed",
-  //         ])
-  //       )
-  //       .finally(() => {
-  //         setActionLoading((prev) => ({ ...prev, [activeShop.id]: false }));
-  //         setPasscodeModal(false);
-  //       });
-  //   } else {
-  //     setAlerts((prev) => [...prev, "Incorrect passcode"]);
-  //   }
-  // };
-
   const doDelete = async () => {
     if (!activeShop) return;
     // 1. VERIFY PASSCODE (API)
     try {
       const verifyRes = await axios.post(
-        "https://api.pwezayshops.com/admin/verify-admin-passcode",
-        {
-          passcode,
-        },
+        "https://api.pwezayshops.com/admin/verify-shopmanager-passcode",
+      {
+    passcode,
+  },
+  {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
       );
 
       if (!verifyRes.data?.success) {
@@ -135,6 +121,11 @@ export default function ShopkeeperTable() {
 
       const res = await axios.delete(
         `https://api.pwezayshops.com/shops/${activeShop.id}`,
+       {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
       );
 
       setShopkeepers((prev) => prev.filter((s) => s.id !== activeShop.id));
@@ -165,6 +156,11 @@ export default function ShopkeeperTable() {
       const res = await axios.patch(
         `https://api.pwezayshops.com/shops/status/${shop.id}`,
         { status: newStatus },
+          {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
       );
 
       setShopkeepers((prev) =>
@@ -208,9 +204,9 @@ export default function ShopkeeperTable() {
   return (
     <div className="">
       <div className="pt-4 text-white">
-        <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-[#B476FF] to-purple-600 bg-clip-text text-transparent">
-          Shop Management
-        </h3>
+           <h3 className="text-2xl font-bold mb-6 text-purple-400">
+         Shop Management
+       </h3>
         {/* Search + Export */}
         <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
           <div className="relative w-full max-w-sm">
@@ -433,69 +429,7 @@ export default function ShopkeeperTable() {
         </div>
       </div>
 
-      {/* PASSCODE MODAL - DARK UI */}
-      {/* {passcodeModal && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md">
-    <div
-      className="absolute inset-0 bg-black/60"
-      onClick={() => setPasscodeModal(false)}
-    />
 
-    <div
-      className="relative w-full max-w-[360px]
-      bg-[#1a2030]/90 backdrop-blur-2xl
-      border border-slate-700
-      rounded-3xl shadow-2xl p-8 text-white"
-    >
-      <h3
-        className="text-xl font-semibold text-center mb-6
-        bg-gradient-to-r from-purple-400 to-purple-600
-        bg-clip-text text-transparent"
-      >
-        Enter Passcode
-      </h3>
-
-      <input
-        ref={passcodeInputRef}
-        type="password"
-        className="w-full px-4 py-2.5 mb-6 rounded-2xl
-        bg-slate-900 border border-slate-700
-        text-white text-sm
-        focus:outline-none focus:ring-2
-        focus:ring-purple-500 focus:border-purple-500
-        transition-all duration-200"
-        placeholder="Passcode"
-        value={passcode}
-        onChange={(e) => setPasscode(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && doDelete()}
-      />
-
-      <div className="flex justify-between gap-3">
-        <button
-          onClick={() => setPasscodeModal(false)}
-          className="px-4 py-2 rounded-2xl
-          border border-slate-700
-          bg-slate-900/60 text-slate-300
-          hover:bg-slate-800 hover:text-white
-          transition-all text-sm"
-        >
-          Cancel
-        </button>
-
-        <button
-          onClick={doDelete}
-          className="px-4 py-2 rounded-2xl
-          bg-purple-500/30 text-purple-200
-          border border-purple-500/40
-          hover:bg-purple-500/50 hover:text-white
-          transition-all text-sm"
-        >
-          Confirm
-        </button>
-      </div>
-    </div>
-  </div>
-)} */}
 
       {passcodeModal && (
         <div className="fixed inset-0 z-30 flex items-center justify-center backdrop-blur-sm p-2">

@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useEffect } from "react";
 import {
   Search,
@@ -9,6 +10,7 @@ import {
   ShieldCheck,
   CalendarDays,
 } from "lucide-react";
+import ViewShopDetail from "./ViewShopDetail";
 
 const ShopManagement = ({ shops, onDetail, onViewShopDetails }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -72,193 +74,196 @@ const ShopManagement = ({ shops, onDetail, onViewShopDetails }) => {
   }, [filteredShops, page, pageSize]);
 
   return (
-    <section className="w-full overflow-y-auto h-full scrollbar-hide p-4">
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-5">
-        <h2 className="text-2xl font-semibold text-purple-400">
-          All Shop List
-        </h2>
+    <>
+      <section className="w-full overflow-y-auto h-full scrollbar-hide p-4">
+        {/* HEADER */}
+        <div className="flex justify-between items-center mb-5">
+          <h2 className="text-2xl font-semibold text-purple-400">
+            All Shop List
+          </h2>
 
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative">
-            <Search
-              size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500"
-            />
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative">
+              <Search
+                size={14}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500"
+              />
 
-            <input
-              type="text"
-              placeholder="Search name, phone and email..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPage(1);
-              }}
-              className="pl-10 w-[300px] pr-4 py-2 rounded-2xl text-sm bg-slate-900/60 border border-slate-700 text-white outline-none focus:border-purple-500 "
-            />
+              <input
+                type="text"
+                placeholder="Search name, phone and email..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setPage(1);
+                }}
+                className="pl-10 w-[300px] pr-4 py-2 rounded-2xl text-sm bg-slate-900/60 border border-slate-700 text-white outline-none focus:border-purple-500 "
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* CARDS */}
-      <div className="my-6">
-        {paginatedShops.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 justify-items-center gap-6 2xl:gap-8">
-            {paginatedShops.map((shop) => (
-              <div
-                key={shop.id}
-                className="bg-gray-800 border border-gray-700 p-4 rounded-xl shadow-md w-full max-w-xs flex flex-col gap-4"
-              >
-                <div className="flex items-center justify-between">
-                  <p className="text-lg font-semibold text-[#B476FF]">
-                    {shop.shop_name}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  {shop.photo ? (
-                    <img
-                      src={`https://api.pwezayshops.com/shop-uploads/${shop.photo}`}
-                      alt={shop.shop_name}
-                      className="w-24 h-24 object-cover rounded"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 flex items-center justify-center border-2 border-dashed border-gray-600 rounded text-gray-400 text-xs">
-                      No Image
-                    </div>
-                  )}
-
-                  <div className="flex-1">
-                    <h4 className="font-medium text-md text-gray-100 mb-1 flex items-center gap-1">
-                      <User size={16} /> {shop.shopkeeper_name}
-                    </h4>
-
-                    <p className="text-sm text-gray-300 flex items-center gap-1">
-                      <Package size={15} /> Items: {shop.items}
-                    </p>
-
-                    <p className="text-sm text-gray-300 flex items-center gap-1">
-                      <Phone size={15} /> {shop.phone}
+        {/* CARDS */}
+        <div className="my-6">
+          {paginatedShops.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 justify-items-center gap-6 2xl:gap-8">
+              {paginatedShops.map((shop) => (
+                <div
+                  key={shop.id}
+                  className="bg-gray-800 border border-gray-700 p-4 rounded-xl shadow-md w-full max-w-xs flex flex-col gap-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="text-lg font-semibold text-[#B476FF]">
+                      {shop.shop_name}
                     </p>
                   </div>
-                </div>
 
-                <div className="text-xs text-gray-300">
-                  <p className="font-semibold text-gray-200">Email</p>
-                  <p>{shop.email}</p>
-                </div>
+                  <div className="flex items-center gap-4">
+                    {shop.photo ? (
+                      <img
+                        src={`https://api.pwezayshops.com/shop-uploads/${shop.photo}`}
+                        alt={shop.shop_name}
+                        className="w-24 h-24 object-cover rounded"
+                      />
+                    ) : (
+                      <div className="w-24 h-24 flex items-center justify-center border-2 border-dashed border-gray-600 rounded text-gray-400 text-xs">
+                        No Image
+                      </div>
+                    )}
 
-                <div className="text-xs text-gray-300">
-                  <p className="font-semibold text-gray-200">Address</p>
-                  <p>{shop.address}</p>
-                </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-md text-gray-100 mb-1 flex items-center gap-1">
+                        <User size={16} /> {shop.shopkeeper_name}
+                      </h4>
 
-                <div className="text-xs text-gray-300 flex items-center gap-1">
-                  <CheckCircle size={14} /> Status: {shop.status}
-                </div>
+                      <p className="text-sm text-gray-300 flex items-center gap-1">
+                        <Package size={15} /> Items: {shop.items}
+                      </p>
 
-                <div className="text-xs text-gray-300 flex items-center gap-1">
-                  <ShieldCheck size={14} /> Permission: {shop.permission}
-                </div>
+                      <p className="text-sm text-gray-300 flex items-center gap-1">
+                        <Phone size={15} /> {shop.phone}
+                      </p>
+                    </div>
+                  </div>
 
-                <div className="text-xs text-gray-300 flex items-center gap-1">
-                  <CalendarDays size={14} /> Created: {shop.created_at}
-                </div>
+                  <div className="text-xs text-gray-300">
+                    <p className="font-semibold text-gray-200">Email</p>
+                    <p>{shop.email}</p>
+                  </div>
 
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => onViewShopDetails(shop.id)}
-                    className="bg-gray-700 text-[#B476FF] px-3 py-2 rounded-md text-sm font-semibold hover:bg-gray-600 transition-colors"
-                  >
-                    Shop Details
-                  </button>
+                  <div className="text-xs text-gray-300">
+                    <p className="font-semibold text-gray-200">Address</p>
+                    <p>{shop.address}</p>
+                  </div>
 
-                  <button
-                onClick={() => onDetail(shop)}
-                    className="bg-[#B476FF] text-white px-3 py-2 rounded-md text-sm font-semibold hover:bg-[#9c5bcc] transition-colors"
-                  >
-                    Menus Details
-                  </button>
+                  <div className="text-xs text-gray-300 flex items-center gap-1">
+                    <CheckCircle size={14} /> Status: {shop.status}
+                  </div>
+
+                  <div className="text-xs text-gray-300 flex items-center gap-1">
+                    <ShieldCheck size={14} /> Permission: {shop.permission}
+                  </div>
+
+                  <div className="text-xs text-gray-300 flex items-center gap-1">
+                    <CalendarDays size={14} /> Created: {shop.created_at}
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={() => onViewShopDetails(shop)}
+                      className="bg-gray-700 text-[#B476FF] px-3 py-2 rounded-md text-sm font-semibold hover:bg-gray-600 transition-colors"
+                    >
+                      Shop Details
+                    </button>
+                    <button
+                      onClick={() => onDetail(shop)}
+                      className="bg-[#B476FF] text-white px-3 py-2 rounded-md text-sm font-semibold hover:bg-[#9c5bcc] transition-colors"
+                    >
+                      Menus Details
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            {/* Icon */}
-            <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center mb-4">
-              <Search size={28} className="text-purple-400" />
+              ))}
             </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              {/* Icon */}
+              <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center mb-4">
+                <Search size={28} className="text-purple-400" />
+              </div>
 
-            {/* Title */}
-            <h3 className="text-lg font-semibold text-white">No Shops Found</h3>
+              {/* Title */}
+              <h3 className="text-lg font-semibold text-white">
+                No Shops Found
+              </h3>
 
-            {/* Subtitle */}
-            <p className="text-sm text-gray-400 mt-1 max-w-md">
-              We couldn’t find any shops matching your search. Try changing
-              keywords or check spelling.
+              {/* Subtitle */}
+              <p className="text-sm text-gray-400 mt-1 max-w-md">
+                We couldn't find any shops matching your search. Try changing
+                keywords or check spelling.
+              </p>
+
+              {/* Reset button (optional but nice UX) */}
+              <button
+                onClick={() => setSearchTerm("")}
+                className="mt-4 px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-600 text-white text-sm transition"
+              >
+                Clear Search
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 0 && (
+          <div className="flex flex-col md:flex-row justify-between px-4 pt-4 text-sm text-neutral-400 gap-2 md:gap-0">
+            <p>
+              Page {totalPages === 0 ? 0 : page} of {totalPages}
             </p>
 
-            {/* Reset button (optional but nice UX) */}
-            <button
-              onClick={() => setSearchTerm("")}
-              className="mt-4 px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-600 text-white text-sm transition"
-            >
-              Clear Search
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 0 && (
-        <div className="flex flex-col md:flex-row justify-between px-4 pt-4 text-sm text-neutral-400 gap-2 md:gap-0">
-          <p>
-            Page {totalPages === 0 ? 0 : page} of {totalPages}
-          </p>
-
-          <div className="flex gap-2 flex-wrap">
-            <button
-              disabled={page === 1}
-              onClick={() => setPage(Math.max(1, page - 1))}
-              className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                page === 1
-                  ? "text-neutral-500 cursor-not-allowed"
-                  : "text-purple-400 hover:bg-neutral-900"
-              }`}
-            >
-              Prev
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+            <div className="flex gap-2 flex-wrap">
               <button
-                key={n}
-                onClick={() => setPage(n)}
+                disabled={page === 1}
+                onClick={() => setPage(Math.max(1, page - 1))}
                 className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                  page === n
-                    ? "bg-purple-300 text-black font-semibold"
-                    : "text-purple-300 hover:bg-neutral-900"
+                  page === 1
+                    ? "text-neutral-500 cursor-not-allowed"
+                    : "text-purple-400 hover:bg-neutral-900"
                 }`}
               >
-                {n}
+                Prev
               </button>
-            ))}
 
-            <button
-              disabled={page === totalPages}
-              onClick={() => setPage(Math.min(totalPages, page + 1))}
-              className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                page === totalPages
-                  ? "text-neutral-500 cursor-not-allowed"
-                  : "text-purple-500 hover:bg-neutral-900"
-              }`}
-            >
-              Next
-            </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setPage(n)}
+                  className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                    page === n
+                      ? "bg-purple-300 text-black font-semibold"
+                      : "text-purple-300 hover:bg-neutral-900"
+                  }`}
+                >
+                  {n}
+                </button>
+              ))}
+
+              <button
+                disabled={page === totalPages}
+                onClick={() => setPage(Math.min(totalPages, page + 1))}
+                className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                  page === totalPages
+                    ? "text-neutral-500 cursor-not-allowed"
+                    : "text-purple-500 hover:bg-neutral-900"
+                }`}
+              >
+                Next
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </section>
+        )}
+      </section>
+    </>
   );
 };
 

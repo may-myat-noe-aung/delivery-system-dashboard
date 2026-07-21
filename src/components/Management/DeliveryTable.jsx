@@ -12,6 +12,7 @@ export default function DeliveryTable() {
   const [passcodeModal, setPasscodeModal] = useState(false);
   const [passcode, setPasscode] = useState("");
   const passcodeInputRef = useRef(null);
+  const token = localStorage.getItem("token");
 
   const [actionLoading, setActionLoading] = useState({});
 
@@ -23,7 +24,13 @@ export default function DeliveryTable() {
   useEffect(() => {
     const interval = setInterval(() => {
       axios
-        .get("https://api.pwezayshops.com/deliverymen")
+        .get("https://api.pwezayshops.com/deliverymen",
+          {
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
+        )
         .then((res) => setDeliverymen(res.data))
         .catch((err) => console.error("API Error:", err));
     }, 500);
@@ -69,49 +76,21 @@ export default function DeliveryTable() {
     setPasscodeModal(true);
     setTimeout(() => passcodeInputRef.current?.focus(), 100);
   };
-//   const doDelete = () => {
-//   if (passcode === "234567") {
-//     setActionLoading((prev) => ({ ...prev, [activeUser.id]: true }));
-
-//     axios
-//       .delete(`https://api.pwezayshops.com/deliverymen/${activeUser.id}`)
-//       .then((res) => {
-//         setDeliverymen((prev) =>
-//           prev.filter((u) => u.id !== activeUser.id)
-//         );
-
-//         showAlert(
-//           res.data.message || "Deleted successfully",
-//           "success"
-//         );
-//       })
-//       .catch((err) => {
-//         showAlert(
-//           err.response?.data?.message || "Delete failed",
-//           "error"
-//         );
-//       })
-//       .finally(() => {
-//         setActionLoading((prev) => ({
-//           ...prev,
-//           [activeUser.id]: false,
-//         }));
-//         setPasscodeModal(false);
-//       });
-//   } else {
-//     showAlert("Incorrect passcode", "error");
-//   }
-// };
 const doDelete = async () => {
   if (!activeUser) return;
 
   try {
     // 1. VERIFY PASSCODE (API)
     const verifyRes = await axios.post(
-      "https://api.pwezayshops.com/admin/verify-admin-passcode",
-      {
-        passcode,
-      }
+      "https://api.pwezayshops.com/admin/verify-manager-passcode",
+     {
+    passcode,
+  },
+  {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
     );
 
     if (!verifyRes.data?.success) {
@@ -129,7 +108,12 @@ const doDelete = async () => {
     }));
 
     const res = await axios.delete(
-      `https://api.pwezayshops.com/deliverymen/${activeUser.id}`
+      `https://api.pwezayshops.com/deliverymen/${activeUser.id}`,
+        {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
     );
 
     setDeliverymen((prev) =>
@@ -164,37 +148,18 @@ const getPhoto = (photo) => photo || "https://via.placeholder.com/80";
       ? `https://maps.google.com?q=${encodeURIComponent(location)}&output=embed`
       : null;
 
-  // const toggleStatus = (delivery, newStatus) => {
-  //   setActionLoading((prev) => ({ ...prev, [delivery.id]: true }));
-  //   axios
-  //     .patch(`https://api.pwezayshops.com/deliverymen/status/${delivery.id}`, {
-  //       status: newStatus,
-  //     })
-  //     .then((res) => {
-  //       setDeliverymen((prev) =>
-  //         prev.map((u) =>
-  //           u.id === delivery.id ? { ...u, status: newStatus } : u,
-  //         ),
-  //       );
-  //       setAlerts((prev) => [...prev, res.data.message || "Status updated"]);
-  //     })
-  //     .catch((err) =>
-  //       setAlerts((prev) => [
-  //         ...prev,
-  //         err.response?.data?.message || "Failed to update status",
-  //       ]),
-  //     )
-  //     .finally(() => {
-  //       setActionLoading((prev) => ({ ...prev, [delivery.id]: false }));
-  //     });
-  // };
 const toggleStatus = (delivery, newStatus) => {
   setActionLoading((prev) => ({ ...prev, [delivery.id]: true }));
 
   axios
     .patch(
       `https://api.pwezayshops.com/deliverymen/status/${delivery.id}`,
-      { status: newStatus }
+      { status: newStatus },
+        {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
     )
     .then((res) => {
       setDeliverymen((prev) =>
@@ -333,7 +298,7 @@ const toggleStatus = (delivery, newStatus) => {
 
                     <td className="py-4">{delivery.email}</td>
                     <td className="py-4">{delivery.phone}</td>
-                    <td className="py-4">{delivery.work_type}</td>
+                    <td className="py-4">{delivery.work_type || "System"}</td>
 
                     <td className="py-4 text-sm">
                       <div className="flex flex-col">

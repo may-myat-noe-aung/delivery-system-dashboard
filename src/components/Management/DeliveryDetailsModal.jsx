@@ -31,12 +31,27 @@ const parseLocation = (loc) => {
   return { lat: null, lon: null, label: loc };
 };
 
+
+
 export default function DeliveryDetailsModal({
   open,
   user,
   onClose,
 }) {
   if (!open || !user) return null;
+
+    const statusColor =
+    user.status === "active"
+      ? "bg-green-500/20 text-green-400 border-green-500/30"
+      : user.status === "warning"
+      ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+      : "bg-red-500/20 text-red-400 border-red-500/30";
+
+
+  const onlineColor =
+    user.is_online
+      ? "bg-green-500/20 text-green-400 border-green-500/30"
+      : "bg-gray-500/20 text-gray-300 border-gray-500/30";
 
   const { lat, lon, label } = parseLocation(user.location);
 
@@ -86,85 +101,63 @@ export default function DeliveryDetailsModal({
             )}
 
             <div className="mt-4 text-center">
-              <p className="text-lg font-semibold">{user.name}</p>
-              <p className="text-sm text-gray-400">
-                {user.work_type || "No Work Type"}
-              </p>
+              <p className="text-xl font-semibold text-purple-400">{user.name}</p>
             </div>
-          </div>
 
-          {/* DETAILS */}
-          <div className="md:col-span-2 grid sm:grid-cols-2 gap-4 text-sm">
+              <div className="mt-4 space-y-3">
+                <div>
+                  <p className="text-xs text-slate-400">Phone</p>
+                  <p>{user.phone}</p>
+                </div>
 
-            {[
-              ["Email", user.email],
-              ["Phone", user.phone],
-              ["Status", user.status],
-              ["Work Type", user.work_type],
-              ["Rating", user.rating],
-              ["Finished Orders", user.finished_order_count],
-              ["Assigned Orders", user.assign_order],
-              ["Created At", formatDateShort(user.created_at)],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                className="bg-[#1e2235] p-4 rounded-xl border border-[#2c2f44]"
-              >
-                <p className="text-xs text-gray-400">{label}</p>
-                <p className="text-sm font-medium mt-1 break-words">
-                  {value ?? "-"}
-                </p>
+                <div>
+                  <p className="text-xs text-slate-400">Email</p>
+                  <p className="break-all">{user.email}</p>
+                </div>
               </div>
-            ))}
-
           </div>
 
-          {/* LOCATION (Shop-style map footer) */}
-          {/* <div className="col-span-3 bg-[#1e2235] p-4 rounded-2xl border border-[#2c2f44] hover:border-purple-500/30 transition mt-2">
+{/* DETAILS */}
+<div className="md:col-span-2 grid sm:grid-cols-2 gap-4 text-sm">
 
-            <p className="text-sm text-gray-400 mb-2">Location</p>
+  {[
+    ["Status", user.status],
+    ["Online", user.is_online ? "Online" : "Offline"],
+    ["Work Type", user.work_type || "System"],
+    ["Rating", user.rating],
+    ["Finished Orders", user.finished_order_count],
+    ["Assigned Orders", user.assign_order],
+    ["Created At", formatDateShort(user.created_at)],
+  ].map(([label, value]) => (
+    <div
+      key={label}
+      className="bg-[#1e2235] p-4 rounded-xl border border-[#2c2f44]"
+    >
+      <p className="text-sm text-gray-400">
+        {label}
+      </p>
 
-            {!lat || !lon ? (
-              <p className="text-gray-300">{label}</p>
-            ) : (
-              <>
-                <div className="overflow-hidden rounded-xl border border-[#2c2f44]">
-                  <iframe
-                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${
-                      lon - 0.01
-                    }%2C${lat - 0.01}%2C${lon + 0.01}%2C${lat + 0.01}&layer=mapnik&marker=${lat}%2C${lon}`}
-                    className="w-full h-72"
-                    title="map"
-                    loading="lazy"
-                  />
-                </div>
+      {label === "Status" ? (
+        <span
+          className={`inline-block mt-2 px-3 py-1 rounded-full text-xs border ${statusColor}`}
+        >
+          {value}
+        </span>
+      ) : label === "Online" ? (
+        <span
+          className={`inline-block mt-2 px-3 py-1 rounded-full text-xs border ${onlineColor}`}
+        >
+          {value}
+        </span>
+      ) : (
+        <p className="text-md font-medium mt-1 break-words">
+          {value ?? "-"}
+        </p>
+      )}
+    </div>
+  ))}
 
-                <div className="flex justify-between items-center mt-2 text-xs">
-                  <span className="text-gray-400">{label}</span>
-
-                  <a
-                    href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-purple-400 hover:underline"
-                  >
-                    Open Map →
-                  </a>
-                </div>
-              </>
-            )}
-          </div> */}
-
-        </div>
-
-        {/* FOOTER */}
-        <div className="px-6 py-4 border-t border-[#2c2f44] flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 transition"
-          >
-            Close
-          </button>
+</div>
         </div>
 
       </div>

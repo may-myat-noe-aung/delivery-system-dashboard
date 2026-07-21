@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useAlert } from "../../AlertContext";
 
 export default function CreateAccount() {
-  const token = localStorage.getItem("adminToken"); // ✅ Add this near the top
+  const token = localStorage.getItem("token");
 
   const { showAlert } = useAlert(); //  get showAlert
 
@@ -90,21 +90,29 @@ export default function CreateAccount() {
     formData.append("photo", newAccount.photo || "");
     formData.append("phone", newAccount.phone);
 
-    if (newAccount.role === "manager") {
-      if (!/^\d{6}$/.test(newAccount.passcode)) {
-        showAlert("Manager Passcode သည် 6 လုံး အတိအကျ ရှိရမည်", "error");
-        return;
-      }
-      formData.append("passcode", newAccount.passcode);
-    }
+    // if (newAccount.role === "manager") {
+    //   if (!/^\d{6}$/.test(newAccount.passcode)) {
+    //     showAlert("Manager Passcode သည် 6 လုံး အတိအကျ ရှိရမည်", "error");
+    //     return;
+    //   }
+    //   formData.append("passcode", newAccount.passcode);
+    // }
+    if (["manager", "shopmanager", "delimanager"].includes(newAccount.role)) {
+  if (!/^\d{6}$/.test(newAccount.passcode)) {
+    showAlert("Passcode သည် 6 လုံး အတိအကျ ရှိရမည်", "error");
+    return;
+  }
+
+  formData.append("passcode", newAccount.passcode);
+}
 
     try {
       setSaving(true);
       const res = await fetch("https://api.pwezayshops.com/admin", {
         method: "POST",
-        // headers: {
-        //   Authorization: `Bearer ${token}`, // ✅ add token
-        // },
+        headers: {
+      Authorization: `MSHteam ${token}`,
+    },
         body: formData,
       });
 
@@ -156,7 +164,7 @@ export default function CreateAccount() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            // Authorization: `Bearer ${token}`,
+           Authorization: `MSHteam ${token}`,
           },
           body: JSON.stringify({ passcode: trimmedPasscode }),
         },

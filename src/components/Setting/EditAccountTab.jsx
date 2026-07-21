@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { useAlert } from "../../AlertContext";
 
 export default function EditAccountTab() {
-  const token = localStorage.getItem("adminToken"); // ✅ get token from localStorage
+const token = localStorage.getItem("token");
 
   const [accounts, setAccounts] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState("");
@@ -39,7 +39,14 @@ export default function EditAccountTab() {
     const fetchAccounts = async () => {
       setLoading(true);
       try {
-        const res = await axios.get("https://api.pwezayshops.com/admin");
+        const res = await axios.get(
+  "https://api.pwezayshops.com/admin",
+  {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
+);
 
         if (res.data.success) {
           const order = { owner: 1, manager: 2, seller: 3 };
@@ -78,7 +85,6 @@ export default function EditAccountTab() {
     }
   };
 
-  // ✅ Handle keyboard navigation for dropdown
 
   // Close dropdown if clicked outside
   useEffect(() => {
@@ -128,7 +134,7 @@ export default function EditAccountTab() {
         {
           headers: {
             "Content-Type": "application/json",
-            // Authorization: `Bearer ${token}`,
+            Authorization: `MSHteam ${token}`,
           },
         },
       );
@@ -164,7 +170,15 @@ export default function EditAccountTab() {
       // );
 
       // ✅ Use only API message
-      const res = await axios.put("https://api.pwezayshops.com/admin", formData);
+  const res = await axios.put(
+  "https://api.pwezayshops.com/admin",
+  formData,
+  {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
+);
 
       showAlert(res.data.message, "success");
 

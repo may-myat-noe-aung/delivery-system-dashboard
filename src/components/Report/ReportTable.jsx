@@ -20,6 +20,7 @@ export default function ReportTable() {
   const [toDate, setToDate] = useState("");
 
   const [selected, setSelected] = useState(null);
+  const token = localStorage.getItem("token");
 
   const [page, setPage] = useState(1);
   const pageSize = 5;
@@ -39,6 +40,12 @@ export default function ReportTable() {
 
         const res = await fetch(
           `https://api.pwezayshops.com/report-shops/${shopId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
         );
 
         const data = await res.json();
@@ -112,6 +119,21 @@ export default function ReportTable() {
   const paginatedReports = filteredReports.slice(
     (page - 1) * pageSize,
     page * pageSize,
+  );
+  // ===== Pagination Buttons =====
+  const maxButtons = 10;
+
+  const startPage =
+    Math.floor((page - 1) / maxButtons) * maxButtons + 1;
+
+  const endPage = Math.min(
+    startPage + maxButtons - 1,
+    totalPages
+  );
+
+  const visiblePages = Array.from(
+    { length: endPage - startPage + 1 },
+    (_, i) => startPage + i
   );
 
   const handleExport = () => {
@@ -335,48 +357,48 @@ export default function ReportTable() {
 
             {/* Pagination */}
 
-            {/* Pagination */}
             <div className="flex flex-col md:flex-row justify-between px-4 pt-4 text-sm text-neutral-400 gap-2 md:gap-0">
               <p>
                 Page {totalPages === 0 ? 0 : page} of {totalPages}
               </p>
+
               <div className="flex gap-2 flex-wrap">
+                {/* Previous 10 pages */}
                 <button
-                  disabled={page === 1}
-                  onClick={() => setPage(Math.max(1, page - 1))}
-                  className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                    page === 1
+                  disabled={startPage === 1}
+                  onClick={() => setPage(Math.max(1, startPage - maxButtons))}
+                  className={`px-3 py-1 rounded-md border border-neutral-700 ${startPage === 1
                       ? "text-neutral-500 cursor-not-allowed"
                       : "text-[#B476FF] hover:bg-neutral-900"
-                  }`}
+                    }`}
                 >
                   Prev
                 </button>
 
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (n) => (
-                    <button
-                      key={n}
-                      onClick={() => setPage(n)}
-                      className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                        page === n
-                          ? "bg-purple-300 text-black font-semibold"
-                          : "text-purple-300 hover:bg-neutral-900"
+                {/* Visible Page Numbers */}
+                {visiblePages.map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setPage(n)}
+                    className={`px-3 py-1 rounded-md border border-neutral-700 ${page === n
+                        ? "bg-purple-300 text-black font-semibold"
+                        : "text-purple-300 hover:bg-neutral-900"
                       }`}
-                    >
-                      {n}
-                    </button>
-                  ),
-                )}
+                  >
+                    {n}
+                  </button>
+                ))}
 
+                {/* Next 10 pages */}
                 <button
-                  disabled={page === totalPages}
-                  onClick={() => setPage(Math.min(totalPages, page + 1))}
-                  className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                    page === totalPages
+                  disabled={endPage === totalPages || totalPages === 0}
+                  onClick={() =>
+                    setPage(Math.min(totalPages, endPage + 1))
+                  }
+                  className={`px-3 py-1 rounded-md border border-neutral-700 ${endPage === totalPages || totalPages === 0
                       ? "text-neutral-500 cursor-not-allowed"
                       : "text-[#B476FF] hover:bg-neutral-900"
-                  }`}
+                    }`}
                 >
                   Next
                 </button>

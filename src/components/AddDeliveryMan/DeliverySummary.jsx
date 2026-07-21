@@ -53,7 +53,7 @@ function DashboardCard({ title, value, icon, gradient, iconBg }) {
 /* ================= LOADING ================= */
 function LoadingCard() {
   return (
-    <div className="h-[120px] rounded-3xl bg-white/5 border border-white/10 animate-pulse" />
+    <div className="h-[100px] rounded-3xl bg-white/5 border border-white/10 animate-pulse" />
   );
 }
 
@@ -61,12 +61,19 @@ function LoadingCard() {
 export default function DeliverySummary() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          "https://api.pwezayshops.com/deliverymen-summaries-by-system"
+          "https://api.pwezayshops.com/deliverymen-summaries-by-system",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
         );
 
         const result = await res.json();
@@ -113,7 +120,7 @@ export default function DeliverySummary() {
 
       {/* ACTIVE DELIVERYMEN */}
       <DashboardCard
-        title="Active Delivery Men"
+        title="Today's Active Delivery Men"
         value={data.active_deliverymen}
         icon={
           <UserCheck className="text-emerald-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />

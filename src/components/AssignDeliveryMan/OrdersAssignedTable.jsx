@@ -16,11 +16,19 @@ export default function OrdersAssignedTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("https://api.pwezayshops.com/connected-orders");
+        const res = await fetch("https://api.pwezayshops.com/connected-orders",
+            {
+          method: "GET",
+          headers: {
+            Authorization: `MSHteam ${token}`,
+          },
+        }
+        );
         const data = await res.json();
 
         if (data.success) {
@@ -229,7 +237,7 @@ export default function OrdersAssignedTable() {
                   <th className="py-4 text-left">Name</th>
                   <th className="py-4 text-left">Email</th>
                   <th className="py-4 text-left">Phone</th>
-                  <th className="py-4 text-left">Status</th>
+                  {/* <th className="py-4 text-left">Status</th> */}
 
                   {/* UPDATED */}
                   <th className="py-4 text-left">Total Orders</th>
@@ -254,11 +262,11 @@ export default function OrdersAssignedTable() {
                     <td className="py-4">{dm.phone}</td>
 
                     {/* STATUS (FIXED COLOR) */}
-                    <td
+                    {/* <td
                       className={`py-4 font-semibold ${getStatusColor(dm.status)}`}
                     >
                       {dm.status}
-                    </td>
+                    </td> */}
 
                     {/* TOTAL ORDERS (FIXED) */}
                     <td className="py-4 text-blue-400">
@@ -308,53 +316,51 @@ export default function OrdersAssignedTable() {
           </div>
         )}
 
-          {/* Pagination */}
-            <div className="flex flex-col md:flex-row justify-between px-4 pt-4 text-sm text-neutral-400 gap-2 md:gap-0">
-              <p>
-                Page {totalPages === 0 ? 0 : page} of {totalPages}
-              </p>
-              <div className="flex gap-2 flex-wrap">
-                <button
-                  disabled={page === 1}
-                  onClick={() => setPage(Math.max(1, page - 1))}
-                  className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                    page === 1
-                      ? "text-neutral-500 cursor-not-allowed"
-                      : "text-purple-400 hover:bg-neutral-900"
-                  }`}
-                >
-                  Prev
-                </button>
+        {/* Pagination */}
+        <div className="flex flex-col md:flex-row justify-between px-4 pt-4 text-sm text-neutral-400 gap-2 md:gap-0">
+          <p>
+            Page {totalPages === 0 ? 0 : page} of {totalPages}
+          </p>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(Math.max(1, page - 1))}
+              className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                page === 1
+                  ? "text-neutral-500 cursor-not-allowed"
+                  : "text-purple-400 hover:bg-neutral-900"
+              }`}
+            >
+              Prev
+            </button>
 
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (n) => (
-                    <button
-                      key={n}
-                      onClick={() => setPage(n)}
-                      className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                        page === n
-                          ? "bg-purple-300 text-black font-semibold"
-                          : "text-purple-300 hover:bg-neutral-900"
-                      }`}
-                    >
-                      {n}
-                    </button>
-                  ),
-                )}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                  page === n
+                    ? "bg-purple-300 text-black font-semibold"
+                    : "text-purple-300 hover:bg-neutral-900"
+                }`}
+              >
+                {n}
+              </button>
+            ))}
 
-                <button
-                  disabled={page === totalPages}
-                  onClick={() => setPage(Math.min(totalPages, page + 1))}
-                  className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                    page === totalPages
-                      ? "text-neutral-500 cursor-not-allowed"
-                      : "text-purple-500 hover:bg-neutral-900"
-                  }`}
-                >
-                  Next
-                </button>
-              </div>
-            </div>
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              className={`px-3 py-1 rounded-md border border-neutral-700 ${
+                page === totalPages
+                  ? "text-neutral-500 cursor-not-allowed"
+                  : "text-purple-500 hover:bg-neutral-900"
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
 
       {selected && (

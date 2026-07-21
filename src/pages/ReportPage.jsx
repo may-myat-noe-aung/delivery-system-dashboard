@@ -4,11 +4,12 @@ import axios from "axios";
 import ShopReportList from "../components/Report/ShopReportList";
 import ViewShopDetail from "../components/Shop/ViewShopDetail";
 import ReportSummaryCards from "../components/Report/ReportSummaryCards";
-
+import ServerToggle from "../components/Report/ServerToggle";
 
 const ReportPage = () => {
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
 
   // ✅ modal states
   const [selectedShopId, setSelectedShopId] = useState(null);
@@ -20,7 +21,14 @@ const ReportPage = () => {
   useEffect(() => {
     const fetchShops = async () => {
       try {
-        const res = await axios.get("https://api.pwezayshops.com/shops-approve");
+        const res = await axios.get(
+          "https://api.pwezayshops.com/shops-approve",
+          {
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          },
+        );
         setShops(res.data);
       } catch (err) {
         console.error("Failed to fetch shops:", err);
@@ -33,11 +41,11 @@ const ReportPage = () => {
   }, []);
 
   // ✅ open shop report page
-const handleViewReport = (shop) => {
-  navigate(`/reports/${shop.id}`, {
-    state: { shopName: shop.shop_name }
-  });
-};
+  const handleViewReport = (shop) => {
+    navigate(`/reports/${shop.id}`, {
+      state: { shopName: shop.shop_name },
+    });
+  };
 
   // ✅ open modal (Shop Details)
   const handleViewShopDetails = (shopId) => {
@@ -63,27 +71,24 @@ const handleViewReport = (shop) => {
   // ✅ empty state
   if (!shops.length) {
     return (
-      <p className="text-gray-500 text-lg mt-6 px-4">
-        No shops available.
-      </p>
+      <p className="text-gray-500 text-lg mt-6 px-4">No shops available.</p>
     );
   }
 
   return (
-<>
-      <ReportSummaryCards/>
+    <>
+      <ReportSummaryCards />
+      <ServerToggle/>
 
-    <section className="">
-
-      {/* ✅ Shop Cards */}
-      <ShopReportList
-        shops={shops}
-        onDetail={handleViewReport}
-        onViewShopDetails={handleViewShopDetails}
-      />
-
-    </section>
-</>
+      <section className="">
+        {/* ✅ Shop Cards */}
+        <ShopReportList
+          shops={shops}
+          onDetail={handleViewReport}
+          onViewShopDetails={handleViewShopDetails}
+        />
+      </section>
+    </>
   );
 };
 

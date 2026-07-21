@@ -54,7 +54,7 @@ export default function AdminLayout() {
       <div className="flex-1 flex flex-col">
         <Header />
 
-        <div className="flex-1 overflow-y-auto p-6  ">
+        <div className="flex-1 overflow-y-auto p-6  custom-scrollbar">
           <Outlet />
         </div>
 

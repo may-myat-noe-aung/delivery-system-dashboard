@@ -14,6 +14,7 @@ export default function DeleteDeliveryMan({
 
   const [passcodeModal, setPasscodeModal] = useState(false);
   const [passcode, setPasscode] = useState("");
+  const token = localStorage.getItem("token");
 
   const passcodeInputRef = useRef(null);
 
@@ -53,6 +54,11 @@ export default function DeleteDeliveryMan({
         "https://api.pwezayshops.com/admin/verify-admin-passcode",
         {
           passcode,
+        },
+        {
+          headers: {
+            Authorization: `MSHteam ${token}`,
+          },
         },
       );
 

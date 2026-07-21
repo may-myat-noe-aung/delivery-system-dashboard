@@ -8,12 +8,19 @@ export default function TopDeliveryMen() {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchDrivers = async () => {
       try {
         const res = await fetch(
           "https://api.pwezayshops.com/top5deliverymen-by-system",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
         );
 
         const json = await res.json();
@@ -112,7 +119,7 @@ const handleExport = () => {
         </div>
         <button
           onClick={handleExport}
-          className="px-4 py-2 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium hover:bg-indigo-500/20 transition flex items-center gap-1"
+          className="px-4 py-2 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-medium hover:bg-purple-500/20 transition flex items-center gap-1"
         >
           <Download size={14} /> Export
         </button>
@@ -164,7 +171,7 @@ const handleExport = () => {
                             ? "bg-slate-400/10 text-slate-300 border border-slate-500/20"
                             : index === 2
                               ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
-                              : "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
+                              : "bg-purple-500/10 text-purple-400 border border-purple-500/20"
                       }`}
                     >
                       #{index + 1}
@@ -178,10 +185,10 @@ const handleExport = () => {
                         <img
                           src={`https://api.pwezayshops.com/deliverymen-uploads/${driver.photo}`}
                           alt={driver.name}
-                          className="w-11 h-11 rounded-2xl object-cover ring-2 ring-indigo-500/20"
+                          className="w-11 h-11 rounded-2xl object-cover ring-2 ring-purple-500/20"
                         />
                       ) : (
-                        <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-semibold">
+                        <div className="w-11 h-11 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 font-semibold">
                           {driver.name?.charAt(0).toUpperCase()}
                         </div>
                       )}
@@ -211,7 +218,7 @@ const handleExport = () => {
                   </td>
 
                   {/* Orders */}
-                  <td className="p-4 text-center text-indigo-400 font-semibold">
+                  <td className="p-4 text-center text-purple-400 font-semibold">
                     {driver.total_order}
                   </td>
 

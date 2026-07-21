@@ -1,435 +1,3 @@
-// import React from "react";
-
-// function formatDateShort(dtString) {
-//   if (!dtString) return "-";
-//   const d = new Date(dtString.replace(" ", "T"));
-//   if (isNaN(d)) return dtString;
-//   return d.toLocaleString();
-// }
-
-// const parseLocation = (loc) => {
-//   if (!loc) return { lat: null, lon: null, label: "-" };
-
-//   const lower = loc.toLowerCase();
-
-//   if (!lower.includes("lat") && !lower.includes("lag")) {
-//     return { lat: null, lon: null, label: loc };
-//   }
-
-//   try {
-//     const latMatch = loc.match(/(Lat|Lag)\s*([0-9.\-]+)/i);
-//     const lonMatch = loc.match(/(Lon|Log)\s*([0-9.\-]+)/i);
-
-//     if (latMatch && lonMatch) {
-//       const lat = Number(latMatch[2]);
-//       const lon = Number(lonMatch[2]);
-
-//       return {
-//         lat,
-//         lon,
-//         label: `📍 ${lat}, ${lon}`,
-//       };
-//     }
-
-//     return { lat: null, lon: null, label: loc };
-//   } catch {
-//     return { lat: null, lon: null, label: loc };
-//   }
-// };
-
-// export default function ShopDetailsModal({
-//   modalOpen,
-//   activeShop,
-//   setModalOpen,
-//   openPasscode,
-//   actionLoading,
-// }) {
-//   if (!modalOpen || !activeShop) return null;
-
-//   const { lat, lon, label } = parseLocation(activeShop.location);
-
-//   const mapUrl =
-//     lat && lon
-//       ? `https://www.openstreetmap.org/export/embed.html?bbox=${
-//           lon - 0.01
-//         }%2C${lat - 0.01}%2C${lon + 0.01}%2C${lat + 0.01}&layer=mapnik&marker=${lat}%2C${lon}`
-//       : null;
-
-//   // ✅ dynamic permission color
-//   const permissionColor =
-//     activeShop.permission === "pending"
-//       ? "bg-yellow-500/20 text-yellow-400"
-//       : activeShop.permission === "approved"
-//       ? "bg-green-500/20 text-green-400"
-//       : "bg-red-500/20 text-red-400";
-
-//   return (
-//     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md p-3">
-//       {/* Backdrop */}
-//       <div
-//         className="absolute inset-0 bg-black/70"
-//         onClick={() => setModalOpen(false)}
-//       />
-
-//       {/* Modal */}
-//       <div className="relative w-full max-w-5xl bg-[#141826] rounded-3xl shadow-2xl border border-[#2c2f44] text-white overflow-hidden">
-
-//         {/* HEADER */}
-//         <div className="flex justify-between items-center px-6 py-4 border-b border-[#2c2f44]">
-//           <h2 className="text-2xl font-bold tracking-wide">
-//             Shop Details
-//             <span className="text-[#B476FF] ml-2">#{activeShop.id}</span>
-//           </h2>
-//           <button
-//             onClick={() => setModalOpen(false)}
-//             className="text-gray-400 hover:text-white text-xl transition"
-//           >
-//             ✕
-//           </button>
-//         </div>
-
-//         {/* BODY */}
-//         <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-//           {/* LEFT CARD */}
-//           <div className="bg-[#1e2235] rounded-2xl p-5 flex flex-col items-center shadow-inner hover:shadow-purple-500/10 transition">
-
-//             {activeShop.photo ? (
-//               <img
-//                 src={`https://api.pwezayshops.com/shop-uploads/${activeShop.photo}`}
-//                 alt={activeShop.shop_name}
-//                 className="w-48 h-48 object-cover rounded-2xl border border-[#2c2f44]"
-//               />
-//             ) : (
-//               <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-[#B476FF]/30 to-purple-600/20 border border-[#B476FF]/40 flex items-center justify-center text-5xl font-bold shadow-inner">
-//                 {activeShop.shop_name?.charAt(0).toUpperCase() || "?"}
-//               </div>
-//             )}
-
-//             <div className="mt-4 text-center">
-//               <p className="text-lg font-semibold">{activeShop.shop_name}</p>
-//               <p className="text-sm text-gray-400">
-//                 {activeShop.shopkeeper_name}
-//               </p>
-//             </div>
-//           </div>
-
-//           {/* DETAILS */}
-//           <div className="lg:col-span-2 grid sm:grid-cols-2 gap-4">
-
-//             {[
-//               ["Email", activeShop.email],
-//               ["Phone", activeShop.phone],
-//               ["Items", activeShop.items],
-//               ["Created", formatDateShort(activeShop.created_at)],
-//               ["Address", activeShop.address || "-"],
-//             ].map(([label, value]) => (
-//               <div
-//                 key={label}
-//                 className="bg-[#1e2235] p-4 rounded-xl border border-[#2c2f44] hover:border-[#B476FF]/30 transition"
-//               >
-//                 <p className="text-xs text-gray-400">{label}</p>
-//                 <p className="text-sm font-medium mt-1">{value || "-"}</p>
-//               </div>
-//             ))}
-
-//             {/* PERMISSION */}
-//             <div className="bg-[#1e2235] p-4 rounded-xl border border-[#2c2f44]">
-//               <p className="text-xs text-gray-400">Permission</p>
-//               <span
-//                 className={`mt-2 inline-block px-3 py-1 rounded-full text-xs ${permissionColor}`}
-//               >
-//                 {activeShop.permission}
-//               </span>
-//             </div>
-//           </div>
-
-//           {/* MAP */}
-//           <div className="col-span-3 bg-[#1e2235] p-4 rounded-2xl border border-[#2c2f44] hover:border-[#B476FF]/30 transition">
-//             <p className="text-sm text-gray-400 mb-2">Location</p>
-
-//             {!mapUrl ? (
-//               <p className="text-gray-300">{label}</p>
-//             ) : (
-//               <>
-//                 <div className="overflow-hidden rounded-xl border border-[#2c2f44]">
-//                   <iframe
-//                     src={mapUrl}
-//                     className="w-full h-72"
-//                     title="Map"
-//                     loading="lazy"
-//                   />
-//                 </div>
-
-//                 <div className="flex justify-between items-center mt-2 text-xs">
-//                   <span className="text-gray-400">{label}</span>
-
-//                   <a
-//                     href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}`}
-//                     target="_blank"
-//                     rel="noreferrer"
-//                     className="text-[#B476FF] hover:underline"
-//                   >
-//                     Open Map →
-//                   </a>
-//                 </div>
-//               </>
-//             )}
-//           </div>
-//         </div>
-
-//         {/* FOOTER */}
-//         <div className="flex justify-end gap-3 px-6 py-4 border-t border-[#2c2f44] bg-[#141826]">
-//           <button
-//             onClick={() => openPasscode(activeShop.id, "reject")}
-//             disabled={!!actionLoading[activeShop.id]}
-//             className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 transition disabled:opacity-40"
-//           >
-//             Reject
-//           </button>
-
-//           <button
-//             onClick={() => openPasscode(activeShop.id, "approve")}
-//             disabled={!!actionLoading[activeShop.id]}
-//             className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#B476FF] to-purple-600 hover:opacity-90 transition disabled:opacity-40"
-//           >
-//             Accept
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// import React from "react";
-
-// function formatDateShort(dtString) {
-//   if (!dtString) return "-";
-//   const d = new Date(dtString.replace(" ", "T"));
-//   if (isNaN(d)) return dtString;
-//   return d.toLocaleString();
-// }
-
-// /* ================= ADD CATEGORY MAP ================= */
-// const categoryMap = {
-//   1: "Snack",
-//   2: "Alcoholic",
-//   3: "Breakfast",
-//   4: "Cake",
-//   5: "Coffee",
-//   6: "Drink",
-//   7: "Fast Food",
-//   8: "Lunch",
-//   9: "Morning",
-//   10: "Sweets",
-// };
-
-// /* ================= FORMAT CATEGORY ================= */
-// const formatCategories = (categories) => {
-//   if (!categories || categories.length === 0) return "-";
-
-//   return categories
-//     .map((id) => categoryMap[id] || id)
-//     .join(", ");
-// };
-
-// const parseLocation = (loc) => {
-//   if (!loc) return { lat: null, lon: null, label: "-" };
-
-//   const lower = loc.toLowerCase();
-
-//   if (!lower.includes("lat") && !lower.includes("lag")) {
-//     return { lat: null, lon: null, label: loc };
-//   }
-
-//   try {
-//     const latMatch = loc.match(/(Lat|Lag)\s*([0-9.\-]+)/i);
-//     const lonMatch = loc.match(/(Lon|Log)\s*([0-9.\-]+)/i);
-
-//     if (latMatch && lonMatch) {
-//       const lat = Number(latMatch[2]);
-//       const lon = Number(lonMatch[2]);
-
-//       return {
-//         lat,
-//         lon,
-//         label: `📍 ${lat}, ${lon}`,
-//       };
-//     }
-
-//     return { lat: null, lon: null, label: loc };
-//   } catch {
-//     return { lat: null, lon: null, label: loc };
-//   }
-// };
-
-// export default function ShopDetailsModal({
-//   modalOpen,
-//   activeShop,
-//   setModalOpen,
-//   openPasscode,
-//   actionLoading,
-// }) {
-//   if (!modalOpen || !activeShop) return null;
-
-//   const { lat, lon, label } = parseLocation(activeShop.location);
-
-//   const mapUrl =
-//     lat && lon
-//       ? `https://www.openstreetmap.org/export/embed.html?bbox=${
-//           lon - 0.01
-//         }%2C${lat - 0.01}%2C${lon + 0.01}%2C${lat + 0.01}&layer=mapnik&marker=${lat}%2C${lon}`
-//       : null;
-
-//   const permissionColor =
-//     activeShop.permission === "pending"
-//       ? "bg-yellow-500/20 text-yellow-400"
-//       : activeShop.permission === "approved"
-//       ? "bg-green-500/20 text-green-400"
-//       : "bg-red-500/20 text-red-400";
-
-//   return (
-//     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md p-3">
-//       {/* Backdrop */}
-//       <div
-//         className="absolute inset-0 bg-black/70"
-//         onClick={() => setModalOpen(false)}
-//       />
-
-//       {/* Modal */}
-//       <div className="relative w-full max-w-5xl bg-[#141826] rounded-3xl shadow-2xl border border-[#2c2f44] text-white overflow-hidden">
-
-//         {/* HEADER */}
-//         <div className="flex justify-between items-center px-6 py-4 border-b border-[#2c2f44]">
-//           <h2 className="text-2xl font-bold tracking-wide">
-//             Shop Details
-//             <span className="text-[#B476FF] ml-2">#{activeShop.id}</span>
-//           </h2>
-//           <button
-//             onClick={() => setModalOpen(false)}
-//             className="text-gray-400 hover:text-white text-xl transition"
-//           >
-//             ✕
-//           </button>
-//         </div>
-
-//         {/* BODY */}
-//         <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-//           {/* LEFT CARD */}
-//           <div className="bg-[#1e2235] rounded-2xl p-5 flex flex-col items-center shadow-inner hover:shadow-purple-500/10 transition">
-
-//             {activeShop.photo ? (
-//               <img
-//                 src={`https://api.pwezayshops.com/shop-uploads/${activeShop.photo}`}
-//                 alt={activeShop.shop_name}
-//                 className="w-48 h-48 object-cover rounded-2xl border border-[#2c2f44]"
-//               />
-//             ) : (
-//               <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-[#B476FF]/30 to-purple-600/20 border border-[#B476FF]/40 flex items-center justify-center text-5xl font-bold shadow-inner">
-//                 {activeShop.shop_name?.charAt(0).toUpperCase() || "?"}
-//               </div>
-//             )}
-
-//             <div className="mt-4 text-center">
-//               <p className="text-lg font-semibold">{activeShop.shop_name}</p>
-//               <p className="text-sm text-gray-400">
-//                 {activeShop.shopkeeper_name}
-//               </p>
-//             </div>
-//           </div>
-
-//           {/* DETAILS */}
-//           <div className="lg:col-span-2 grid sm:grid-cols-2 gap-4">
-
-//             {[
-//               ["Email", activeShop.email],
-//               ["Phone", activeShop.phone],
-//               ["Items", activeShop.items],
-
-//               // ✅ ADDED CATEGORY HERE
-//               ["Categories", formatCategories(activeShop.categories)],
-
-//               ["Created", formatDateShort(activeShop.created_at)],
-//               ["Address", activeShop.address || "-"],
-//             ].map(([label, value]) => (
-//               <div
-//                 key={label}
-//                 className="bg-[#1e2235] p-4 rounded-xl border border-[#2c2f44] hover:border-[#B476FF]/30 transition"
-//               >
-//                 <p className="text-xs text-gray-400">{label}</p>
-//                 <p className="text-sm font-medium mt-1">{value || "-"}</p>
-//               </div>
-//             ))}
-
-//             {/* PERMISSION */}
-//             <div className="bg-[#1e2235] p-4 rounded-xl border border-[#2c2f44]">
-//               <p className="text-xs text-gray-400">Permission</p>
-//               <span
-//                 className={`mt-2 inline-block px-3 py-1 rounded-full text-xs ${permissionColor}`}
-//               >
-//                 {activeShop.permission}
-//               </span>
-//             </div>
-//           </div>
-
-//           {/* MAP */}
-//           <div className="col-span-3 bg-[#1e2235] p-4 rounded-2xl border border-[#2c2f44] hover:border-[#B476FF]/30 transition">
-//             <p className="text-sm text-gray-400 mb-2">Location</p>
-
-//             {!mapUrl ? (
-//               <p className="text-gray-300">{label}</p>
-//             ) : (
-//               <>
-//                 <div className="overflow-hidden rounded-xl border border-[#2c2f44]">
-//                   <iframe
-//                     src={mapUrl}
-//                     className="w-full h-72"
-//                     title="Map"
-//                     loading="lazy"
-//                   />
-//                 </div>
-
-//                 <div className="flex justify-between items-center mt-2 text-xs">
-//                   <span className="text-gray-400">{label}</span>
-
-//                   <a
-//                     href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}`}
-//                     target="_blank"
-//                     rel="noreferrer"
-//                     className="text-[#B476FF] hover:underline"
-//                   >
-//                     Open Map →
-//                   </a>
-//                 </div>
-//               </>
-//             )}
-//           </div>
-//         </div>
-
-//         {/* FOOTER */}
-//         <div className="flex justify-end gap-3 px-6 py-4 border-t border-[#2c2f44] bg-[#141826]">
-//           <button
-//             onClick={() => openPasscode(activeShop.id, "reject")}
-//             disabled={!!actionLoading[activeShop.id]}
-//             className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 transition disabled:opacity-40"
-//           >
-//             Reject
-//           </button>
-
-//           <button
-//             onClick={() => openPasscode(activeShop.id, "approve")}
-//             disabled={!!actionLoading[activeShop.id]}
-//             className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#B476FF] to-purple-600 hover:opacity-90 transition disabled:opacity-40"
-//           >
-//             Accept
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
 import React, { useState, useRef, useEffect } from "react";
 import { useAlert } from "../../AlertContext";
 
@@ -441,23 +9,83 @@ function formatDateShort(dtString) {
   return d.toLocaleString();
 }
 
-const categoryMap = {
-  1: "snack",
-  2: "alcoholic",
-  3: "breakfast",
-  4: "cake",
-  5: "coffee",
-  6: "drink",
-  7: "fastfood",
-  8: "lunch",
-  9: "morning",
-  10: "sweets",
-};
-
-const formatCategories = (categories) => {
-  if (!categories || categories.length === 0) return "-";
-  return categories.map((id) => categoryMap[id] || id).join(", ");
-};
+const categories = [
+  {
+    id: 1,
+    name: "Fashion",
+    icon: "fashion",
+  },
+  {
+    id: 2,
+    name: "Food & Restaurant",
+    icon: "foodrestaurant",
+  },
+  {
+    id: 3,
+    name: "Electronic",
+    icon: "electronic",
+  },
+  {
+    id: 4,
+    name: "Convenience Shop",
+    icon: "convenience",
+  },
+  {
+    id: 5,
+    name: "Material",
+    icon: "material",
+  },
+  {
+    id: 6,
+    name: "Fast Food",
+    icon: "fastfood",
+  },
+  {
+    id: 7,
+    name: "Snack",
+    icon: "snack",
+  },
+  {
+    id: 8,
+    name: "Breakfast",
+    icon: "breakfast",
+  },
+  {
+    id: 9,
+    name: "Cake",
+    icon: "cake",
+  },
+  {
+    id: 10,
+    name: "Coffee",
+    icon: "coffee",
+  },
+  {
+    id: 11,
+    name: "Drink",
+    icon: "drink",
+  },
+  {
+    id: 12,
+    name: "Lunch",
+    icon: "lunch",
+  },
+  {
+    id: 13,
+    name: "Morning",
+    icon: "morning",
+  },
+  {
+    id: 14,
+    name: "Sweets",
+    icon: "sweets",
+  },
+  {
+    id: 15,
+    name: "Other",
+    icon: "other",
+  },
+];
 
 const parseLocation = (loc) => {
   if (!loc) return { lat: null, lon: null, label: "-" };
@@ -496,6 +124,7 @@ export default function ShopDetailsModal({
   const [pendingAction, setPendingAction] = useState(null);
   const [loading, setLoading] = useState(false);
   const { showAlert } = useAlert();
+  const token = localStorage.getItem("token");
 
   /* ================= REFS ================= */
   const passcodeInputRef = useRef(null);
@@ -522,132 +151,76 @@ export default function ShopDetailsModal({
 
   const permissionColor =
     activeShop.permission === "pending"
-      ? "bg-yellow-500/20 text-yellow-400"
+      ? "bg-yellow-500/80 text-white"
       : activeShop.permission === "approved"
-      ? "bg-green-500/20 text-green-400"
-      : "bg-red-500/20 text-red-400";
+        ? "bg-green-500/20 text-green-400"
+        : "bg-red-500/20 text-red-400";
 
-  /* ================= ACTION ================= */
-// const handleConfirm = async () => {
-//   if (!passcode) {
-//     showAlert("Enter passcode", "warning");
-//     return;
-//   }
+  const closeAll = () => {
+    setPendingAction(null);
+    setPasscode("");
+    setLoading(false);
+    setModalOpen(false);
+  };
 
-//   setLoading(true);
-
-//   try {
-//     const verifyRes = await fetch(
-//       "https://api.pwezayshops.com/admin/verify-shopmanager-passcode",
-//       {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({ passcode }),
-//       }
-//     );
-
-//     const verifyData = await verifyRes.json();
-
-//     if (!verifyData.success) {
-//       showAlert(verifyData.message || "Wrong passcode", "error");
-
-//       // ✅ IMPORTANT RESET HERE
-//       // setLoading(false);
-//       return;
-//     }
-
-//     const url =
-//       pendingAction === "approve"
-//         ? `https://api.pwezayshops.com/shops/approve/${activeShop.id}`
-//         : `https://api.pwezayshops.com/shops/reject/${activeShop.id}`;
-
-//     const res = await fetch(url, {
-//       method: "PATCH",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//     });
-
-//     const data = await res.json();
-
-//     if (data.success) {
-//       showAlert(data.message || "Success", "success");
-
-//       setPendingAction(null);
-//       setPasscode("");
-//       setModalOpen(false);
-//     } else {
-//       showAlert(data.message || "Failed", "error");
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     showAlert("Server error", "error");
-//   } finally {
-//     setLoading(false); // ✅ always safe
-//   }
-// };
-const closeAll = () => {
-  setPendingAction(null);
-  setPasscode("");
-  setLoading(false);
-  setModalOpen(false);
-};
-
-
-const handleConfirm = async () => {
-  if (!passcode) {
-    showAlert("Enter passcode", "warning");
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const verifyRes = await fetch(
-      "https://api.pwezayshops.com/admin/verify-shopmanager-passcode",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ passcode }),
-      }
-    );
-
-    const verifyData = await verifyRes.json();
-
-    if (!verifyData.success) {
-      showAlert(verifyData.message || "Wrong passcode", "error");
-      closeAll();   // ✅ IMPORTANT FIX
+  const handleConfirm = async () => {
+    if (!passcode) {
+      showAlert("Enter passcode", "warning");
       return;
     }
 
-    const url =
-      pendingAction === "approve"
-        ? `https://api.pwezayshops.com/shops/approve/${activeShop.id}`
-        : `https://api.pwezayshops.com/shops/reject/${activeShop.id}`;
+    setLoading(true);
 
-    const res = await fetch(url, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      showAlert(data.message || "Success", "success");
-      closeAll();  // ✅ CLOSE POPUP HERE
-      setModalOpen(false);
-    } else {
-      showAlert(data.message || "Failed", "error");
-      closeAll();  // optional but safe
-    }
-  } catch (err) {
-    console.error(err);
-    showAlert("Server error", "error");
-    closeAll(); // ✅ VERY IMPORTANT
+    try {
+      const verifyRes = await fetch(
+        "https://api.pwezayshops.com/admin/verify-manager-passcode",
+          {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `MSHteam ${token}`,
+    },
+    body: JSON.stringify({ passcode }),
   }
-};
+      );
+
+      const verifyData = await verifyRes.json();
+
+      if (!verifyData.success) {
+        showAlert(verifyData.message || "Wrong passcode", "error");
+        closeAll(); // ✅ IMPORTANT FIX
+        return;
+      }
+
+      const url =
+        pendingAction === "approve"
+          ? `https://api.pwezayshops.com/shops/approve/${activeShop.id}`
+          : `https://api.pwezayshops.com/shops/reject/${activeShop.id}`;
+
+      const res = await fetch(url, {
+        method: "PATCH",
+        headers: {
+    "Content-Type": "application/json",
+    Authorization: `MSHteam ${token}`,
+  },
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        showAlert(data.message || "Success", "success");
+        closeAll(); // ✅ CLOSE POPUP HERE
+        setModalOpen(false);
+      } else {
+        showAlert(data.message || "Failed", "error");
+        closeAll(); // optional but safe
+      }
+    } catch (err) {
+      console.error(err);
+      showAlert("Server error", "error");
+      closeAll(); // ✅ VERY IMPORTANT
+    }
+  };
   return (
     <>
       {/* MODAL */}
@@ -660,20 +233,17 @@ const handleConfirm = async () => {
 
         {/* MODAL */}
         <div
-          className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl 
+          className="relative w-full max-w-4xl max-h-[80vh] overflow-y-auto rounded-3xl 
 bg-gradient-to-b from-[#111827] via-[#0f172a] to-[#0b1020]
 border border-white/10 shadow-2xl text-white"
         >
           {/* HEADER */}
-          <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
+          <div className="flex items-center justify-between px-6 py-3 border-b border-white/10">
             <div>
               <h2 className="text-xl md:text-2xl font-bold">
                 Shop Details{" "}
                 <span className="text-[#B476FF]">#{activeShop.id}</span>
               </h2>
-              <p className="text-xs text-gray-400 mt-1">
-                Review shop information and manage approval
-              </p>
             </div>
 
             <button
@@ -689,57 +259,122 @@ border border-white/10 shadow-2xl text-white"
           <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* LEFT PROFILE CARD */}
             <div className="lg:col-span-1">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-center hover:bg-white/10 transition">
-                <div className="relative mx-auto w-40 h-40">
+              <div
+                className="
+      relative overflow-hidden
+      rounded-3xl
+      border border-purple-500/20
+      bg-gradient-to-b from-[#1b2338] via-[#141b2d] to-[#0f172a]
+      py-3 px-4
+      shadow-2xl
+    "
+              >
+                {/* Glow */}
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl" />
+                <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl" />
+
+                {/* Status */}
+                <div className="absolute top-4 right-4 z-50">
+                  <span
+                    className={`px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg ${permissionColor}`}
+                  >
+                    {activeShop.permission}
+                  </span>
+                </div>
+
+                {/* Photo */}
+                <div className="relative mx-auto size-52">
                   {activeShop.photo ? (
                     <img
                       src={`https://api.pwezayshops.com/shop-uploads/${activeShop.photo}`}
-                      className="w-full h-full object-cover rounded-2xl border border-white/10"
+                      alt={activeShop.shop_name}
+                      className="w-full h-full object-cover rounded-3xl border-4 border-purple-500/20 shadow-xl"
                     />
                   ) : (
-                    <div className="w-full h-full rounded-2xl bg-purple-500/20 flex items-center justify-center text-5xl font-bold">
+                    <div className="w-full h-full rounded-3xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-6xl font-bold text-white">
                       {activeShop.shop_name?.charAt(0)}
                     </div>
                   )}
                 </div>
 
-                <h3 className="mt-4 text-lg font-semibold">
-                  {activeShop.shop_name}
-                </h3>
+                {/* Shop Info */}
+                <div className="mt-2 text-center">
+                  <h3 className="text-2xl font-bold text-white">
+                    {activeShop.shop_name}
+                  </h3>
 
-                <p className="text-sm text-gray-400">
-                  {activeShop.shopkeeper_name}
-                </p>
+                  <p className="mt-1 text-purple-300 text-base">
+                    {activeShop.shopkeeper_name}
+                  </p>
+                </div>
 
-                <div className="mt-3">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium
-            ${permissionColor}`}
-                  >
-                    {activeShop.permission}
-                  </span>
+                {/* Contact */}
+                <div className="mt-2 space-y-3">
+                  <div className="">
+                    <p className="text-xs text-slate-400 mb-1">Phone</p>
+                    <p className="text-white font-medium">{activeShop.phone}</p>
+                  </div>
+
+                  <div className="">
+                    <p className="text-xs text-slate-400 mb-1">Email</p>
+                    <p className="text-white font-medium break-all">
+                      {activeShop.email}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* DETAILS */}
             <div className="lg:col-span-2 grid sm:grid-cols-2 gap-4">
+              {/* Categories */}
+              <div className="lg:col-span-2 bg-white/5 border border-white/10 rounded-xl p-4">
+                <p className="text-gray-400  mb-3">Categories</p>
+
+                <div className="grid grid-cols-3 gap-3 max-h-[150px] overflow-y-auto">
+                  {activeShop.categories?.map((id) => {
+                    const category = categories.find((c) => c.id === id);
+
+                    if (!category) return null;
+
+                    return (
+                      <div
+                        key={id}
+                        className="p-2 rounded-xl border border-purple-500 bg-black flex flex-col items-center"
+                      >
+                        <img
+                          src={`/categoriesIcon/${category.icon}.png`}
+                          alt={category.name}
+                          className="size-12 object-contain"
+                        />
+
+                        <p className="text-[11px] text-gray-300 mt-2 text-center">
+                          {category.name}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
               {[
-                ["Email", activeShop.email],
-                ["Phone", activeShop.phone],
                 ["Items", activeShop.items],
                 ["Created", formatDateShort(activeShop.created_at)],
-                ["Categories", formatCategories(activeShop.categories)],
-                ["Address", activeShop.address || "-"],
               ].map(([k, v]) => (
                 <div
                   key={k}
                   className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition"
                 >
-                  <p className="text-gray-400 text-xs mb-1">{k}</p>
+                  <p className="text-gray-400  mb-1">{k}</p>
                   <p className="text-sm font-medium break-words">{v}</p>
                 </div>
               ))}
+
+              <div className="lg:col-span-2 bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition">
+                <p className="text-gray-400  mb-1">Address</p>
+                <p className="text-sm font-medium break-words">
+                  {activeShop.address || "-"}
+                </p>
+              </div>
             </div>
 
             {/* MAP */}
@@ -766,7 +401,7 @@ border border-white/10 shadow-2xl text-white"
                 setPendingAction("reject");
                 setPasscode("");
               }}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl
+              className="w-full sm:w-auto px-5 py-2 rounded-xl
       bg-red-500/10 border border-red-500/30 text-red-300
       hover:bg-red-500/20 transition"
             >
@@ -778,7 +413,7 @@ border border-white/10 shadow-2xl text-white"
                 setPendingAction("approve");
                 setPasscode("");
               }}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl
+              className="w-full sm:w-auto px-5 py-2 rounded-xl
       bg-purple-500
       text-white font-medium hover:opacity-90 transition shadow-lg"
             >
@@ -831,10 +466,11 @@ border border-white/10 shadow-2xl text-white"
               <button
                 onClick={handleConfirm}
                 disabled={loading}
-                className={`flex-1 px-3 py-2 rounded-lg text-white transition ${pendingAction === "approve"
+                className={`flex-1 px-3 py-2 rounded-lg text-white transition ${
+                  pendingAction === "approve"
                     ? "bg-purple-600 hover:bg-purple-700"
                     : "bg-red-600 hover:bg-red-700"
-                  }`}
+                }`}
               >
                 {loading ? "Processing..." : "Confirm"}
               </button>

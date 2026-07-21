@@ -18,7 +18,6 @@ import ReportTable from "./components/Report/ReportTable";
 import SettingPage from "./pages/SettingPage";
 import ManagementPageForShopManager from "./pages/ManagementPageForShopManager";
 import SettingPage2 from "./pages/SettingPage2";
-import SettingPage3 from "./pages/SettingPage3";
 
 const router = createBrowserRouter([
   {
@@ -39,7 +38,7 @@ const router = createBrowserRouter([
       {
         index: true,
         element: (
-          <ProtectedRoute allowedRoles={["owner", "manager"]}>
+          <ProtectedRoute allowedRoles={["owner"]}>
             <DashboardPage />
           </ProtectedRoute>
         ),
@@ -129,7 +128,7 @@ const router = createBrowserRouter([
       {
         path: "/management",
         element: (
-          <ProtectedRoute allowedRoles={["owner"]}>
+          <ProtectedRoute allowedRoles={["owner","manager"]}>
             <ManagementPage />
           </ProtectedRoute>
         ),
@@ -152,18 +151,10 @@ const router = createBrowserRouter([
         ),
       },
        {
-        path: "/settingForShopmanager",
+        path: "/settingForManager",
         element: (
-          <ProtectedRoute allowedRoles={["shopmanager"]}>
+          <ProtectedRoute allowedRoles={["manager","shopmanager","delimanager"]}>
             <SettingPage2 />
-          </ProtectedRoute>
-        ),
-      },
-        {
-        path: "/settingForDelimanager",
-        element: (
-          <ProtectedRoute allowedRoles={["delimanager"]}>
-            <SettingPage3 />
           </ProtectedRoute>
         ),
       },

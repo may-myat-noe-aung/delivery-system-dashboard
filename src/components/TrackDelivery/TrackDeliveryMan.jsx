@@ -7,6 +7,7 @@ import { parseLocation } from "./utils";
 const API = "https://api.pwezayshops.com/deliverymen";
 
 export default function TrackDeliveryMan() {
+  const token = localStorage.getItem("token");
   const [drivers, setDrivers] = useState([]);
   const [selected, setSelected] = useState(null);
 
@@ -15,23 +16,12 @@ export default function TrackDeliveryMan() {
 
   const [history, setHistory] = useState({});
 
-  // const fetchData = async () => {
-  //   const res = await axios.get(API);
-
-  //   const formatted = res.data.map((d) => {
-  //     const pos = parseLocation(d.location);
-
-  //     return {
-  //       ...d,
-  //       lat: pos?.lat,
-  //       lng: pos?.lng,
-  //     };
-  //   });
-
-  //   setDrivers(formatted);
-  // };
   const fetchData = async () => {
-    const res = await axios.get(API);
+    const res = await axios.get(API,{
+      headers: {
+        Authorization: `MSHteam ${token}`,
+      },
+    });
 
     const formatted = res.data.map((d) => {
       const pos = parseLocation(d.location);

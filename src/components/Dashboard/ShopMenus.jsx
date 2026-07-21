@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useMemo, useState } from "react";
 import { Store, Utensils, ChevronDown, ChevronUp, Search } from "lucide-react";
 
@@ -16,6 +14,7 @@ export default function ShopMenus() {
   // Pagination
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
+   const token = localStorage.getItem("token");
 
   /* ================= RESPONSIVE PAGE SIZE ================= */
   useEffect(() => {
@@ -42,7 +41,13 @@ export default function ShopMenus() {
     const fetchShops = async () => {
       try {
         const res = await fetch(
-          "https://api.pwezayshops.com/system-menu-branches"
+          "https://api.pwezayshops.com/system-menu-branches",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
         );
 
         const result = await res.json();
@@ -60,7 +65,7 @@ export default function ShopMenus() {
     fetchShops();
 
     // ✅ FIXED: reduce overload (1s → 5s)
-    const interval = setInterval(fetchShops, 5000);
+    const interval = setInterval(fetchShops, 1000);
 
     return () => clearInterval(interval);
   }, []);
@@ -74,18 +79,16 @@ export default function ShopMenus() {
     return shops.filter(
       (shop) =>
         (shop.shop_name || "").toLowerCase().includes(keyword) ||
-        (shop.id || "").toLowerCase().includes(keyword)
+        (shop.id || "").toLowerCase().includes(keyword),
     );
   }, [shops, search]);
 
   /* ================= PAGINATION ================= */
-  const totalPages = pageSize
-    ? Math.ceil(filteredShops.length / pageSize)
-    : 0;
+  const totalPages = pageSize ? Math.ceil(filteredShops.length / pageSize) : 0;
 
   const paginatedShops = filteredShops.slice(
     (page - 1) * pageSize,
-    page * pageSize
+    page * pageSize,
   );
 
   // ✅ FIX: reset page safely when data changes
@@ -115,8 +118,7 @@ export default function ShopMenus() {
   }
 
   return (
-    <div className="relative bg-[#1a2030] w-full p-6 rounded-3xl shadow-2xl border border-white/10 overflow-hidden">
-      
+    <div className="relative  w-full p-6 rounded-3xl shadow-2xl  overflow-hidden">
       {/* ================= HEADER ================= */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
@@ -153,13 +155,13 @@ export default function ShopMenus() {
           const menus = shop.menus || [];
           const totalPrice = menus.reduce(
             (sum, item) => sum + (item.price || 0),
-            0
+            0,
           );
 
           return (
             <div
               key={shop.id}
-              className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl overflow-hidden"
+              className="rounded-3xl border border-slate-700 bg-white/5 backdrop-blur-xl overflow-hidden"
             >
               <div className="p-5">
                 <div className="flex justify-between">
@@ -210,7 +212,7 @@ export default function ShopMenus() {
       {showModal && selectedShop && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setShowModal(false)}   // ✅ added
+          onClick={() => setShowModal(false)} // ✅ added
         >
           <div
             className="relative w-full max-w-xl bg-[#0f172a] border border-white/10 rounded-3xl shadow-2xl overflow-hidden"
@@ -287,85 +289,78 @@ export default function ShopMenus() {
         </div>
       )}
 
-      {/* ================= PAGINATION (UPDATED ONLY FIXES) ================= */}
-     {/* ================= PAGINATION (WINDOW STYLE) ================= */}
-<div className="flex items-center justify-between px-4 pt-6 text-sm text-slate-400 border-t border-slate-700 mt-4">
+      {/* ================= PAGINATION (WINDOW STYLE) ================= */}
+      <div className="flex items-center justify-between px-4 pt-6 text-sm text-slate-400   mt-4">
+        <p>
+          Page <span className="text-white font-semibold">{page}</span> of{" "}
+          <span className="text-white font-semibold">{totalPages}</span>
+        </p>
 
-  <p>
-    Page <span className="text-white font-semibold">{page}</span> of{" "}
-    <span className="text-white font-semibold">{totalPages}</span>
-  </p>
-
-  <div className="flex items-center gap-2">
-
-    {/* Prev */}
-    <button
-      disabled={page === 1}
-      onClick={() => setPage((p) => Math.max(p - 1, 1))}
-      className={`px-3 py-1 rounded-lg border transition
+        <div className="flex items-center gap-2">
+          {/* Prev */}
+          <button
+            disabled={page === 1}
+            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            className={`px-3 py-1 rounded-lg border transition
         ${
           page === 1
             ? "border-slate-700 text-slate-600 cursor-not-allowed"
             : "border-slate-600 text-slate-300 hover:bg-slate-700/40 hover:text-white"
         }`}
-    >
-      Prev
-    </button>
+          >
+            Prev
+          </button>
 
-    {/* PAGE NUMBERS (WINDOW STYLE) */}
-    <div className="flex gap-1">
+          {/* PAGE NUMBERS (WINDOW STYLE) */}
+          <div className="flex gap-1">
+            {(() => {
+              const maxButtons = 5; // window size
+              const half = Math.floor(maxButtons / 2);
 
-      {(() => {
-        const maxButtons = 5; // window size
-        const half = Math.floor(maxButtons / 2);
+              let start = Math.max(1, page - half);
+              let end = start + maxButtons - 1;
 
-        let start = Math.max(1, page - half);
-        let end = start + maxButtons - 1;
+              if (end > totalPages) {
+                end = totalPages;
+                start = Math.max(1, end - maxButtons + 1);
+              }
 
-        if (end > totalPages) {
-          end = totalPages;
-          start = Math.max(1, end - maxButtons + 1);
-        }
+              return [...Array(end - start + 1)].map((_, i) => {
+                const pageNum = start + i;
 
-        return [...Array(end - start + 1)].map((_, i) => {
-          const pageNum = start + i;
-
-          return (
-            <button
-              key={pageNum}
-              onClick={() => setPage(pageNum)}
-              className={`px-3 py-1 rounded-lg border transition
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setPage(pageNum)}
+                    className={`px-3 py-1 rounded-lg border transition
                 ${
                   page === pageNum
                     ? "bg-purple-500/20 border-purple-500 text-purple-300"
                     : "border-slate-600 text-slate-300 hover:bg-slate-700/40 hover:text-white"
                 }`}
-            >
-              {pageNum}
-            </button>
-          );
-        });
-      })()}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              });
+            })()}
+          </div>
 
-    </div>
-
-    {/* Next */}
-    <button
-      disabled={page === totalPages || totalPages === 0}
-      onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-      className={`px-3 py-1 rounded-lg border transition
+          {/* Next */}
+          <button
+            disabled={page === totalPages || totalPages === 0}
+            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+            className={`px-3 py-1 rounded-lg border transition
         ${
           page === totalPages || totalPages === 0
             ? "border-slate-700 text-slate-600 cursor-not-allowed"
             : "border-slate-600 text-slate-300 hover:bg-slate-700/40 hover:text-white"
         }`}
-    >
-      Next
-    </button>
-
-  </div>
-</div>
-
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

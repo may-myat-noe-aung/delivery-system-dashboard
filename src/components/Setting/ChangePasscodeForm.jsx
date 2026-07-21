@@ -3,7 +3,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useAlert } from "../../AlertContext";
 
 export default function ChangePasscodeForm({ email }) {
-  const token = localStorage.getItem("adminToken");
+  const token = localStorage.getItem("token");
   const [showNewPasscode, setShowNewPasscode] = useState(false);
   const [showConfirmPasscode, setShowConfirmPasscode] = useState(false);
   const [showOwnerPasscodeSecurity, setShowOwnerPasscodeSecurity] =
@@ -25,7 +25,14 @@ export default function ChangePasscodeForm({ email }) {
 useEffect(() => {
   const fetchEmails = async () => {
     try {
-      const res = await fetch("https://api.pwezayshops.com/admin");
+      const res = await fetch("https://api.pwezayshops.com/admin",
+          {
+    method: "GET",
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
+      );
 
       const json = await res.json();
 
@@ -111,11 +118,11 @@ useEffect(() => {
         return;
       }
 
-  const res = await fetch("https://api.pwezayshops.com/admin/verify-owner-passcode", {
+  const res = await fetch("https://api.pwezayshops.com/admin/passcode", {
   method: "PATCH",
   headers: {
     "Content-Type": "application/json",
-    // Authorization: `Bearer ${token}`,
+     Authorization: `MSHteam ${token}`,
   },
   body: JSON.stringify({
     email: security.email,

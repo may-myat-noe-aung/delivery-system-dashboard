@@ -3,18 +3,6 @@ import axios from "axios";
 import { Search } from "lucide-react";
 import ShopDetailsModal from "./ShopDetailsModal";
 import { useAlert } from "../../AlertContext";
-const categoryMap = {
-  1: "Snack",
-  2: "Alcoholic",
-  3: "Breakfast",
-  4: "Cake",
-  5: "Coffee",
-  6: "Drink",
-  7: "Fast Food",
-  8: "Lunch",
-  9: "Morning",
-  10: "Sweets",
-};
 
 function formatDateShort(dtString) {
   if (!dtString) return "-";
@@ -33,6 +21,7 @@ export default function PendingShopsFull() {
   // --- STATES ---
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [query, setQuery] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -48,30 +37,51 @@ export default function PendingShopsFull() {
 
   const [actionLoading, setActionLoading] = useState({});
   const [passcodeModal, setPasscodeModal] = useState(false);
+
   const [passcode, setPasscode] = useState("");
   const [actionType, setActionType] = useState(null);
   const [actionId, setActionId] = useState(null);
+  const token = localStorage.getItem("token");
 
   const passcodeInputRef = useRef(null);
 
   // FETCH SHOPS
-  useEffect(() => {
-    fetchPendingShops();
-    const interval = setInterval(fetchPendingShops, 5000);
-    return () => clearInterval(interval);
-  }, []);
+useEffect(() => {
+  fetchPendingShops();
 
-  const fetchPendingShops = async () => {
+  const interval = setInterval(() => {
+    fetchPendingShops(true);
+  }, 5000);
+
+  return () => clearInterval(interval);
+}, []);
+
+const fetchPendingShops = async (isRefresh = false) => {
+  if (isRefresh) {
+    setRefreshing(true);
+  } else {
     setLoading(true);
-    try {
-      const res = await axios.get("https://api.pwezayshops.com/shops-pending");
-      setShops(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      window.apiAlert("Fetch Error.");
-    } finally {
+  }
+
+  try {
+    const res = await axios.get("https://api.pwezayshops.com/shops-pending",
+        {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
+    );
+    setShops(Array.isArray(res.data) ? res.data : []);
+  } catch (err) {
+    window.apiAlert("Fetch Error.");
+  } finally {
+    if (isRefresh) {
+      setRefreshing(false);
+    } else {
       setLoading(false);
     }
-  };
+  }
+};
   const formatLocation = (location) => {
     if (!location) return "-";
 
@@ -168,10 +178,15 @@ export default function PendingShopsFull() {
     try {
       // 1. VERIFY PASSCODE (API)
       const verifyRes = await axios.post(
-        "https://api.pwezayshops.com/admin/verify-shopmanager-passcode",
+        "https://api.pwezayshops.com/admin/verify-manager-passcode",
         {
-          passcode,
-        },
+    passcode,
+  },
+  {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
       );
 
       if (!verifyRes.data.success) {
@@ -188,7 +203,15 @@ export default function PendingShopsFull() {
         url = `https://api.pwezayshops.com/shops/reject/${actionId}`;
       }
 
-      const res = await axios.patch(url);
+     const res = await axios.patch(
+  url,
+  {},
+  {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
+);
 
       // remove from UI
       setShops((prev) => prev.filter((s) => s.id !== actionId));
@@ -234,33 +257,17 @@ export default function PendingShopsFull() {
             className="w-full pl-10 pr-4 py-2 rounded-full border border-neutral-700 bg-neutral-900 text-white focus:ring-2 focus:ring-[#B476FF] text-sm shadow-sm"
           />
         </div>
-        {/* 
-          <div className="flex flex-col sm:flex-row items-center gap-2">
-            <input
-              type="date"
-              className="border rounded-xl px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#B476FF] bg-neutral-900 text-white border-neutral-700"
-              value={dateFrom}
-              onChange={(e) => {
-                setDateFrom(e.target.value);
-                setPage(1);
-              }}
-            />
-            <input
-              type="date"
-              className="border rounded-xl px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#B476FF] bg-neutral-900 text-white border-neutral-700"
-              value={dateTo}
-              onChange={(e) => {
-                setDateTo(e.target.value);
-                setPage(1);
-              }}
-            />
-          </div> */}
       </div>
 
       {/* TABLE */}
-      <div className="overflow-x-auto rounded-lg shadow-sm border border-[#2c2f44] bg-[#1e2235]">
+      <div
+        className="bg-[#1a2030]/80 backdrop-blur-xl 
+                    border border-slate-700 
+                    rounded-3xl shadow-2xl 
+                    p-6 overflow-x-auto"
+      >
         <table className="w-full text-sm min-w-[700px] sm:min-w-full text-white">
-          <thead className="bg-[#2b2f44] text-white text-xs sm:text-sm">
+          <thead className="text-slate-400 border-b border-slate-700 bg-slate-900/40 ">
             <tr>
               {[
                 "ID",
@@ -269,8 +276,8 @@ export default function PendingShopsFull() {
                 "Email",
                 "Phone",
                 "Items",
-                "Address",
-                "Date & Time",
+                // "Address",
+                "Date",
                 "Actions",
               ].map((h) => (
                 <th
@@ -284,9 +291,17 @@ export default function PendingShopsFull() {
           </thead>
 
           <tbody>
-            {paginated.length === 0 ? (
+            {loading ? (
+              [...Array(1)].map((_, index) => (
+             <tr>
+                <td colSpan="8" className="p-6 text-center text-purple-400">
+                 Loading shops.
+                </td>
+              </tr>
+              ))
+            ) : paginated.length === 0 ? (
               <tr>
-                <td colSpan="9" className="p-6 text-center text-gray-400">
+                <td colSpan="8" className="p-6 text-center text-purple-400">
                   No pending shops.
                 </td>
               </tr>
@@ -318,27 +333,19 @@ export default function PendingShopsFull() {
                       </div>
                     )}
 
-                    <div className="text-[#B476FF] font-semibold underline text-xs sm:text-sm">
+                    <div className="text-[#B476FF] font-semibold underline ">
                       {s.shopkeeper_name}
                     </div>
                   </td>
 
-                  <td className="p-2 sm:p-3 text-xs sm:text-center">
-                    {s.shop_name}
-                  </td>
-                  <td className="p-2 sm:p-3 text-xs sm:text-center">
-                    {s.email}
-                  </td>
-                  <td className="p-2 sm:p-3 text-xs sm:text-center">
-                    {s.phone}
-                  </td>
-                  <td className="p-2 sm:p-3 text-xs sm:text-center">
-                    {s.items}
-                  </td>
-                  <td className="p-2 sm:p-3 text-xs sm:text-center">
+                  <td className="p-2 sm:p-3  sm:text-center">{s.shop_name}</td>
+                  <td className="p-2 sm:p-3  sm:text-center">{s.email}</td>
+                  <td className="p-2 sm:p-3  sm:text-center">{s.phone}</td>
+                  <td className="p-2 sm:p-3  sm:text-center">{s.items}</td>
+                  {/* <td className="p-2 sm:p-3  sm:text-center">
                     {s.address || "-"}
-                  </td>
-                  <td className="p-2 sm:p-3 text-xs sm:text-center">
+                  </td> */}
+                  <td className="p-2 sm:p-3  sm:text-center">
                     {splitDateTime(s.created_at)[0]} <br />
                     {splitDateTime(s.created_at)[1]}
                   </td>
@@ -348,16 +355,16 @@ export default function PendingShopsFull() {
                       onClick={() => openPasscode(s.id, "reject")}
                       disabled={!!actionLoading[s.id]}
                       className="px-3 py-1  rounded-xl shadow  bg-red-500/10 border border-red-500/30 text-red-300
-      hover:bg-red-500/20 transition hover:opacity-90 disabled:opacity-40 text-xs sm:text-sm"
+      hover:bg-red-500/20 transition hover:opacity-90 disabled:opacity-40 "
                     >
-                      {actionLoading[s.id] ? "..." : "Reject"}
+                      {actionLoading[s.id] ? "Reject" : "Reject"}
                     </button>
                     <button
                       onClick={() => openPasscode(s.id, "approve")}
                       disabled={!!actionLoading[s.id]}
-                      className="px-3 py-1 text-white rounded-xl shadow  bg-purple-500 hover:opacity-90 disabled:opacity-40 text-xs sm:text-sm"
+                      className="px-3 py-1 text-white rounded-xl shadow  bg-purple-500 hover:opacity-90 disabled:opacity-40 "
                     >
-                      {actionLoading[s.id] ? "..." : "Accept"}
+                      {actionLoading[s.id] ? "Accept" : "Accept"}
                     </button>
                   </td>
                 </tr>

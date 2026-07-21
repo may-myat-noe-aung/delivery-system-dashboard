@@ -7,7 +7,7 @@ import { useAlert } from "../../AlertContext";
 
 export default function ChangePasswordForm({ email }) {
   // ✅ Add token at top of component
-const token = localStorage.getItem("adminToken");
+const token = localStorage.getItem("token");
 
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -33,7 +33,15 @@ const token = localStorage.getItem("adminToken");
   useEffect(() => {
     const fetchEmails = async () => {
       try {
-      const res = await fetch("https://api.pwezayshops.com/admin");
+      const res = await fetch("https://api.pwezayshops.com/admin",
+
+          {
+    method: "GET",
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
+      );
 
         const json = await res.json();
         if (json.success && Array.isArray(json.data)) {
@@ -123,11 +131,11 @@ const token = localStorage.getItem("adminToken");
     setLoadingPwd(true);
 
     try {
-    const res = await fetch("https://api.pwezayshops.com/admin/verify-owner-passcode", {
+    const res = await fetch("https://api.pwezayshops.com/admin/password", {
   method: "PATCH",
   headers: {
-    // "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`, // ✅ token added
+    "Content-Type": "application/json",
+   Authorization: `MSHteam ${token}`,
   },
   body: JSON.stringify({ email, password, passcode }),
 });
@@ -136,10 +144,8 @@ const token = localStorage.getItem("adminToken");
       // SAFE JSON PARSE
       const data = await res.json().catch(() => ({}));
 
-         // ❗ ALWAYS show API message first
       const apiMsg = data.message || data.error;
 
-      // ❗ Show API error message (wrong passcode, missing fields, etc.)
       if (!res.ok) {
         showAlert(apiMsg || "Something went wrong", "error");
         setLoadingPwd(false);

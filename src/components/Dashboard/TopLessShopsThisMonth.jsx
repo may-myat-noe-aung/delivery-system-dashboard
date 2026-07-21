@@ -13,12 +13,19 @@ export default function TopLessShopsThisMonth() {
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchShops = async () => {
       try {
         const res = await fetch(
-          "https://api.pwezayshops.com/top5Lessshops-this-month"
+          "https://api.pwezayshops.com/top5Lessshops-this-month",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
         );
 
         const json = await res.json();

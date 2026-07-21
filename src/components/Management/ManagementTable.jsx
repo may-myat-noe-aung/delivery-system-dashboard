@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import PendingShopsFull from "./PendingShopsFull";
 import UserTable from "./UserTable";
@@ -12,7 +11,6 @@ export default function ManagementTable() {
   return (
     <div className="text-white">
       <PendingShopsFull />
-
       <div className="">
         {/* Tabs */}
         <div className="flex gap-6 ">

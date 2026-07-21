@@ -17,19 +17,24 @@ export default function UserTable() {
   const passcodeInputRef = useRef(null);
   const [specialModal, setSpecialModal] = useState(false);
   const [specialUser, setSpecialUser] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState({});
   // const [specialLoading, setSpecialLoading] = useState({});
 
   // ---------------- PAGINATION STATES ----------------
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const token = localStorage.getItem("token");
 
   // Fetch API every 500ms (live)
   useEffect(() => {
     const interval = setInterval(() => {
       axios
-        .get("https://api.pwezayshops.com/users")
+        .get("https://api.pwezayshops.com/users", {
+          headers: {
+            Authorization: `MSHteam ${token}`,
+          },
+        })
         .then((res) => {
           const nonSpecialUsers = res.data
             .filter((u) => u.special !== 1)
@@ -121,9 +126,14 @@ export default function UserTable() {
 
       // 1. VERIFY PASSCODE (API)
       const verifyRes = await axios.post(
-        "https://api.pwezayshops.com/admin/verify-admin-passcode",
+        "https://api.pwezayshops.com/admin/verify-manager-passcode",
         {
           passcode,
+        },
+        {
+          headers: {
+            Authorization: `MSHteam ${token}`,
+          },
         },
       );
 
@@ -135,6 +145,11 @@ export default function UserTable() {
       // 2. DELETE USER (ONLY AFTER VERIFY SUCCESS)
       const res = await axios.delete(
         `https://api.pwezayshops.com/users/${activeUser.id}`,
+        {
+          headers: {
+            Authorization: `MSHteam ${token}`,
+          },
+        },
       );
 
       // remove from UI
@@ -158,10 +173,10 @@ export default function UserTable() {
     }
   };
 
-const getPhotoUrl = (photo) => {
-  if (!photo) return null;
-  return `https://api.pwezayshops.com/uploads/${photo}`;
-};
+  const getPhotoUrl = (photo) => {
+    if (!photo) return null;
+    return `https://api.pwezayshops.com/uploads/${photo}`;
+  };
   const formatDateShort = (date) =>
     date ? new Date(date).toLocaleString() : "-";
   const getMapUrl = (location) =>
@@ -173,9 +188,16 @@ const getPhotoUrl = (photo) => {
     setActionLoading((prev) => ({ ...prev, [user.id]: true }));
 
     axios
-      .patch(`https://api.pwezayshops.com/users/status/${user.id}`, {
-        status: newStatus,
-      })
+      .patch(`https://api.pwezayshops.com/users/status/${user.id}`,
+          {
+    status: newStatus,
+  },
+  {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
+      )
       .then((res) => {
         setUsers((prev) =>
           prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)),
@@ -210,6 +232,12 @@ const getPhotoUrl = (photo) => {
 
       const res = await axios.patch(
         `https://api.pwezayshops.com/special-users/${specialUser.id}`,
+          {},
+  {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
       );
 
       setUsers((prev) => prev.filter((u) => u.id !== specialUser.id));
@@ -322,7 +350,7 @@ const getPhotoUrl = (photo) => {
             <thead className="text-slate-400 border-b border-slate-700 bg-slate-900/40">
               <tr>
                 {[
-                  "Special User", // <-- new column
+                  "Special User", 
                   "ID",
                   "User Name",
                   "Email",
@@ -379,14 +407,14 @@ const getPhotoUrl = (photo) => {
                     <td className="py-4">
                       <div className="flex items-center gap-3">
                         {user.photo ? (
-                      <img
-  src={getPhotoUrl(user.photo)}
-  alt={user.name}
-  className="w-10 h-10 rounded-full object-cover border border-slate-700"
-  onError={(e) => {
-    e.target.src = "https://via.placeholder.com/80";
-  }}
-/>
+                          <img
+                            src={getPhotoUrl(user.photo)}
+                            alt={user.name}
+                            className="w-10 h-10 rounded-full object-cover border border-slate-700"
+                            onError={(e) => {
+                              e.target.src = "https://via.placeholder.com/80";
+                            }}
+                          />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-purple-500/30 flex items-center justify-center text-purple-300 font-semibold">
                             {user.name?.charAt(0).toUpperCase() || "?"}

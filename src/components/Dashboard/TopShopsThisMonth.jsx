@@ -13,12 +13,19 @@ export default function TopShopsThisMonth() {
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchShops = async () => {
       try {
         const res = await fetch(
-          "https://api.pwezayshops.com/top5shops-this-month"
+          "https://api.pwezayshops.com/top5shops-this-month",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
         );
 
         const json = await res.json();
@@ -112,12 +119,12 @@ export default function TopShopsThisMonth() {
    className="
             px-4 py-2
             rounded-2xl
-            bg-indigo-500/10
-            border border-indigo-500/20
-            text-indigo-400
+            bg-purple-500/10
+            border border-purple-500/20
+            text-purple-400
             text-sm
             font-medium
-            hover:bg-indigo-500/20
+            hover:bg-purple-500/20
             transition
             flex items-center gap-2
           "
@@ -182,7 +189,7 @@ export default function TopShopsThisMonth() {
                           ? "bg-slate-400/10 text-slate-300 border border-slate-500/20"
                           : index === 2
                           ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
-                          : "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
+                          : "bg-purple-500/10 text-purple-400 border border-purple-500/20"
                       }`}
                     >
                       #{index + 1}
@@ -196,12 +203,12 @@ export default function TopShopsThisMonth() {
                         className="
                           w-11 h-11
                           rounded-2xl
-                          bg-indigo-500/10
-                          border border-indigo-500/20
+                          bg-purple-500/10
+                          border border-purple-500/20
                           flex items-center justify-center
                         "
                       >
-                        <Store className="w-5 h-5 text-indigo-400" />
+                        <Store className="w-5 h-5 text-purple-400" />
                       </div>
 
                       <div>
@@ -218,7 +225,7 @@ export default function TopShopsThisMonth() {
 
                   {/* Orders */}
                   <td className="p-4 text-center">
-                    <div className="inline-flex items-center gap-2 text-indigo-400 font-semibold">
+                    <div className="inline-flex items-center gap-2 text-purple-400 font-semibold">
                       <ShoppingBag className="w-4 h-4" />
                       {shop.total_orders}
                     </div>

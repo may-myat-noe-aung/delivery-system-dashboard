@@ -14,12 +14,19 @@ export default function TopLessMenusThisMonth() {
   const [menus, setMenus] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchMenus = async () => {
       try {
         const res = await fetch(
-          "https://api.pwezayshops.com/top5Lessmenu-this-month"
+          "https://api.pwezayshops.com/top5Lessmenu-this-month",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
         );
 
         const json = await res.json();

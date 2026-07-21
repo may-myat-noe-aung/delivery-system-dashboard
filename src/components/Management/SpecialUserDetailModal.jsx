@@ -15,15 +15,25 @@ export default function SpecialUserDetailModal({
   if (!modalOpen || !activeUser) return null;
   const BASE_URL = "https://api.pwezayshops.com/uploads/";
   const getOsmMap = (coords) => {
-  if (!coords) return null;
+    if (!coords) return null;
 
-  const [lat, lng] = coords.split(",");
+    const [lat, lng] = coords.split(",");
 
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${lng},${lat},${lng},${lat}&layer=mapnik&marker=${lat},${lng}`;
-};
+    return `https://www.openstreetmap.org/export/embed.html?bbox=${lng},${lat},${lng},${lat}&layer=mapnik&marker=${lat},${lng}`;
+  };
 
-const getPhotoUrl = (photo) =>
-  photo ? `${BASE_URL}${photo}` : "https://via.placeholder.com/200";
+  const getPhotoUrl = (photo) =>
+    photo ? `${BASE_URL}${photo}` : "https://via.placeholder.com/200";
+  const statusColor =
+    activeUser.status === "active"
+      ? "bg-green-500/20 text-green-400 border-green-500/30"
+      : activeUser.status === "pending"
+        ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+        : "bg-red-500/20 text-red-400 border-red-500/30";
+
+  const specialColor = activeUser.special
+    ? "bg-purple-500/20 text-purple-400 border-purple-500/30"
+    : "bg-gray-500/20 text-gray-300 border-gray-500/30";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md p-3">
@@ -52,14 +62,14 @@ const getPhotoUrl = (photo) =>
           {/* LEFT CARD */}
           <div className="bg-[#1e2235] rounded-2xl p-5 flex flex-col items-center">
             {activeUser.photo ? (
-          <img
-  src={getPhotoUrl(activeUser.photo)}
-  alt={activeUser.name}
-  className="w-48 h-48 object-cover rounded-2xl border border-[#2c2f44]"
-  onError={(e) => {
-    e.target.src = "https://via.placeholder.com/200";
-  }}
-/>
+              <img
+                src={getPhotoUrl(activeUser.photo)}
+                alt={activeUser.name}
+                className="w-48 h-48 object-cover rounded-2xl border border-[#2c2f44]"
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/200";
+                }}
+              />
             ) : (
               <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-[#B476FF]/30 to-purple-600/20 border border-[#B476FF]/40 flex items-center justify-center text-5xl font-bold">
                 {activeUser.name?.charAt(0).toUpperCase() || "?"}
@@ -75,61 +85,79 @@ const getPhotoUrl = (photo) =>
           {/* DETAILS */}
           <div className="lg:col-span-2 grid sm:grid-cols-2 gap-4">
             {[
-              ["Phone", activeUser.phone],
-              ["Email", activeUser.email],
               ["Status", activeUser.status],
               ["Special", activeUser.special ? "Yes" : "No"],
+              ["Phone", activeUser.phone],
+              ["Email", activeUser.email],
               ["Created At", formatDateShort(activeUser.created_at)],
-              //   ["Location", activeUser.location || "-"],
             ].map(([label, value]) => (
               <div
                 key={label}
                 className="bg-[#1e2235] p-4 rounded-xl border border-[#2c2f44]"
               >
-                <p className="text-xs text-gray-400">{label}</p>
-                <p className="text-sm font-medium mt-1">{value}</p>
+                <p className="text-sm text-gray-400">{label}</p>
+
+                {label === "Status" ? (
+                  <span
+                    className={`inline-block mt-2 px-3 py-1 rounded-full text-xs border ${statusColor}`}
+                  >
+                    {value}
+                  </span>
+                ) : label === "Special" ? (
+                  <span
+                    className={`inline-block mt-2 px-3 py-1 rounded-full text-xs border ${specialColor}`}
+                  >
+                    {value}
+                  </span>
+                ) : (
+                  <p className="text-md font-medium mt-1 break-words">
+                    {value || "-"}
+                  </p>
+                )}
               </div>
             ))}
-         
           </div>
-          
-         {/* LOCATION INFO */}
-<div className="col-span-3 bg-[#1e2235] p-4 rounded-2xl border border-[#2c2f44]">
-  <p className="text-sm text-gray-400 mb-3">Location Info</p>
 
-  {Array.isArray(activeUser.location) && activeUser.location.length > 0 ? (
-    <div className="grid md:grid-cols-3 gap-4">
-      {activeUser.location.map((loc, i) => {
-        if (!loc?.location) return null;
+          {/* LOCATION INFO */}
+          <div className="col-span-3 bg-[#1e2235] p-4 rounded-2xl border border-[#2c2f44]">
+            <p className="text-sm text-gray-400 mb-3">Location Info</p>
 
-        const [lat, lng] = loc.location.split(",").map((v) => parseFloat(v.trim()));
+            {Array.isArray(activeUser.location) &&
+            activeUser.location.length > 0 ? (
+              <div className="grid md:grid-cols-3 gap-4">
+                {activeUser.location.map((loc, i) => {
+                  if (!loc?.location) return null;
 
-        const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${
-          lng - 0.01
-        },${lat - 0.01},${lng + 0.01},${lat + 0.01}&layer=mapnik&marker=${lat},${lng}`;
+                  const [lat, lng] = loc.location
+                    .split(",")
+                    .map((v) => parseFloat(v.trim()));
 
-        const fullMapUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=15/${lat}/${lng}`;
+                  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${
+                    lng - 0.01
+                  },${lat - 0.01},${lng + 0.01},${lat + 0.01}&layer=mapnik&marker=${lat},${lng}`;
 
-        return (
-          <div
-            key={i}
-            className="rounded-xl overflow-hidden border border-[#2c2f44] bg-[#121526]"
-          >
-            {/* HEADER */}
-            <div className="px-3 py-2 text-xs font-semibold text-purple-300 border-b border-[#2c2f44]">
-              {loc.name}
-            </div>
+                  const fullMapUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=15/${lat}/${lng}`;
 
-            {/* MAP */}
-            <iframe
-              title={loc.name}
-              src={mapUrl}
-              className="w-full h-48"
-              loading="lazy"
-            />
+                  return (
+                    <div
+                      key={i}
+                      className="rounded-xl overflow-hidden border border-[#2c2f44] bg-[#121526]"
+                    >
+                      {/* HEADER */}
+                      <div className="px-3 py-2 text-xs font-semibold text-purple-300 border-b border-[#2c2f44]">
+                        {loc.name}
+                      </div>
 
-            {/* FOOTER LINK */}
-            {/* <div className="p-2 text-center">
+                      {/* MAP */}
+                      <iframe
+                        title={loc.name}
+                        src={mapUrl}
+                        className="w-full h-48"
+                        loading="lazy"
+                      />
+
+                      {/* FOOTER LINK */}
+                      {/* <div className="p-2 text-center">
               <a
                 href={fullMapUrl}
                 target="_blank"
@@ -139,16 +167,16 @@ const getPhotoUrl = (photo) =>
                 Open in full map
               </a>
             </div> */}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-gray-400 text-sm">
+                This user has not provided location data.
+              </p>
+            )}
           </div>
-        );
-      })}
-    </div>
-  ) : (
-    <p className="text-gray-400 text-sm">
-      This user has not provided location data.
-    </p>
-  )}
-</div>
         </div>
       </div>
     </div>

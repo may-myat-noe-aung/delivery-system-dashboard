@@ -6,6 +6,7 @@ import MenuDetailPopup from "../components/Shop/MenuDetailPopup";
 import { Search, Utensils } from "lucide-react";
 
 export default function MenuListPage() {
+  const token = localStorage.getItem("token");
   const { shopId } = useParams();
   const navigate = useNavigate();
 
@@ -52,7 +53,12 @@ export default function MenuListPage() {
   const fetchMenus = async () => {
     try {
       const res = await axios.get(
-        `https://api.pwezayshops.com/menu/${shopId}?t=${Date.now()}`
+        `https://api.pwezayshops.com/menu/${shopId}?t=${Date.now()}`,
+            {
+        headers: {
+          Authorization: `MSHteam ${token}`,
+        },
+      }
       );
 
       setMenus(res.data.menus || []);
@@ -66,15 +72,15 @@ export default function MenuListPage() {
   };
 
   // ================= SEARCH FILTER =================
-const filteredMenus = useMemo(() => {
-  if (!searchTerm) return menus;
+  const filteredMenus = useMemo(() => {
+    if (!searchTerm) return menus;
 
-  const t = searchTerm.toLowerCase();
+    const t = searchTerm.toLowerCase();
 
-  return menus.filter((m) =>
-    m.name?.toLowerCase().includes(t)
-  );
-}, [menus, searchTerm]);
+    return menus.filter((m) =>
+      m.name?.toLowerCase().includes(t)
+    );
+  }, [menus, searchTerm]);
 
   useEffect(() => {
     if (!shopId) return;
@@ -108,16 +114,22 @@ const filteredMenus = useMemo(() => {
 
   if (loading) {
     return (
-      <div className=" flex items-center justify-center">
-        <p className="text-[#B476FF] animate-pulse text-lg">
-          Loading menus...
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="w-14 h-14 border-4 border-slate-700 border-t-[#B476FF] rounded-full animate-spin"></div>
+
+        <h3 className="mt-5 text-xl font-semibold text-white">
+          Loading Menus
+        </h3>
+
+        <p className="mt-1 text-sm text-gray-400 animate-pulse">
+          Please wait a moment...
         </p>
       </div>
     );
   }
 
   return (
-    <div className=" text-white p-6">
+    <div className=" text-white ">
       {/* HEADER */}
       <div className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
@@ -178,11 +190,10 @@ const filteredMenus = useMemo(() => {
 
                   {/* STATUS (FIXED COLOR BUG) */}
                   <span
-                    className={`absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-semibold ${
-                      m.open_menu
+                    className={`absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-semibold ${m.open_menu
                         ? "bg-green-500/80 text-white border border-green-400"
                         : "bg-red-500/80 text-white border border-red-400"
-                    }`}
+                      }`}
                   >
                     {m.open_menu ? "This Menu is Open" : "This Menu is Closed"}
                   </span>
@@ -240,11 +251,10 @@ const filteredMenus = useMemo(() => {
               <button
                 disabled={page === 1}
                 onClick={() => setPage(Math.max(1, page - 1))}
-                className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                  page === 1
+                className={`px-3 py-1 rounded-md border border-neutral-700 ${page === 1
                     ? "text-neutral-500 cursor-not-allowed"
                     : "text-purple-400 hover:bg-neutral-900"
-                }`}
+                  }`}
               >
                 Prev
               </button>
@@ -254,11 +264,10 @@ const filteredMenus = useMemo(() => {
                   <button
                     key={n}
                     onClick={() => setPage(n)}
-                    className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                      page === n
+                    className={`px-3 py-1 rounded-md border border-neutral-700 ${page === n
                         ? "bg-purple-300 text-black font-semibold"
                         : "text-purple-300 hover:bg-neutral-900"
-                    }`}
+                      }`}
                   >
                     {n}
                   </button>
@@ -270,11 +279,10 @@ const filteredMenus = useMemo(() => {
                 onClick={() =>
                   setPage(Math.min(totalPages, page + 1))
                 }
-                className={`px-3 py-1 rounded-md border border-neutral-700 ${
-                  page === totalPages
+                className={`px-3 py-1 rounded-md border border-neutral-700 ${page === totalPages
                     ? "text-neutral-500 cursor-not-allowed"
                     : "text-purple-500 hover:bg-neutral-900"
-                }`}
+                  }`}
               >
                 Next
               </button>

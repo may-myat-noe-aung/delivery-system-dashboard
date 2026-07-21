@@ -1,166 +1,14 @@
-// // import React from "react";
-// // import { Bell, User, Menu } from "lucide-react";
-// // import { useLocation } from "react-router-dom";
-
-// // const Header = ({ collapsed, setCollapsed }) => {
-// //   const location = useLocation();
-
-// //   const getPageTitle = () => {
-// //     const path = location.pathname;
-
-// //     if (path === "/") return "Dashboard";
-// //     if (path.startsWith("/shop")) return "Shop";
-// //     if (path.startsWith("/report")) return "Report";
-// //     if (path.startsWith("/management")) return "Management";
-// //     if (path.startsWith("/shop-management")) return "Management";
-// //     if (path.startsWith("/setting")) return "Settings";
-// //     if (path.startsWith("/delivery/assignment")) return "Assign Delivery";
-// //     if (path.startsWith("/delivery/add-delivery-men"))
-// //       return "Add Delivery Man";
-// //     if (path.startsWith("/delivery/track-delivery-men"))
-// //       return "Track Delivery Man";
-
-// //     return "Dashboard";
-// //   };
-
-// //   return (
-// //     <header className="h-16 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-6">
-// //       {/* Left */}
-// //       <div className="flex items-center gap-4">
-// //         <h1 className="text-xl font-semibold text-[#B476FF]">
-// //           {getPageTitle()}
-// //         </h1>
-// //       </div>
-
-// //       {/* Right */}
-// //       <div className="flex items-center gap-4">
-// //         <button
-// //           className="
-// //             relative
-// //             p-2
-// //             rounded-xl
-// //             bg-gray-800
-// //             hover:bg-gray-700
-// //             transition
-// //           "
-// //         >
-// //           <Bell className="w-5 h-5 text-gray-300" />
-
-// //           <span
-// //             className="
-// //               absolute
-// //               -top-1
-// //               -right-1
-// //               w-2.5
-// //               h-2.5
-// //               bg-red-500
-// //               rounded-full
-// //             "
-// //           />
-// //         </button>
-// //         <div className="w-px h-6 bg-[#B476FF]"></div>
-// //         <div
-// //           className="
-// //             flex items-center gap-3
-           
-// //             py-2
-// //             rounded-xl
-// //           "
-// //         >
-// //           <div
-// //             className="
-// //               w-9 h-9
-// //               rounded-full
-// //               bg-gradient-to-r
-// //               from-purple-500
-// //               to-fuchsia-500
-// //               flex items-center justify-center
-// //             "
-// //           >
-// //             <User className="w-4 h-4 text-white" />
-// //           </div>
-
-// //           <div className="hidden md:block">
-// //             <p className="text-sm font-medium text-white">Admin</p>
-// //             <p className="text-xs text-gray-400">Owner</p>
-// //           </div>
-// //         </div>
-// //       </div>
-// //     </header>
-// //   );
-// // };
-
-// // export default Header;
-
-// import React from "react";
-// import { Bell, User } from "lucide-react";
-// import { useLocation } from "react-router-dom";
-// import SystemNotificationFetcher from "../SystemNotificationFetcher";
-
-// const Header = () => {
-//   const location = useLocation();
-
-//   const getPageTitle = () => {
-//     const path = location.pathname;
-
-//     if (path === "/") return "Dashboard";
-//     if (path.startsWith("/shop")) return "Shop";
-//     if (path.startsWith("/report")) return "Report";
-//     if (path.startsWith("/management")) return "Management";
-//     if (path.startsWith("/shop-management")) return "Management";
-//     if (path.startsWith("/setting")) return "Settings";
-//     if (path.startsWith("/delivery/assignment")) return "Assign Delivery";
-//     if (path.startsWith("/delivery/add-delivery-men")) return "Add Delivery Man";
-//     if (path.startsWith("/delivery/track-delivery-men")) return "Track Delivery Man";
-
-//     return "Dashboard";
-//   };
-
-//   return (
-//     <header className="h-16  border-b border-gray-800 flex items-center justify-between px-6">
-
-//       {/* LEFT */}
-//       <div className="flex items-center gap-4">
-//         <h1 className="text-xl font-semibold text-[#B476FF]">
-//           {getPageTitle()}
-//         </h1>
-//       </div>
-
-//       {/* RIGHT */}
-//       <div className="flex items-center gap-4">
-
-//         {/* 🔔 NOTIFICATION DROPDOWN */}
-//         <SystemNotificationFetcher  />
-
-//         <div className="w-px h-6 bg-[#B476FF]"></div>
-
-//         {/* USER */}
-//         <div className="flex items-center gap-3 py-2 rounded-xl">
-
-//           <div className="w-9 h-9 rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500 flex items-center justify-center">
-//             <User className="w-4 h-4 text-white" />
-//           </div>
-
-//           <div className="hidden md:block">
-//             <p className="text-sm font-medium text-white">Admin</p>
-//             <p className="text-xs text-gray-400">Owner</p>
-//           </div>
-
-//         </div>
-
-//       </div>
-//     </header>
-//   );
-// };
-
-// export default Header;
 import React, { useEffect, useState } from "react";
 import { User } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import SystemNotificationFetcher from "../SystemNotificationFetcher";
+import SystemNotificationFetcherForShopmanager from "../SystemNotificationFetcherForShopmanager";
+import SystemNotificationFetcherForDelimanager from "../SystemNotificationFetcherForDelimanager";
 
 const Header = () => {
-  const location = useLocation();
+ const token = localStorage.getItem("token");
+const role = localStorage.getItem("role");
+const location = useLocation();
 
   const [account, setAccount] = useState(null);
 
@@ -175,7 +23,12 @@ const Header = () => {
     const fetchAdmin = async () => {
       try {
         const res = await fetch(
-          `https://api.pwezayshops.com/admin/${adminId}`
+          `https://api.pwezayshops.com/admin/${adminId}`,
+          {
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
         );
 
         const data = await res.json();
@@ -231,8 +84,17 @@ const Header = () => {
       {/* RIGHT */}
       <div className="flex items-center gap-4">
 
-        {/* Notification */}
-        <SystemNotificationFetcher />
+      {/* Notification */}
+
+{/* Notification */}
+
+{role === "owner" || role === "manager" ? (
+  <SystemNotificationFetcher />
+) : role === "shopmanager" ? (
+  <SystemNotificationFetcherForShopmanager />
+) : role === "delimanager" ? (
+  <SystemNotificationFetcherForDelimanager />
+) : null}
 
         <div className="w-px h-6 bg-[#B476FF]" />
 

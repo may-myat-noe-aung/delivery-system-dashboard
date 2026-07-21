@@ -20,11 +20,31 @@ export default function DeliveryTable({ setShowForm }) {
   const itemsPerPage = 5;
 
 
+//   useEffect(() => {
+//   const fetchDeliverymen = () => {
+//     axios
+//       .get("https://api.pwezayshops.com/deliverymen")
+//       .then((res) => setDeliverymen(res.data?.data || res.data || []))
+//       .catch((err) => console.error("API Error:", err));
+//   };
 
-  useEffect(() => {
+//   fetchDeliverymen();
+
+//   const interval = setInterval(fetchDeliverymen, 1000);
+
+//   return () => clearInterval(interval);
+// }, []);  
+
+useEffect(() => {
   const fetchDeliverymen = () => {
+    const token = localStorage.getItem("token");
+
     axios
-      .get("https://api.pwezayshops.com/deliverymen")
+      .get("https://api.pwezayshops.com/deliverymen", {
+        headers: {
+          Authorization: `MSHteam ${token}`,
+        },
+      })
       .then((res) => setDeliverymen(res.data?.data || res.data || []))
       .catch((err) => console.error("API Error:", err));
   };
@@ -34,19 +54,7 @@ export default function DeliveryTable({ setShowForm }) {
   const interval = setInterval(fetchDeliverymen, 1000);
 
   return () => clearInterval(interval);
-}, []);  // useEffect(() => {
-
-  //   if (!shopId) return;
-
-  //   fetch(`https://api.pwezayshops.com/shops/${shopId}`)
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       if (data?.length > 0) {
-  //         setShopName(data[0].shop_name);
-  //       }
-  //     })
-  //     .catch((err) => console.error("Shop Error:", err));
-  // }, [shopId]);
+}, []);
 
   const splitDateTime = (datetime) => {
     if (!datetime) return ["-", "-"];

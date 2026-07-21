@@ -14,6 +14,7 @@ import { ChevronDown } from "lucide-react";
 export default function SystemOrderChart() {
   const [filter, setFilter] = useState("month");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+   const token = localStorage.getItem("token");
 
   const [chartData, setChartData] = useState({
     day: [],
@@ -37,7 +38,13 @@ export default function SystemOrderChart() {
     const fetchChart = async () => {
       try {
         const res = await fetch(
-          "https://api.pwezayshops.com/system-order-chart"
+          "https://api.pwezayshops.com/system-order-chart",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
         );
 
         const json = await res.json();

@@ -22,7 +22,7 @@ function Card({ title, value, icon, gradient, iconBg }) {
       <div className="relative z-10 flex items-center justify-between">
         <div>
           <p className="text-xs text-slate-300">{title}</p>
-          <h2 className="mt-1 text-2xl font-bold text-white">{value}</h2>
+          <h2 className="mt-1 text-xl font-bold text-white">{value}</h2>
         </div>
 
         <div
@@ -44,12 +44,19 @@ function LoadingCard() {
 export default function ReportSummaryCards() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchSummary = async () => {
       try {
         const res = await fetch(
-          "https://api.pwezayshops.com/report-system-summaries"
+          "https://api.pwezayshops.com/report-system-summaries",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
         );
 
         const result = await res.json();
@@ -66,7 +73,7 @@ export default function ReportSummaryCards() {
 
     fetchSummary();
 
-    const interval = setInterval(fetchSummary, 5000);
+    const interval = setInterval(fetchSummary, 1000);
 
     return () => clearInterval(interval);
   }, []);
@@ -102,7 +109,7 @@ export default function ReportSummaryCards() {
       />
 
       <Card
-        title="Delivery Fees"
+        title="Today's Delivery Fees"
         value={`${Number(
           data.today_delivery_fees || 0
         ).toLocaleString()} Ks`}
@@ -112,7 +119,7 @@ export default function ReportSummaryCards() {
       />
 
       <Card
-        title="Total Customers"
+        title="Today's Total Customers"
         value={data.total_customers.toLocaleString()}
         icon={<Users className="w-5 h-5 text-rose-300" />}
         gradient="from-rose-500 to-transparent"

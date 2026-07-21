@@ -22,11 +22,9 @@ const DashboardPage = () => {
         <TopShopsThisMonth className="col-span-1" />
         <TopLessShopsThisMonth className="col-span-1" />
       </div>
-  <div className="mb-6">
-
-      <TopDeliveryManList />
-  </div>
-
+      <div className="mb-6">
+        <TopDeliveryManList />
+      </div>
 
       <ShopMenus />
     </section>

@@ -3,6 +3,7 @@ import SystemNotificationDropdown from "./SystemNotificationDropdown";
 
 export default function SystemNotificationFetcher() {
   const [notifications, setNotifications] = useState([]);
+  const token = localStorage.getItem("token");
 
   // seen tracking
   const seenRef = useRef({
@@ -59,7 +60,11 @@ export default function SystemNotificationFetcher() {
   // USERS
   // =============================
   const fetchUsers = async () => {
-    const res = await fetch("https://api.pwezayshops.com/users");
+    const res = await fetch("https://api.pwezayshops.com/users",{
+        headers: {
+    Authorization: `MSHteam ${token}`,
+  },
+    });
     const list = (await res.json()) || [];
 
     if (!initializedRef.current.users) {
@@ -86,7 +91,11 @@ export default function SystemNotificationFetcher() {
   // SHOP PENDING
   // =============================
   const fetchShopsPending = async () => {
-    const res = await fetch("https://api.pwezayshops.com/shops-pending");
+    const res = await fetch("https://api.pwezayshops.com/shops-pending",{
+        headers: {
+    Authorization: `MSHteam ${token}`,
+  },
+    });
     const list = (await res.json()) || [];
 
     if (!initializedRef.current.shopsPending) {
@@ -113,7 +122,11 @@ export default function SystemNotificationFetcher() {
   // SHOP APPROVED
   // =============================
   const fetchShopsApproved = async () => {
-    const res = await fetch("https://api.pwezayshops.com/shops-approve");
+    const res = await fetch("https://api.pwezayshops.com/shops-approve",{
+        headers: {
+    Authorization: `MSHteam ${token}`,
+  },
+    });
     const list = (await res.json()) || [];
 
     if (!initializedRef.current.shopsApproved) {
@@ -140,7 +153,11 @@ export default function SystemNotificationFetcher() {
   // DELIVERYMEN
   // =============================
   const fetchDeliverymen = async () => {
-    const res = await fetch("https://api.pwezayshops.com/deliverymen");
+    const res = await fetch("https://api.pwezayshops.com/deliverymen",{
+        headers: {
+    Authorization: `MSHteam ${token}`,
+  },
+    });
     const list = (await res.json()) || [];
 
     if (!initializedRef.current.deliverymen) {

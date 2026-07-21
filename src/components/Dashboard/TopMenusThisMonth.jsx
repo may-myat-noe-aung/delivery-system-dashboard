@@ -14,12 +14,19 @@ export default function TopMenusThisMonth() {
   const [menus, setMenus] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchMenus = async () => {
       try {
         const res = await fetch(
-          "https://api.pwezayshops.com/top5menu-this-month"
+          "https://api.pwezayshops.com/top5menu-this-month",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
         );
 
         const json = await res.json();
@@ -45,75 +52,66 @@ export default function TopMenusThisMonth() {
     return () => clearInterval(interval);
   }, []);
 
-const handleExport = () => {
-  try {
-    const exportData = menus.map((menu, index) => ({
-      Rank: index + 1,
-      MenuID: menu.id,
-      MenuName: menu.menu_name,
-      ShopName: menu.shop_name,
-      TotalOrders: menu.total_orders,
-      TotalCustomers: menu.total_customer,
-    }));
+  const handleExport = () => {
+    try {
+      const exportData = menus.map((menu, index) => ({
+        Rank: index + 1,
+        MenuID: menu.id,
+        MenuName: menu.menu_name,
+        ShopName: menu.shop_name,
+        TotalOrders: menu.total_orders,
+        TotalCustomers: menu.total_customer,
+      }));
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
 
-    worksheet["!cols"] = [
-      { wch: 10 }, // Rank
-      { wch: 15 }, // Menu ID
-      { wch: 35 }, // Menu Name
-      { wch: 30 }, // Shop Name
-      { wch: 20 }, // Orders
-      { wch: 20 }, // Customers
-    ];
+      worksheet["!cols"] = [
+        { wch: 10 }, // Rank
+        { wch: 15 }, // Menu ID
+        { wch: 35 }, // Menu Name
+        { wch: 30 }, // Shop Name
+        { wch: 20 }, // Orders
+        { wch: 20 }, // Customers
+      ];
 
-    const workbook = XLSX.utils.book_new();
+      const workbook = XLSX.utils.book_new();
 
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Top 5 Menus"
-    );
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Top 5 Menus");
 
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
 
-    const blob = new Blob([excelBuffer], {
-      type:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
+      const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
 
-    saveAs(
-      blob,
-      `top5menus_${new Date().toISOString().slice(0, 10)}.xlsx`
-    );
-  } catch (error) {
-    console.error("Export Error:", error);
-    alert("Export failed");
-  }
-};
+      saveAs(blob, `top5menus_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    } catch (error) {
+      console.error("Export Error:", error);
+      alert("Export failed");
+    }
+  };
 
   return (
     <div className="bg-[#1a2030]/80 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-6">
-    
-         {/* Header */}
-     <div className="flex items-center justify-between mb-2">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
         <div>
           <h2 className="text-xl font-semibold text-white flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-green-400" />
-          Top 5 Selling Menus
+            Top 5 Selling Menus
           </h2>
 
           <p className="text-sm text-neutral-400 mt-1">
-          Best selling menus this month
+            Best selling menus this month
           </p>
         </div>
 
         <button
           onClick={handleExport}
-   className="
+          className="
             px-4 py-2
             rounded-2xl
             bg-purple-500/10
@@ -139,31 +137,21 @@ const handleExport = () => {
               <th className="p-4 text-left">Rank</th>
               <th className="p-4 text-left">Menu</th>
               <th className="p-4 text-left">Shop</th>
-              <th className="p-4 text-center">
-                Total Orders
-              </th>
-              <th className="p-4 text-center">
-                Customers
-              </th>
+              <th className="p-4 text-center">Total Orders</th>
+              <th className="p-4 text-center">Customers</th>
             </tr>
           </thead>
 
           <tbody>
             {loading ? (
               <tr>
-                <td
-                  colSpan={5}
-                  className="text-center py-16 text-neutral-400"
-                >
+                <td colSpan={5} className="text-center py-16 text-neutral-400">
                   Loading menus...
                 </td>
               </tr>
             ) : error ? (
               <tr>
-                <td
-                  colSpan={5}
-                  className="text-center py-16 text-red-400"
-                >
+                <td colSpan={5} className="text-center py-16 text-red-400">
                   {error}
                 </td>
               </tr>
@@ -184,10 +172,10 @@ const handleExport = () => {
                         index === 0
                           ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"
                           : index === 1
-                          ? "bg-slate-400/10 text-slate-300 border border-slate-500/20"
-                          : index === 2
-                          ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
-                          : "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                            ? "bg-slate-400/10 text-slate-300 border border-slate-500/20"
+                            : index === 2
+                              ? "bg-orange-500/10 text-orange-400 border border-orange-500/20"
+                              : "bg-purple-500/10 text-purple-400 border border-purple-500/20"
                       }`}
                     >
                       #{index + 1}
@@ -248,10 +236,7 @@ const handleExport = () => {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan={5}
-                  className="text-center py-16 text-neutral-500"
-                >
+                <td colSpan={5} className="text-center py-16 text-neutral-500">
                   No menus found.
                 </td>
               </tr>

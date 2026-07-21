@@ -8,10 +8,10 @@ import ShopSummaryCards from "../components/Shop/ShopSummaryCards";
 const ShopPage = () => {
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
 
   // ✅ modal states
-  const [selectedShopId, setSelectedShopId] = useState(null);
-  const [showDetail, setShowDetail] = useState(false);
+const [selectedShop, setSelectedShop] = useState(null);
 
   const navigate = useNavigate();
 
@@ -21,6 +21,11 @@ const ShopPage = () => {
       try {
         const res = await axios.get(
           "https://api.pwezayshops.com/shops-approve",
+          {
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
         );
         setShops(res.data);
       } catch (err) {
@@ -43,17 +48,14 @@ const ShopPage = () => {
 };
 
   // ✅ open modal (Shop Details)
-  const handleViewShopDetails = (shopId) => {
-    setSelectedShopId(shopId);
-    setShowDetail(true);
-  };
+const handleViewShopDetails = (shop) => {
+  setSelectedShop(shop);
+};
 
   // ✅ close modal
-  const handleCloseDetail = () => {
-    setShowDetail(false);
-    setSelectedShopId(null);
-  };
-
+const handleCloseDetail = () => {
+  setSelectedShop(null);
+};
   // ✅ loading UI
   if (loading) {
     return (
@@ -82,9 +84,12 @@ const ShopPage = () => {
         />
 
         {/* ✅ Modal */}
-        {showDetail && selectedShopId && (
-          <ViewShopDetail shopId={selectedShopId} onClose={handleCloseDetail} />
-        )}
+       {selectedShop && (
+  <ViewShopDetail
+    shop={selectedShop}
+    onClose={handleCloseDetail}
+  />
+)}
       </section>
     </>
   );

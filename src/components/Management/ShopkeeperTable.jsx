@@ -14,16 +14,23 @@ export default function ShopkeeperTable() {
   const [passcode, setPasscode] = useState("");
   const passcodeInputRef = useRef(null);
   const [actionLoading, setActionLoading] = useState({});
-
+  
   // ---------------- PAGINATION STATES ----------------
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const token = localStorage.getItem("token");
 
   // Live fetch every 500ms
   useEffect(() => {
     const interval = setInterval(() => {
       axios
-        .get("https://api.pwezayshops.com/shops-approve")
+        .get("https://api.pwezayshops.com/shops-approve",
+          {
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
+        )
         .then((res) => setShopkeepers(res.data))
         .catch((err) => console.error("API Error:", err));
     }, 500);
@@ -79,42 +86,20 @@ export default function ShopkeeperTable() {
     setTimeout(() => passcodeInputRef.current?.focus(), 500);
   };
 
-  // const doDelete = () => {
-  //   if (passcode === "234567") {
-  //     setActionLoading((prev) => ({ ...prev, [activeShop.id]: true }));
-  //     axios
-  //       .delete(`https://api.pwezayshops.com/shops/${activeShop.id}`)
-  //       .then((res) => {
-  //         setShopkeepers((prev) => prev.filter((s) => s.id !== activeShop.id));
-  //         setAlerts((prev) => [
-  //           ...prev,
-  //           res.data.message || "Deleted successfully",
-  //         ]);
-  //       })
-  //       .catch((err) =>
-  //         setAlerts((prev) => [
-  //           ...prev,
-  //           err.response?.data?.message || "Delete failed",
-  //         ])
-  //       )
-  //       .finally(() => {
-  //         setActionLoading((prev) => ({ ...prev, [activeShop.id]: false }));
-  //         setPasscodeModal(false);
-  //       });
-  //   } else {
-  //     setAlerts((prev) => [...prev, "Incorrect passcode"]);
-  //   }
-  // };
-
   const doDelete = async () => {
     if (!activeShop) return;
     // 1. VERIFY PASSCODE (API)
     try {
       const verifyRes = await axios.post(
-        "https://api.pwezayshops.com/admin/verify-admin-passcode",
-        {
-          passcode,
-        },
+        "https://api.pwezayshops.com/admin/verify-manager-passcode",
+      {
+    passcode,
+  },
+  {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
       );
 
       if (!verifyRes.data?.success) {
@@ -136,6 +121,11 @@ export default function ShopkeeperTable() {
 
       const res = await axios.delete(
         `https://api.pwezayshops.com/shops/${activeShop.id}`,
+       {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
       );
 
       setShopkeepers((prev) => prev.filter((s) => s.id !== activeShop.id));
@@ -166,6 +156,11 @@ export default function ShopkeeperTable() {
       const res = await axios.patch(
         `https://api.pwezayshops.com/shops/status/${shop.id}`,
         { status: newStatus },
+          {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
       );
 
       setShopkeepers((prev) =>

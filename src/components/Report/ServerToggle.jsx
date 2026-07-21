@@ -4,12 +4,7 @@ import { X } from "lucide-react";
 import { useAlert } from "../../AlertContext";
 
 export default function ServerToggle() {
-  const token = localStorage.getItem("adminToken");
-  // const authConfig = {
-  //   headers: {
-  //     Authorization: `Bearer ${token}`,
-  //   },
-  // };
+
 
   const [isOpen, setIsOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -22,6 +17,7 @@ export default function ServerToggle() {
   const [isCancelled, setIsCancelled] = useState(false);
 
   const { showAlert } = useAlert();
+  const token = localStorage.getItem("token");
 
   const API_BASE = "https://api.pwezayshops.com/open-server";
 
@@ -30,8 +26,12 @@ export default function ServerToggle() {
 
     const fetchServerStatus = async () => {
       try {
-        const res = await axios.get(API_BASE);
-
+        // const res = await axios.get(API_BASE);
+const res = await axios.get(API_BASE, {
+  headers: {
+    Authorization: `MSHteam ${token}`,
+  },
+});
         if (res.data && res.data.data) {
           setIsOpen(res.data.data.server === 1);
         }
@@ -61,7 +61,11 @@ export default function ServerToggle() {
       const res = await axios.post(
         API_BASE,
         { server: newStatus ? 1 : 0 },
-        // authConfig,
+     {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
       );
 
       setIsOpen(newStatus);
@@ -105,9 +109,13 @@ export default function ServerToggle() {
 
     try {
       const res = await axios.post(
-        "https://api.pwezayshops.com/admin/verify-delimanager-passcode",
+        "https://api.pwezayshops.com/admin/verify-owner-passcode",
         { passcode: password },
-        // authConfig,
+         {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
       );
 
       if (res.data && res.data.success) {
@@ -143,7 +151,7 @@ export default function ServerToggle() {
   };
 
   return (
-    <div className="flex flex-col items-start gap-3 relative">
+    <div className="flex flex-col items-end gap-3 relative">
       <div className="text-center">
         <div className="font-semibold text-lg text-neutral-300 mb-2">
           Server Status
@@ -164,7 +172,7 @@ export default function ServerToggle() {
               } 
               border ${
                 isOpen ? "border-green-500" : "border-red-500"
-              } hover:border-yellow-500 transition-colors duration-300`}
+              } hover:border-green-300 transition-colors duration-300`}
             >
               <span>{isOpen ? "Open" : "Closed"}</span>
               <svg

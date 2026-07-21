@@ -49,13 +49,41 @@
   animation: fadeIn 0.3s ease-out;
 }
 
-/* Hide scrollbar for all browsers */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(180, 118, 255, 0.5) transparent;
 }
-.scrollbar-hide {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 7px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 10px 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(197, 153, 255, 0.9),
+    rgba(180, 118, 255, 0.75)
+  );
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.25s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    #c599ff,
+    #B476FF
+  );
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:active {
+  background: #B476FF;
 }
 
 

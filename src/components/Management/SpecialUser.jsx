@@ -25,20 +25,28 @@ export default function SpecialUser() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  const token = localStorage.getItem("token");
+
   // Fetch API every 500ms (live)
   useEffect(() => {
     const interval = setInterval(() => {
       axios
-        .get("https://api.pwezayshops.com/special-users")
+        .get("https://api.pwezayshops.com/special-users",
+          {
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          }
+        )
         .then((res) => setSpecialUsers(res.data))
         .catch((err) => console.error("API Error:", err));
     }, 500);
     return () => clearInterval(interval);
   }, []);
   const getPhotoUrl = (photo) => {
-  if (!photo) return "https://via.placeholder.com/80";
-  return `https://api.pwezayshops.com/uploads/${photo}`;
-};
+    if (!photo) return "https://via.placeholder.com/80";
+    return `https://api.pwezayshops.com/uploads/${photo}`;
+  };
 
   const splitDateTime = (datetime) => {
     if (!datetime) return ["-", "-"];
@@ -90,29 +98,31 @@ export default function SpecialUser() {
 
   const doDelete = async () => {
     if (!activeUser) return;
-// 1. VERIFY PASSCODE (API)
-try {
-  const verifyRes = await axios.post(
-    "https://api.pwezayshops.com/admin/verify-admin-passcode",
-    {
-      passcode,
-    }
-  );
-
-  if (!verifyRes.data?.success) {
-    showAlert(
-      verifyRes.data?.message || "Incorrect passcode",
-      "error"
-    );
-    return;
+    // 1. VERIFY PASSCODE (API)
+    try {
+      const verifyRes = await axios.post(
+        "https://api.pwezayshops.com/admin/verify-manager-passcode",
+        {
+    passcode,
+  },
+  {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
   }
-} catch (err) {
-  showAlert(
-    err.response?.data?.message || "Passcode verification failed",
-    "error"
-  );
-  return;
-}
+      );
+
+      if (!verifyRes.data?.success) {
+        showAlert(verifyRes.data?.message || "Incorrect passcode", "error");
+        return;
+      }
+    } catch (err) {
+      showAlert(
+        err.response?.data?.message || "Passcode verification failed",
+        "error",
+      );
+      return;
+    }
     try {
       setActionLoading((prev) => ({
         ...prev,
@@ -121,6 +131,11 @@ try {
 
       const res = await axios.delete(
         `https://api.pwezayshops.com/users/${activeUser.id}`,
+          {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
       );
 
       setSpecialUsers((prev) => prev.filter((u) => u.id !== activeUser.id));
@@ -151,51 +166,56 @@ try {
       : null;
 
   const toggleStatus = async (user, newStatus) => {
-  if (user.status === newStatus) return; // ✅ prevent duplicate click
+    if (user.status === newStatus) return; // ✅ prevent duplicate click
 
-  try {
-    setActionLoading((prev) => ({
-      ...prev,
-      [user.id]: true,
-    }));
+    try {
+      setActionLoading((prev) => ({
+        ...prev,
+        [user.id]: true,
+      }));
 
-    const res = await axios.patch(
-      `https://api.pwezayshops.com/users/status/${user.id}`, // ✅ FIXED API
-      { status: newStatus }
-    );
-
-    // ✅ update UI instantly
-    setSpecialUsers((prev) =>
-      prev.map((u) =>
-        u.id === user.id ? { ...u, status: newStatus } : u
-      )
-    );
-
-    // ✅ SAME as UserTable
-    showAlert(
-      res?.data?.message || "Status updated",
-      "success"
-    );
-  } catch (err) {
-    showAlert(
-      err.response?.data?.message || "Failed to update status",
-      "error"
-    );
-  } finally {
-    setActionLoading((prev) => ({
-      ...prev,
-      [user.id]: false,
-    }));
+      const res = await axios.patch(
+        `https://api.pwezayshops.com/users/status/${user.id}`, 
+         { status: newStatus },
+  {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
   }
-};
+      );
+
+      // ✅ update UI instantly
+      setSpecialUsers((prev) =>
+        prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)),
+      );
+
+      // ✅ SAME as UserTable
+      showAlert(res?.data?.message || "Status updated", "success");
+    } catch (err) {
+      showAlert(
+        err.response?.data?.message || "Failed to update status",
+        "error",
+      );
+    } finally {
+      setActionLoading((prev) => ({
+        ...prev,
+        [user.id]: false,
+      }));
+    }
+  };
   const toggleSpecialUser = (user) => {
     setSpecialLoading((prev) => ({ ...prev, [user.id]: true }));
 
     if (!user.special) {
       // Make special user (your existing logic)
       axios
-        .patch(`https://api.pwezayshops.com/special-users/${user.id}`, {
-          orderId: "O002",
+        .patch(`https://api.pwezayshops.com/special-users/${user.id}`, 
+          // orderId: "O002",
+          {},
+            {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
         })
         .then((res) => {
           setSpecialUsers((prev) =>
@@ -218,7 +238,14 @@ try {
     } else {
       // Remove from special → make non-special
       axios
-        .patch(`https://api.pwezayshops.com/non-special-users/${user.id}`)
+        .patch(`https://api.pwezayshops.com/non-special-users/${user.id}`,
+            {},
+  {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
+        )
         .then((res) => {
           setSpecialUsers((prev) =>
             prev.map((u) => (u.id === user.id ? { ...u, special: false } : u)),
@@ -257,7 +284,15 @@ try {
 
       const payload = isRemoving ? {} : { orderId: "O002" };
 
-      const res = await axios.patch(url, payload);
+    const res = await axios.patch(
+  url,
+  payload,
+  {
+    headers: {
+      Authorization: `MSHteam ${token}`,
+    },
+  }
+);
 
       setSpecialUsers((prev) =>
         prev.map((u) =>
@@ -402,14 +437,14 @@ onChange={() => {
                     <td className="py-4">
                       <div className="flex items-center gap-3">
                         {user.photo ? (
-                       <img
-  src={getPhotoUrl(user.photo)}
-  alt={user.name}
-  className="w-10 h-10 rounded-full object-cover border border-slate-700"
-  onError={(e) => {
-    e.target.src = "https://via.placeholder.com/80";
-  }}
-/>
+                          <img
+                            src={getPhotoUrl(user.photo)}
+                            alt={user.name}
+                            className="w-10 h-10 rounded-full object-cover border border-slate-700"
+                            onError={(e) => {
+                              e.target.src = "https://via.placeholder.com/80";
+                            }}
+                          />
                         ) : (
                           <div
                             className="w-10 h-10 rounded-full 
@@ -584,69 +619,65 @@ onChange={() => {
         </div>
       )}
 
-     {confirmModal && selectedUser && (
-  <div className="fixed inset-0 z-40 flex items-center justify-center px-4 backdrop-blur-md">
-    
-    {/* BACKDROP */}
-    <div
-      className="absolute inset-0 bg-black/70"
-      onClick={() => setConfirmModal(false)}
-    />
+      {confirmModal && selectedUser && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center px-4 backdrop-blur-md">
+          {/* BACKDROP */}
+          <div
+            className="absolute inset-0 bg-black/70"
+            onClick={() => setConfirmModal(false)}
+          />
 
-    {/* MODAL */}
-    <div
-      className="relative w-full max-w-sm rounded-2xl 
+          {/* MODAL */}
+          <div
+            className="relative w-full max-w-sm rounded-2xl 
       bg-gradient-to-b from-[#1b2235] to-[#121826]
       border border-white/10 shadow-2xl p-6"
-    >
-      {/* TITLE */}
-      <h3 className="text-xl font-semibold text-center text-purple-400 mb-3">
-        {selectedUser.special
-          ? "Remove Special User"
-          : "Mark Special User"}
-      </h3>
+          >
+            {/* TITLE */}
+            <h3 className="text-xl font-semibold text-center text-purple-400 mb-3">
+              {selectedUser.special
+                ? "Remove Special User"
+                : "Mark Special User"}
+            </h3>
 
-      {/* MESSAGE */}
-      <p className="text-sm text-slate-300 text-center mb-6 leading-relaxed">
-        {selectedUser.special ? "Remove " : "Mark "}
-        <span className="text-purple-300 font-semibold">
-          {selectedUser?.name}
-        </span>{" "}
-        {selectedUser.special
-          ? "from special users?"
-          : "as a special user?"}
-      </p>
+            {/* MESSAGE */}
+            <p className="text-sm text-slate-300 text-center mb-6 leading-relaxed">
+              {selectedUser.special ? "Remove " : "Mark "}
+              <span className="text-purple-300 font-semibold">
+                {selectedUser?.name}
+              </span>{" "}
+              {selectedUser.special
+                ? "from special users?"
+                : "as a special user?"}
+            </p>
 
-      {/* BUTTONS */}
-      <div className="flex gap-3">
-        
-        {/* CANCEL */}
-        <button
-          onClick={() => setConfirmModal(false)}
-          className="flex-1 py-2.5 rounded-xl border border-white/10 
+            {/* BUTTONS */}
+            <div className="flex gap-3">
+              {/* CANCEL */}
+              <button
+                onClick={() => setConfirmModal(false)}
+                className="flex-1 py-2.5 rounded-xl border border-white/10 
           bg-white/5 text-slate-300 hover:bg-white/10 
           transition-all text-sm"
-        >
-          Cancel
-        </button>
+              >
+                Cancel
+              </button>
 
-        {/* CONFIRM */}
-        <button
-          onClick={confirmSpecialUser}
-          disabled={specialLoading[selectedUser?.id]}
-          className="flex-1 py-2.5 rounded-xl 
+              {/* CONFIRM */}
+              <button
+                onClick={confirmSpecialUser}
+                disabled={specialLoading[selectedUser?.id]}
+                className="flex-1 py-2.5 rounded-xl 
           bg-gradient-to-r from-purple-600 to-indigo-500
           text-white font-medium hover:opacity-90 
           transition-all text-sm shadow-lg disabled:opacity-50"
-        >
-          {specialLoading[selectedUser?.id]
-            ? "Processing..."
-            : "Confirm"}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+              >
+                {specialLoading[selectedUser?.id] ? "Processing..." : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <SpecialUserDetailModal
         modalOpen={modalOpen}

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Store, Utensils, Users, DollarSign, Truck } from "lucide-react";
 
@@ -14,7 +13,9 @@ function DashboardCard({ title, value, icon, gradient, iconBg }) {
       "
     >
       {/* BG */}
-      <div className={`absolute inset-0 opacity-20 bg-gradient-to-br ${gradient}`} />
+      <div
+        className={`absolute inset-0 opacity-20 bg-gradient-to-br ${gradient}`}
+      />
 
       {/* Glow */}
       <div
@@ -22,14 +23,13 @@ function DashboardCard({ title, value, icon, gradient, iconBg }) {
       />
 
       <div className="relative z-10 flex items-center justify-between">
-        
         {/* TEXT */}
         <div>
           <p className="text-[10px] lg:text-[11px] xl:text-xs 2xl:text-sm text-slate-300">
             {title}
           </p>
 
-          <h2 className="mt-1 font-bold text-white text-sm lg:text-base xl:text-lg 2xl:text-xl">
+          <h2 className="mt-1 font-semibold text-white text-sm  xl:text-lg ">
             {value}
           </h2>
         </div>
@@ -37,7 +37,7 @@ function DashboardCard({ title, value, icon, gradient, iconBg }) {
         {/* ICON */}
         <div
           className={`
-            flex items-center justify-center border border-white/10 rounded-xl
+            2xl:flex items-center justify-center border border-white/10 rounded-xl hidden 
             ${iconBg}
 
             w-8 h-8
@@ -64,12 +64,19 @@ function LoadingCard() {
 export default function SummaryCards() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          "https://api.pwezayshops.com/dashboard-summaries-by-system"
+          "https://api.pwezayshops.com/dashboard-summaries-by-system",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          },
         );
 
         const result = await res.json();
@@ -103,11 +110,21 @@ export default function SummaryCards() {
 
   return (
     <section className="grid grid-cols-5 gap-3 lg:gap-4 xl:gap-5 mb-5">
-
       {/* SHOPS */}
       <DashboardCard
         title="Total Shops"
-        value={`${data.total_shops.total} (+${data.total_shops.new_shops})`}
+        value={
+          <div className="space-y-1">
+            <div>
+              Total: <span className="font-bold">{data.total_shops.total}</span>
+            </div>
+
+            <div className="text-slate-300 text-xs">
+              Today:{" "}
+              <span className="text-white">{data.total_shops.new_shops}</span>
+            </div>
+          </div>
+        }
         icon={
           <Store className="text-indigo-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
         }
@@ -118,7 +135,18 @@ export default function SummaryCards() {
       {/* MENU */}
       <DashboardCard
         title="Total Menu"
-        value={`${data.total_menu.total} (+${data.total_menu.new_menu})`}
+        value={
+          <div className="space-y-1">
+            <div>
+              Total: <span className="font-bold">{data.total_menu.total}</span>
+            </div>
+
+            <div className="text-slate-300 text-xs">
+              Today:{" "}
+              <span className="text-white">{data.total_menu.new_menu}</span>
+            </div>
+          </div>
+        }
         icon={
           <Utensils className="text-emerald-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
         }
@@ -129,7 +157,19 @@ export default function SummaryCards() {
       {/* CLIENT */}
       <DashboardCard
         title="Total Clients"
-        value={`${data.total_client.total} (+${data.total_client.new_users})`}
+        value={
+          <div className="space-y-1">
+            <div>
+              Total:{" "}
+              <span className="font-bold">{data.total_client.total}</span>
+            </div>
+
+            <div className="text-slate-300 text-xs">
+              Today:{" "}
+              <span className="text-white">{data.total_client.new_users}</span>
+            </div>
+          </div>
+        }
         icon={
           <Users className="text-sky-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
         }
@@ -137,23 +177,56 @@ export default function SummaryCards() {
         iconBg="bg-sky-500/20"
       />
 
-      {/* DELIVERYMEN */}
+      {/* DELIVERY MEN */}
       <DashboardCard
         title="Delivery Men"
-        value={`${data.total_deliverymen.total} (+${data.total_deliverymen.new_deliverymen})`}
+        value={
+          <div className="space-y-1">
+            <div>
+              Total:{" "}
+              <span className="font-bold">{data.total_deliverymen.total}</span>
+            </div>
+
+            <div className="text-slate-300 text-xs">
+              Today:{" "}
+              <span className="text-white">
+                {data.total_deliverymen.new_deliverymen}
+              </span>
+            </div>
+          </div>
+        }
         icon={
           <Truck className="text-rose-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
         }
         gradient="from-rose-500 to-transparent"
         iconBg="bg-rose-500/20"
       />
-
       {/* INCOME */}
       <DashboardCard
-        title="Today System Income"
-        value={`${Number(
-          data.total_delivery_income_today.today_system_income || 0
-        ).toLocaleString()} Ks`}
+        title="System Income"
+        value={
+          <div className="space-y-1">
+            <div>
+              Today:{" "}
+              <span className="font-bold">
+                {Number(
+                  data.total_delivery_income_today.today_system_income,
+                ).toLocaleString()}{" "}
+                Ks
+              </span>
+            </div>
+
+            <div className="text-slate-300 text-xs">
+              Yesterday:{" "}
+              <span className="text-white">
+                {Number(
+                  data.total_delivery_income_today.yesterday_system_income,
+                ).toLocaleString()}{" "}
+                Ks
+              </span>
+            </div>
+          </div>
+        }
         icon={
           <DollarSign className="text-yellow-300 w-3 h-3 lg:w-4 lg:h-4 xl:w-5 xl:h-5" />
         }

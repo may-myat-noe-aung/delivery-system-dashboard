@@ -3,25 +3,27 @@ import OverviewTab from "./OverviewTab";
 
 export default function AdminSetting2() {
   const [account, setAccount] = useState(null);
+  const token = localStorage.getItem("token");
 
   // Read from LoginPage
   const adminId = localStorage.getItem("userId");
 
   useEffect(() => {
     if (!adminId) {
-      console.log("No userId found in localStorage");
       return;
     }
 
     const fetchAdmin = async () => {
       try {
         const res = await fetch(
-          `https://api.pwezayshops.com/admin/${adminId}`
+          `https://api.pwezayshops.com/admin/${adminId}`,{
+            headers: {
+              Authorization: `MSHteam ${token}`,
+          }}
         );
 
         const data = await res.json();
 
-        console.log("Admin API:", data);
 
         if (data.success && data.data.length > 0) {
           setAccount(data.data[0]);
@@ -56,7 +58,7 @@ export default function AdminSetting2() {
               <>
                 {account.photo ? (
                   <img
-                    src={`https://api.pwezayshops.com/admin-uploads/${account.photo}?t=${Date.now()}`}
+                    src={`https://api.pwezayshops.com/admin-uploads/${account.photo}`}
                     alt={account.name}
                     className="w-24 h-24 rounded-full object-cover border-2 border-[#B476FF]"
                     onError={(e) => {

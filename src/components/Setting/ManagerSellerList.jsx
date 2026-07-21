@@ -5,9 +5,8 @@ import { saveAs } from "file-saver";
 import { useAlert } from "../../AlertContext";
 
 export default function ManagerSellerList() {
-  const token = localStorage.getItem("adminToken"); // ✅ get token from localStorage
-
-  const { showAlert } = useAlert(); 
+  const token = localStorage.getItem("token");
+  const { showAlert } = useAlert();
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,7 +28,7 @@ export default function ManagerSellerList() {
       try {
         const res = await fetch("https://api.pwezayshops.com/admin", {
           headers: {
-            // Authorization: `Bearer ${token}`,
+            Authorization: `MSHteam ${token}`,
           },
         });
 
@@ -158,10 +157,10 @@ export default function ManagerSellerList() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            // Authorization: `Bearer ${token}`, 
+            Authorization: `MSHteam ${token}`,
           },
           body: JSON.stringify({ passcode: deletePasscode }),
-        }
+        },
       );
 
       const verifyData = await verify.json();
@@ -176,9 +175,9 @@ export default function ManagerSellerList() {
         {
           method: "DELETE",
           headers: {
-            // Authorization: `Bearer ${token}`, 
+            Authorization: `MSHteam ${token}`,
           },
-        }
+        },
       );
 
       const data = await res.json();
@@ -296,7 +295,7 @@ export default function ManagerSellerList() {
                   <td className="py-2 px-3">
                     {a.photo ? (
                       <img
-                        src={`https://api.pwezayshops.com/uploads/${a.photo}`}
+                        src={`https://api.pwezayshops.com/admin-uploads/${a.photo}`}
                         alt={a.name}
                         className="w-10 h-10 rounded-full object-cover mx-auto"
                       />

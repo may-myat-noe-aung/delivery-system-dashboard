@@ -17,7 +17,7 @@ function Card({ title, value, icon, gradient, iconBg }) {
       <div className="relative z-10 flex items-center justify-between">
         <div>
           <p className="text-xs text-slate-300">{title}</p>
-          <h2 className="mt-1 text-2xl font-bold text-white">{value}</h2>
+          <h2 className="mt-1 text-xl font-bold text-white">{value}</h2>
         </div>
 
         <div
@@ -32,11 +32,12 @@ function Card({ title, value, icon, gradient, iconBg }) {
 
 function LoadingCard() {
   return (
-    <div className="h-[120px] rounded-3xl bg-white/5 border border-white/10 animate-pulse" />
+    <div className="h-[100px] rounded-3xl bg-white/5 border border-white/10 animate-pulse" />
   );
 }
 
 export default function ShopSummaryCards() {
+  const token = localStorage.getItem("token");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +45,12 @@ export default function ShopSummaryCards() {
     const fetchSummary = async () => {
       try {
         const res = await fetch(
-          "https://api.pwezayshops.com/shops-summaries-by-system"
+          "https://api.pwezayshops.com/shops-summaries-by-system",
+             {
+        headers: {
+          Authorization: `MSHteam ${token}`,
+        },
+      }
         );
 
         const result = await res.json();
@@ -61,7 +67,7 @@ export default function ShopSummaryCards() {
 
     fetchSummary();
 
-    const interval = setInterval(fetchSummary, 5000);
+    const interval = setInterval(fetchSummary, 1000);
 
     return () => clearInterval(interval);
   }, []);
@@ -103,7 +109,7 @@ export default function ShopSummaryCards() {
       />
 
       <Card
-        title="Shop Delivery Men"
+        title="Total Shop Delivery Men"
         value={data.total_shop_deliverymen}
         icon={<Users className="w-5 h-5 text-rose-300" />}
         gradient="from-rose-500 to-transparent"
