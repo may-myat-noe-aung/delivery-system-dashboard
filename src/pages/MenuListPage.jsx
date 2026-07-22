@@ -1,9 +1,9 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import MenuDetailPopup from "../components/Shop/MenuDetailPopup";
 import { Search, Utensils } from "lucide-react";
+import { apiFetch } from "../api";
 
 export default function MenuListPage() {
   const token = localStorage.getItem("token");
@@ -52,18 +52,17 @@ export default function MenuListPage() {
 
   const fetchMenus = async () => {
     try {
-      const res = await axios.get(
-        `https://api.pwezayshops.com/menu/${shopId}?t=${Date.now()}`,
-            {
-        headers: {
-          Authorization: `MSHteam ${token}`,
-        },
-      }
-      );
+const res = await apiFetch(
+  `https://api.pwezayshops.com/menu/${shopId}?t=${Date.now()}`
+);
 
-      setMenus(res.data.menus || []);
-      setShopInfo(res.data.shop || {});
-      setImageVersion(Date.now());
+if (!res) return;
+
+const data = await res.json();
+
+setMenus(data.menus || []);
+setShopInfo(data.shop || {});
+setImageVersion(Date.now());
     } catch (err) {
       console.error(err);
     } finally {

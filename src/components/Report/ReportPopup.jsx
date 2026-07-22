@@ -232,20 +232,6 @@ export default function ReportPopup({ data, close }) {
             )}
           </div>
         </div>
-
-        {/* Image Preview */}
-        {/* {previewImage && (
-          <div
-            onClick={() => setPreviewImage(null)}
-            className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60]"
-          >
-            <img
-              src={previewImage}
-              className="max-w-4xl max-h-[90vh] rounded-xl"
-            />
-          </div>
-        )} */}
-
         {/* Preview Image */}
         {previewImage && (
           <div

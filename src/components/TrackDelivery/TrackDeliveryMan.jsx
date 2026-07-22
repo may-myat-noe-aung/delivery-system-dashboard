@@ -80,7 +80,7 @@ export default function TrackDeliveryMan() {
   return (
     <div className="flex h-full gap-4 ">
       {/* LEFT SIDEBAR */}
-      <div className="w-[340px] h-[580px] 2xl:h-[680px] bg-[#1a2030]/80 border border-slate-700 rounded-3xl p-4">
+      <div className="w-[340px] bg-[#1a2030]/80 border border-slate-700 rounded-3xl p-4">
         <DriverList
           drivers={filteredDrivers}
           selected={selected}

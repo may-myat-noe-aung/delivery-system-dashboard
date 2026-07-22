@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import ShopReportList from "../components/Report/ShopReportList";
 import ViewShopDetail from "../components/Shop/ViewShopDetail";
 import ReportSummaryCards from "../components/Report/ReportSummaryCards";
 import ServerToggle from "../components/Report/ServerToggle";
+import { apiFetch } from "../api";
 
 const ReportPage = () => {
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem("token");
+  
 
   // ✅ modal states
   const [selectedShopId, setSelectedShopId] = useState(null);
@@ -18,27 +18,27 @@ const ReportPage = () => {
   const navigate = useNavigate();
 
   // ✅ fetch shops
-  useEffect(() => {
-    const fetchShops = async () => {
-      try {
-        const res = await axios.get(
-          "https://api.pwezayshops.com/shops-approve",
-          {
-            headers: {
-              Authorization: `MSHteam ${token}`,
-            },
-          },
-        );
-        setShops(res.data);
-      } catch (err) {
-        console.error("Failed to fetch shops:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const fetchShops = async () => {
+    try {
+      const res = await apiFetch(
+        "https://api.pwezayshops.com/shops-approve"
+      );
 
-    fetchShops();
-  }, []);
+      if (!res) return;
+
+      const data = await res.json();
+
+      setShops(data);
+    } catch (err) {
+      console.error("Failed to fetch shops:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchShops();
+}, []);
 
   // ✅ open shop report page
   const handleViewReport = (shop) => {

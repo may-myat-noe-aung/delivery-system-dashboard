@@ -21,15 +21,17 @@ export default function AssignedOrdersPopup({ delivery, close }) {
         </button>
 
         {/* Header */}
-        <h2 className="text-2xl font-semibold text-indigo-400 mb-6">
+        <h2 className="text-2xl font-semibold text-purple-400 mb-2">
           Delivery #{delivery.id} - {delivery.name}
         </h2>
 
         {/* ================= DELIVERY INFO ================= */}
         <div className="bg-slate-800 rounded-2xl p-4 mb-6">
-          <h3 className="text-cyan-400 font-semibold mb-3">Delivery Info</h3>
+          <h3 className="text-cyan-400 font-semibold mb-3 text-lg">
+            Delivery Info
+          </h3>
 
-          <div className="grid md:grid-cols-3 gap-3 text-sm">
+          <div className="grid md:grid-cols-3 gap-3 ">
             {/* <p>ID: {delivery.id}</p> */}
             <p>Name: {delivery.name}</p>
             <p>Email: {delivery.email || "-"}</p>
@@ -37,10 +39,14 @@ export default function AssignedOrdersPopup({ delivery, close }) {
             <p>Work Type: {delivery.work_type || "-"}</p>
             <p>Status: {delivery.status}</p>
             <p>Rating: {delivery.rating}</p>
-            <p>Finished: {delivery.finished_order_count}</p>
-            <p>Assign Orders: {delivery.assign_order}</p>
-            <p>
-              Current Orders: {delivery.current_orders?.join(", ") || "None"}
+            <p className="text-blue-400 font-semibold">
+              Assign Orders: {delivery.assign_order}
+            </p>
+            <p className="text-purple-400 font-semibold">
+              Current Orders: {delivery.current_orders?.length || "None"}
+            </p>
+            <p className="text-pink-400 font-semibold">
+              Finished: {delivery.finished_order_count}
             </p>
           </div>
         </div>
@@ -68,13 +74,13 @@ export default function AssignedOrdersPopup({ delivery, close }) {
                   <h3 className="text-cyan-400 font-semibold">
                     Order #{order.id}
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-sm text-slate-400">
                     {order.name} • {order.type}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-indigo-400 font-semibold">
+                  <span className="text-purple-400 text-lg font-semibold">
                     {order.grand_total?.toLocaleString()} Ks
                   </span>
                   {isOpen ? <ChevronUp /> : <ChevronDown />}
@@ -89,33 +95,47 @@ export default function AssignedOrdersPopup({ delivery, close }) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       {/* CUSTOMER INFO */}
                       <div className="bg-[#1e293b] p-5 rounded-2xl border border-slate-700 shadow-lg">
-                        <h4 className="text-indigo-400 mb-3 font-semibold text-lg">
+                        <h4 className="text-purple-400 mb-3 font-semibold text-lg">
                           Customer Info
                         </h4>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2 text-md">
                           <p>
-                            <span className="text-slate-400">Name:</span>{" "}
+                            <span className="text-slate-400 py-4">
+                              User Id:
+                            </span>{" "}
+                            {order.userId}
+                          </p>
+                          <p>
+                            <span className="text-slate-400 py-4">
+                              Shop Id:
+                            </span>{" "}
+                            {order.shopId}
+                          </p>
+                          <p>
+                            <span className="text-slate-400 py-4">Name:</span>{" "}
                             {order.name}
                           </p>
                           <p>
-                            <span className="text-slate-400">Phone:</span>{" "}
+                            <span className="text-slate-400 py-4">Phone:</span>{" "}
                             {order.phone}
                           </p>
                           <p>
-                            <span className="text-slate-400">Address:</span>{" "}
+                            <span className="text-slate-400 py-4">
+                              Address:
+                            </span>{" "}
                             {order.address}
                           </p>
                           <p>
-                            <span className="text-slate-400">Remark:</span>{" "}
+                            <span className="text-slate-400 py-4">Remark:</span>{" "}
                             {order.remark || "-"}
                           </p>
                         </div>
                       </div>
 
                       {/* PAYMENT INFO */}
-                      <div className="bg-[#1e293b] p-5 rounded-2xl border border-slate-700 shadow-lg">
-                        <h4 className="text-indigo-400 mb-3 font-semibold text-lg">
+                      {/* <div className="bg-[#1e293b] p-5 rounded-2xl border border-slate-700 shadow-lg">
+                        <h4 className="text-purple-400 mb-3 font-semibold text-lg">
                           Payment Info
                         </h4>
 
@@ -132,28 +152,143 @@ export default function AssignedOrdersPopup({ delivery, close }) {
                             <span className="text-slate-400">Phone:</span>{" "}
                             {order.payment_phone}
                           </p>
-                          <p className="text-indigo-400 font-semibold">
-                            Total: {order.grand_total?.toLocaleString()} Ks
-                          </p>
                         </div>
 
-                        {order.payment_photo && (
-                          <img
-                            src={`https://api.pwezayshops.com/${order.payment_photo}`}
-                            className="w-40 mt-3 rounded-lg border border-slate-700 cursor-pointer hover:scale-105 transition"
-                            onClick={() =>
-                              setPreview(
-                                `https://api.pwezayshops.com/${order.payment_photo}`,
-                              )
-                            }
-                          />
-                        )}
+                        <div className="flex items-start justify-between">
+                          {order.payment_photo && (
+                            <img
+                              src={`https://api.pwezayshops.com/${order.payment_photo}`}
+                              className="w-40 mt-3 rounded-lg border border-slate-700 cursor-pointer hover:scale-105 transition"
+                              onClick={() =>
+                                setPreview(
+                                  `https://api.pwezayshops.com/${order.payment_photo}`,
+                                )
+                              }
+                            />
+                          )}
+
+                          {order.payment_photo && (
+                            <img
+                              src={`https://api.pwezayshops.com/${order.payment_photo}`}
+                              className="w-40 mt-3 rounded-lg border border-slate-700 cursor-pointer hover:scale-105 transition"
+                              onClick={() =>
+                                setPreview(
+                                  `https://api.pwezayshops.com/${order.payment_photo}`,
+                                )
+                              }
+                            />
+                          )}
+                        </div>
+                      </div> */}
+                      {/* PAYMENT INFO */}
+                      <div className="bg-[#1e293b] p-5 rounded-2xl border border-slate-700 shadow-lg">
+                        <div className="flex flex-col lg:flex-row justify-between gap-6">
+                          {/* LEFT */}
+                          <div className="flex-1">
+                            <h4 className="text-purple-400 font-semibold text-lg mb-4">
+                              Payment Information
+                            </h4>
+
+                            <div className="space-y-2">
+                              <p>
+                                <span className="text-slate-400">Method :</span>{" "}
+                                {order.payment_method || "-"}
+                              </p>
+
+                              <p>
+                                <span className="text-slate-400">Name :</span>{" "}
+                                {order.payment_name || "-"}
+                              </p>
+
+                              <p>
+                                <span className="text-slate-400">Phone :</span>{" "}
+                                {order.payment_phone || "-"}
+                              </p>
+                            </div>
+
+                            <div className="mt-5 text-sm text-slate-400 space-y-1">
+                              <p>
+                                Created :{" "}
+                                {order.created_at
+                                  ? new Date(order.created_at).toLocaleString()
+                                  : "-"}
+                              </p>
+
+                              <p>
+                                Pickup :{" "}
+                                <span
+                                  className={
+                                    order.orders_pickup
+                                      ? "text-green-400"
+                                      : "text-yellow-400"
+                                  }
+                                >
+                                  {order.orders_pickup ? "Done" : "Pending"}
+                                </span>
+                              </p>
+
+                              <p>
+                                Done :{" "}
+                                <span
+                                  className={
+                                    order.orders_done
+                                      ? "text-green-400"
+                                      : "text-yellow-400"
+                                  }
+                                >
+                                  {order.orders_done ? "Done" : "Pending"}
+                                </span>
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* RIGHT */}
+                          <div className="flex flex-wrap gap-5">
+                            {/* Payment Screenshot */}
+                            {order.payment_photo && (
+                              <div>
+                                <p className="mb-2 text-sm text-slate-400">
+                                  Payment Screenshot
+                                </p>
+
+                                <img
+                                  src={`https://api.pwezayshops.com/${order.payment_photo}`}
+                                  className="w-40 h-48 object-cover rounded-xl border border-slate-700 cursor-pointer hover:scale-105 transition"
+                                  onClick={() =>
+                                    setPreview(
+                                      `https://api.pwezayshops.com/${order.payment_photo}`,
+                                    )
+                                  }
+                                />
+                              </div>
+                            )}
+
+                            {/* Customer Signature */}
+                            {order.esign !== null && (
+                              <div>
+                                <p className="mb-2 text-sm text-slate-400">
+                                  Customer Signature
+                                </p>
+
+                                <img
+                                  src={`https://api.pwezayshops.com/${order.esign}`}
+                                  className="w-40 rounded-xl border border-slate-700 bg-white cursor-pointer hover:scale-105 transition"
+                                  onClick={() =>
+                                    setPreview(
+                                      `https://api.pwezayshops.com/${order.esign}`,
+                                    )
+                                  }
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
 
                     {/* ================= ROW 2 ================= */}
                     <div className="bg-[#1e293b] p-5 rounded-2xl border border-slate-700 shadow-lg">
-                      <h4 className="text-indigo-400 mb-4 font-semibold text-lg">
+                      <h4 className="text-purple-400 mb-4 font-semibold text-lg">
                         Order Items ({order.orders?.length || 0})
                       </h4>
 
@@ -163,20 +298,22 @@ export default function AssignedOrdersPopup({ delivery, close }) {
                             key={i}
                             className="p-4 rounded-xl border border-slate-700"
                           >
-                            <p className="text-white font-medium">
+                         <div className=" flex items-center justify-between">
+                             <p className="text-white font-medium text-lg">
                               {item.menu_name}
                             </p>
 
-                            <p className="text-xs text-slate-400">
+                            <p className=" text-slate-200">
                               Size: {item.size} × {item.quantity}
                             </p>
+                         </div>
 
-                            <p className="text-xs text-indigo-400 font-semibold">
+                            {/* <p className="text-xs text-purple-400 font-semibold">
                               Total: {item.total?.toLocaleString()} Ks
-                            </p>
+                            </p> */}
 
                             {item.product_description && (
-                              <p className="text-xs text-slate-500 mt-1">
+                              <p className="text-md text-slate-200 mt-1">
                                 Note: {item.product_description}
                               </p>
                             )}
@@ -187,14 +324,14 @@ export default function AssignedOrdersPopup({ delivery, close }) {
                                 item.ingredients.map((ing, j) => (
                                   <span
                                     key={j}
-                                    className="text-xs bg-slate-700 px-2 py-1 rounded"
+                                    className="text-md bg-slate-600 px-2 py-1 rounded"
                                   >
                                     {ing.ingredients_name} (+
                                     {ing.ingredients_price})
                                   </span>
                                 ))
                               ) : (
-                                <span className="text-xs text-slate-500">
+                                <span className="text-md text-slate-600">
                                   No Ingredients
                                 </span>
                               )}
@@ -204,8 +341,7 @@ export default function AssignedOrdersPopup({ delivery, close }) {
                       </div>
                     </div>
                   </div>
-                  <div>
-                  </div>
+                  <div></div>
                 </>
               )}
             </div>

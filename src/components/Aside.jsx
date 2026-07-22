@@ -34,9 +34,15 @@ const Aside = () => {
     const ok = await confirm("Are you sure you want to logout?");
     if (!ok) return;
 
-    localStorage.clear();
+    // Remove only auth data
+    localStorage.removeItem("user");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("role");
+    localStorage.removeItem("token");
+
     showAlert("Logged out successfully!", "success");
-    navigate("/login");
+
+    navigate("/login", { replace: true });
   };
 
   useEffect(() => {
@@ -88,6 +94,12 @@ const Aside = () => {
       roles: ["owner"],
     },
     {
+      label: "Management",
+      icon: Users,
+      to: "/management",
+      roles: ["owner", "manager"],
+    },
+    {
       label: "Shop",
       icon: Store,
       to: "/shop",
@@ -121,12 +133,7 @@ const Aside = () => {
       to: "/report",
       roles: ["owner"],
     },
-    {
-      label: "Management",
-      icon: Users,
-      to: "/management",
-      roles: ["owner","manager"],
-    },
+
     {
       label: "Management",
       icon: Users,
@@ -139,11 +146,11 @@ const Aside = () => {
       to: "/setting",
       roles: ["owner"],
     },
-      {
+    {
       label: "Settings",
       icon: Settings,
       to: "/settingForManager",
-      roles: ["manager","shopmanager","delimanager"],
+      roles: ["manager", "shopmanager", "delimanager"],
     },
     //   {
     //   label: "Settings",

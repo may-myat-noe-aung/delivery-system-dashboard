@@ -21,13 +21,14 @@ export default function OrdersAssignedTable() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("https://api.pwezayshops.com/connected-orders",
-            {
-          method: "GET",
-          headers: {
-            Authorization: `MSHteam ${token}`,
+        const res = await fetch(
+          "https://api.pwezayshops.com/connected-orders",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
           },
-        }
         );
         const data = await res.json();
 
@@ -115,7 +116,7 @@ export default function OrdersAssignedTable() {
       WorkType: dm.work_type,
       Status: dm.status,
       Rating: dm.rating,
-      TotalOrders: dm.total_order,
+      FinishedOrders: dm.finished_order_count,
       AssignedOrders: dm.assign_order,
       CurrentOrders: dm.current_orders?.length || 0,
     }));
@@ -167,6 +168,16 @@ export default function OrdersAssignedTable() {
         return "text-red-400";
       default:
         return "text-slate-400";
+    }
+  };
+  const getRowColor = (status) => {
+    switch (status) {
+      case "active":
+        return "bg-green-500/10 hover:bg-green-500/20";
+      case "warning":
+        return "bg-yellow-500/10 hover:bg-yellow-500/20";
+      default:
+        return "hover:bg-slate-800/40";
     }
   };
   // =========================
@@ -238,14 +249,12 @@ export default function OrdersAssignedTable() {
                   <th className="py-4 text-left">Email</th>
                   <th className="py-4 text-left">Phone</th>
                   {/* <th className="py-4 text-left">Status</th> */}
-
+                  <th className="py-4 text-left">Work Type</th>
                   {/* UPDATED */}
-                  <th className="py-4 text-left">Total Orders</th>
-                  <th className="py-4 text-left">Assigned</th>
-                  <th className="py-4 text-left">Current</th>
-                  <th className="py-4 text-left">Income</th>
-                  <th className="py-4 text-left">Last Order</th>
-
+                  <th className="py-4 text-left">Assigned Order</th>
+                  <th className="py-4 text-left">Current Order</th>
+                  <th className="py-4 text-left">Finished Order</th>
+                  <th className="py-4 text-left">Online</th>
                   <th className="py-4 text-left">Action</th>
                 </tr>
               </thead>
@@ -254,54 +263,108 @@ export default function OrdersAssignedTable() {
                 {paginated.map((dm) => (
                   <tr
                     key={dm.id}
-                    className="border-b border-slate-800 hover:bg-slate-800/40"
+                    className="border-b border-slate-700 hover:bg-slate-800/40"
                   >
-                    <td className="py-4 text-cyan-400">{dm.id}</td>
-                    <td className="py-4">{dm.name}</td>
-                    <td className="py-4">{dm.email}</td>
-                    <td className="py-4">{dm.phone}</td>
-
-                    {/* STATUS (FIXED COLOR) */}
-                    {/* <td
-                      className={`py-4 font-semibold ${getStatusColor(dm.status)}`}
+                    <td
+                      className={`${
+                        dm.status === "active"
+                          ? "bg-green-500/20"
+                          : "bg-red-500/20"
+                      } py-4`}
                     >
-                      {dm.status}
-                    </td> */}
-
-                    {/* TOTAL ORDERS (FIXED) */}
-                    <td className="py-4 text-blue-400">
-                      {dm.orders?.length || 0}
+                      {dm.id}
                     </td>
-
+                    <td
+                      className={`${
+                        dm.status === "active"
+                          ? "bg-green-500/20"
+                          : "bg-red-500/20"
+                      } py-4`}
+                    >
+                      {dm.name}
+                    </td>
+              <td
+  className={`w-[130px] py-4 break-words ${
+    dm.status === "active"
+      ? "bg-green-500/20"
+      : "bg-red-500/20"
+  }`}
+>
+  {dm.email}
+</td>
+                    <td
+                      className={`${
+                        dm.status === "active"
+                          ? "bg-green-500/20"
+                          : "bg-red-500/20"
+                      } py-4`}
+                    >
+                      {dm.phone}
+                    </td>
+                    <td
+                      className={`${
+                        dm.status === "active"
+                          ? "bg-green-500/20"
+                          : "bg-red-500/20"
+                      } py-4`}
+                    >
+                      {dm.work_type || "System"}
+                    </td>
                     {/* ASSIGNED ORDERS */}
-                    <td className="py-4 text-purple-400">{dm.assign_order}</td>
-
+                    <td
+                      className={`${
+                        dm.status === "active"
+                          ? "bg-green-500/20"
+                          : "bg-red-500/20"
+                      } py-4 text-blue-400 font-semibold`}
+                    >
+                      {dm.assign_order}
+                    </td>
                     {/* CURRENT ORDERS */}
-                    <td className="py-4 text-pink-400">
+                    <td
+                      className={`${
+                        dm.status === "active"
+                          ? "bg-green-500/20"
+                          : "bg-red-500/20"
+                      } py-4 text-purple-400 font-semibold`}
+                    >
                       {dm.current_orders?.length || 0}
                     </td>
-
-                    {/* 💰 INCOME */}
-                    <td className="py-4 text-green-400">
-                      {(
-                        dm.orders?.reduce((sum, order) => {
-                          return sum + (order.grand_total || 0);
-                        }, 0) || 0
-                      ).toLocaleString()}{" "}
-                      Ks
+                    <td
+                      className={`${
+                        dm.status === "active"
+                          ? "bg-green-500/20"
+                          : "bg-red-500/20"
+                      } py-4 text-pink-400 font-semibold`}
+                    >
+                      {dm.finished_order_count}
                     </td>
-
-                    {/* 📅 LAST ORDER DATE */}
-                    <td className="py-4 text-purple-300">
-                      {dm.orders?.length
-                        ? new Date(
-                            dm.orders[dm.orders.length - 1].created_at,
-                          ).toLocaleDateString()
-                        : "-"}
+                    <td
+                      className={`${
+                        dm.status === "active"
+                          ? "bg-green-500/20"
+                          : "bg-red-500/20"
+                      } py-4`}
+                    >
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          dm.is_online === 1
+                            ? "bg-green-500/20 text-green-400"
+                            : "bg-red-500/20 text-red-400"
+                        }`}
+                      >
+                        {dm.is_online === 1 ? "Online" : "Offline"}
+                      </span>
                     </td>
 
                     {/* ACTION */}
-                    <td className="py-4">
+                    <td
+                      className={`${
+                        dm.status === "active"
+                          ? "bg-green-500/20"
+                          : "bg-red-500/20"
+                      } py-4`}
+                    >
                       <button
                         onClick={() => setSelected(dm)}
                         className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-xl text-sm"

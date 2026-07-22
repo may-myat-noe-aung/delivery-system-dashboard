@@ -4,9 +4,9 @@ import { useLocation } from "react-router-dom";
 import SystemNotificationFetcher from "../SystemNotificationFetcher";
 import SystemNotificationFetcherForShopmanager from "../SystemNotificationFetcherForShopmanager";
 import SystemNotificationFetcherForDelimanager from "../SystemNotificationFetcherForDelimanager";
+import { apiFetch } from "../api";
 
 const Header = () => {
- const token = localStorage.getItem("token");
 const role = localStorage.getItem("role");
 const location = useLocation();
 
@@ -15,42 +15,39 @@ const location = useLocation();
   // Support both Owner and Manager
   const adminId =
     localStorage.getItem("adminId") ||
-    localStorage.getItem("userId");
+    localStorage.getItem("userId")
 
-  useEffect(() => {
-    if (!adminId) return;
+useEffect(() => {
+  if (!adminId) return;
 
-    const fetchAdmin = async () => {
-      try {
-        const res = await fetch(
-          `https://api.pwezayshops.com/admin/${adminId}`,
-          {
-            headers: {
-              Authorization: `MSHteam ${token}`,
-            },
-          }
-        );
+  const fetchAdmin = async () => {
+    try {
+      const res = await apiFetch(
+        `https://api.pwezayshops.com/admin/${adminId}`
+      );
 
-        const data = await res.json();
+      if (!res) return;
 
-        if (
-          data.success &&
-          Array.isArray(data.data) &&
-          data.data.length > 0
-        ) {
-          setAccount(data.data[0]);
-        }
-      } catch (err) {
-        console.error(err);
+      const data = await res.json();
+
+      if (
+        data.success &&
+        Array.isArray(data.data) &&
+        data.data.length > 0
+      ) {
+        setAccount(data.data[0]);
       }
-    };
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    fetchAdmin();
+  fetchAdmin();
 
-    const interval = setInterval(fetchAdmin, 500);
+  const interval = setInterval(fetchAdmin, 500);
 
-    return () => clearInterval(interval);
-  }, [adminId]);
+  return () => clearInterval(interval);
+}, [adminId]);
 
   const getPageTitle = () => {
     const path = location.pathname;
@@ -76,7 +73,7 @@ const location = useLocation();
 
       {/* LEFT */}
       <div className="flex items-center gap-4">
-        <h1 className="text-xl font-semibold text-[#B476FF]">
+        <h1 className="text-xl font-semibold ">
           {getPageTitle()}
         </h1>
       </div>

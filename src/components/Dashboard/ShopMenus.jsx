@@ -14,7 +14,7 @@ export default function ShopMenus() {
   // Pagination
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
-   const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   /* ================= RESPONSIVE PAGE SIZE ================= */
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function ShopMenus() {
             headers: {
               Authorization: `MSHteam ${token}`,
             },
-          }
+          },
         );
 
         const result = await res.json();

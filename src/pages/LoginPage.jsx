@@ -46,27 +46,35 @@ export default function LoginPage() {
       });
 
       const data = await res.json();
-if (res.ok) {
-  const userData = {
-    id: data.id,
-    role: data.role,
-    token: data.token,
-  };
+      if (res.ok) {
+        const userData = {
+          id: data.id,
+          role: data.role,
+          token: data.token,
+        };
 
-  // Save complete user
-  localStorage.setItem("user", JSON.stringify(userData));
+        // Save complete user
+        localStorage.setItem("user", JSON.stringify(userData));
 
-  // Save individually (optional)
-  localStorage.setItem("userId", data.id);
-  localStorage.setItem("role", data.role);
-  localStorage.setItem("token", data.token);
+        // Save individually (optional)
+        localStorage.setItem("userId", data.id);
+        localStorage.setItem("role", data.role);
+        localStorage.setItem("token", data.token);
 
-  showAlert(data?.message || "Login successful", "success");
+        showAlert(data?.message || "Login successful", "success");
 
-  setTimeout(() => {
+setTimeout(() => {
+  if (data.role === "owner") {
     navigate("/");
-  }, 500);
-} else {
+  } else if (data.role === "shopmanager") {
+    navigate("/shop");
+  } else if (data.role === "delimanager") {
+    navigate("/delivery/assignment");
+  } else if (data.role === "manager") {
+    navigate("/management");
+  }
+}, 500);
+      } else {
         showAlert(
           data?.message || "Login failed. Check email/password.",
           "error",

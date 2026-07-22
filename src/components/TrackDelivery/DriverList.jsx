@@ -80,7 +80,7 @@ export default function DriverList({
 }) {
   return (
     <div>
-      <h2 className="text-purple-400 font-semibold mb-4">Delivery Men</h2>
+      <h2 className="text-xl font-semibold text-purple-400 my-2">Delivery Men</h2>
 
       {/*  SEARCH + FILTER BAR */}
       <div className="space-y-2 mb-4 ">
@@ -136,7 +136,7 @@ export default function DriverList({
       </div>
 
       {/* LIST */}
-      <div className="space-y-2 h-[530px] overflow-y-auto">
+      <div className="space-y-2 h-[435px] 2xl:h-[520px] overflow-y-auto">
         {drivers.length === 0 ? (
           <p className="text-xs text-gray-500">No drivers found</p>
         ) : (

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Camera, Eye, EyeOff } from "lucide-react";
-import axios from "axios";
 import { useAlert } from "../../AlertContext";
+import { apiFetch } from "../../api";
 
 const isValidEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -35,7 +35,6 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
   const [passcodeModal, setPasscodeModal] = useState(false);
   const [passcode, setPasscode] = useState("");
   const passcodeInputRef = useRef(null);
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
     if (nameInputRef.current) nameInputRef.current.focus();
@@ -80,7 +79,10 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
     if (!strongPasswordRegex.test(formData.password)) {
-      showAlert("Password သည် အနည်းဆုံး 8 လုံးရှိရမည်၊ Uppercase, Lowercase, Number, Special Character ပါဝင်ရမည်", "warning");
+      showAlert(
+        "Password သည် အနည်းဆုံး 8 လုံးရှိရမည်၊ Uppercase, Lowercase, Number, Special Character ပါဝင်ရမည်",
+        "warning",
+      );
       return;
     }
 
@@ -105,17 +107,19 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
 
     try {
       // 1. VERIFY PASSCODE
-      const verifyRes = await axios.post(
+      const verifyRes = await apiFetch(
         "https://api.pwezayshops.com/admin/verify-delimanager-passcode",
-        { passcode },
-         {
-    headers: {
-      Authorization: `MSHteam ${token}`,
-    },
-  }
+        {
+          method: "POST",
+          body: JSON.stringify({ passcode }),
+        },
       );
 
-      if (!verifyRes.data.success) {
+      if (!verifyRes) return;
+
+      const verifyData = await verifyRes.json();
+
+      if (!verifyData.success) {
         showAlert("Wrong passcode", "error");
         setSaving(false);
         return;
@@ -133,21 +137,16 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
       if (formData.photo instanceof File) {
         payload.append("photo", formData.photo);
       }
+      const res = await apiFetch("https://api.pwezayshops.com/deliverymen", {
+        method: "POST",
+        body: payload,
+      });
 
-      const res = await axios.post(
-        "https://api.pwezayshops.com/deliverymen",
-        payload,
-        {
-    headers: {
-      Authorization: `MSHteam ${token}`,
-      "Content-Type": "multipart/form-data",
-    },
-  }
-      );
+      if (!res) return;
 
-      const data = res.data;
+      const data = await res.json();
 
-      if (res.status === 200 || data.success) {
+      if (res.ok || data.success) {
         showAlert(data.message || "Delivery created", "success");
 
         onAdded?.();
@@ -168,14 +167,10 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
 
       setPasscodeModal(false);
       setPasscode("");
-} catch (err) {
-  const errorMessage =
-    err.response?.data?.error ||
-    err.response?.data?.message ||
-    "Network error";
-
-  showAlert(errorMessage, "error");
-} finally {
+    } catch (err) {
+      console.error(err);
+      showAlert(err.message || "Network error", "error");
+    } finally {
       setSaving(false);
     }
   };
@@ -184,10 +179,10 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
     if (e.key === "Enter") doSubmit();
   };
   useEffect(() => {
-  if (passcodeModal && passcodeInputRef.current) {
-    passcodeInputRef.current.focus();
-  }
-}, [passcodeModal]);
+    if (passcodeModal && passcodeInputRef.current) {
+      passcodeInputRef.current.focus();
+    }
+  }, [passcodeModal]);
 
   // ================= UI (UNCHANGED) =================
   return (
@@ -285,17 +280,8 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
               placeholder="Phone"
               className="w-full px-3 py-2 rounded-lg text-sm border bg-gray-700 border-gray-600 text-gray-100"
             />
-
-            {/* <button
-              type="submit"
-              disabled={saving}
-              className="px-4 py-2 rounded-lg text-white bg-[#9b5de5]"
-            >
-              Create Delivery
-
-            </button> */}
-                  {/* BUTTONS */}
-             <div className="flex justify-end gap-2 pt-3">
+            {/* BUTTONS */}
+            <div className="flex justify-end gap-2 pt-3">
               <button
                 type="button"
                 onClick={onClose}
@@ -329,29 +315,29 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
       {passcodeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="relative bg-[#1e2235] rounded-xl p-6 w-[90%] max-w-[330px] shadow-2xl border border-[#2c2f44]">
-              <h3 className="text-lg font-bold text-center bg-gradient-to-r from-[#B476FF] to-purple-600 bg-clip-text text-transparent mb-4">
-                Enter Passcode
-              </h3>
+            <h3 className="text-lg font-bold text-center bg-gradient-to-r from-[#B476FF] to-purple-600 bg-clip-text text-transparent mb-4">
+              Enter Passcode
+            </h3>
 
             <input
-             ref={passcodeInputRef}
+              ref={passcodeInputRef}
               type="password"
               value={passcode}
               onChange={(e) => setPasscode(e.target.value)}
               onKeyDown={handlePassKey}
-                 className="border border-neutral-700 rounded-lg w-full px-3 py-2 mb-4 bg-neutral-900 text-white focus:ring-2 focus:ring-[#B476FF] placeholder-gray-400"
+              className="border border-neutral-700 rounded-lg w-full px-3 py-2 mb-4 bg-neutral-900 text-white focus:ring-2 focus:ring-[#B476FF] placeholder-gray-400"
               placeholder="Passcode"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    doSubmit();
-                  }
-                }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  doSubmit();
+                }
+              }}
             />
 
             <div className="flex gap-2">
               <button
                 onClick={() => setPasscodeModal(false)}
-               className="flex-1 px-4 py-2 border border-neutral-700 rounded-lg text-white hover:bg-[#2c2f44]"
+                className="flex-1 px-4 py-2 border border-neutral-700 rounded-lg text-white hover:bg-[#2c2f44]"
               >
                 Cancel
               </button>
@@ -359,7 +345,7 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
               <button
                 onClick={doSubmit}
                 disabled={saving}
-            className="flex-1 px-4 py-2 bg-gradient-to-r from-[#B476FF] to-purple-600 text-white rounded-lg hover:opacity-90"
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-[#B476FF] to-purple-600 text-white rounded-lg hover:opacity-90"
               >
                 {saving ? "..." : "Confirm"}
               </button>
@@ -367,9 +353,6 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
           </div>
         </div>
       )}
- 
-      
     </>
   );
 }
-
