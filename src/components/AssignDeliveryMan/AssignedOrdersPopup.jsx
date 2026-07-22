@@ -253,7 +253,7 @@ export default function AssignedOrdersPopup({ delivery, close }) {
 
                                 <img
                                   src={`https://api.pwezayshops.com/${order.payment_photo}`}
-                                  className="w-40 h-48 object-cover rounded-xl border border-slate-700 cursor-pointer hover:scale-105 transition"
+                                  className="w-40 h-24 object-cover rounded-xl border border-slate-700 cursor-pointer hover:scale-105 transition"
                                   onClick={() =>
                                     setPreview(
                                       `https://api.pwezayshops.com/${order.payment_photo}`,
@@ -272,7 +272,7 @@ export default function AssignedOrdersPopup({ delivery, close }) {
 
                                 <img
                                   src={`https://api.pwezayshops.com/${order.esign}`}
-                                  className="w-40 rounded-xl border border-slate-700 bg-white cursor-pointer hover:scale-105 transition"
+                                  className="w-40 h-24 object-cover rounded-xl border border-slate-700 bg-white cursor-pointer hover:scale-105 transition"
                                   onClick={() =>
                                     setPreview(
                                       `https://api.pwezayshops.com/${order.esign}`,
