@@ -1,94 +1,100 @@
 import React, { useState, useEffect } from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import ShopManagement from "../components/Shop/ShopManagement";
+
 import ViewShopDetail from "../components/Shop/ViewShopDetail";
+
 import ShopSummaryCards from "../components/Shop/ShopSummaryCards";
+
 import { apiFetch } from "../api";
 
 const ShopPage = () => {
   const [shops, setShops] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
   // ✅ modal states
-const [selectedShop, setSelectedShop] = useState(null);
+  const [selectedShop, setSelectedShop] = useState(null);
 
   const navigate = useNavigate();
 
   // ✅ fetch shops
-useEffect(() => {
-  const fetchShops = async () => {
-    try {
-      const res = await apiFetch(
-        "https://api.pwezayshops.com/shops-approve"
-      );
+  useEffect(() => {
+    const fetchShops = async () => {
+      try {
+        const res = await apiFetch(
+          "https://api.pwezayshops.com/shops-approve"
+        );
 
-      if (!res) return;
+        if (!res) return;
 
-      const data = await res.json();
+        const data = await res.json();
 
-      setShops(data);
-    } catch (err) {
-      console.error("Failed to fetch shops:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+        setShops(data);
+      } catch (err) {
+        console.error("Failed to fetch shops:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchShops();
-}, []);
+    fetchShops();
+  }, []);
 
   // ✅ open menu page
   const handleViewMenu = (shop) => {
-  navigate(`/shop/menu-list/${shop.id}`, {
-    state: {
-      shopName: shop.shop_name,
-    },
-  });
-};
+    navigate(`/shop/menu-list/${shop.id}`, {
+      state: {
+        shopName: shop.shop_name,
+      },
+    });
+  };
 
   // ✅ open modal (Shop Details)
-const handleViewShopDetails = (shop) => {
-  setSelectedShop(shop);
-};
+  const handleViewShopDetails = (shop) => {
+    setSelectedShop(shop);
+  };
 
   // ✅ close modal
-const handleCloseDetail = () => {
-  setSelectedShop(null);
-};
-  // ✅ loading UI
-  if (loading) {
-    return (
-      <div className="p-6 text-[#B476FF] text-lg animate-pulse">
-        Loading All Shops...
-      </div>
-    );
-  }
-
-  // ✅ empty state
-  if (!shops.length) {
-    return (
-      <p className="text-gray-500 text-lg mt-6 px-4">No shops available.</p>
-    );
-  }
+  const handleCloseDetail = () => {
+    setSelectedShop(null);
+  };
 
   return (
     <>
+      {/* ✅ Shop Summary Cards
+          This component handles its own API + loading */}
       <ShopSummaryCards />
-      <section className="flex w-full ">
-        {/* ✅ Shop Cards */}
-        <ShopManagement
-          shops={shops}
-          onDetail={handleViewMenu}
-          onViewShopDetails={handleViewShopDetails}
-        />
+
+      <section className="flex w-full">
+        {/* ✅ All Shop List loading only */}
+        {loading ? (
+          <div className="p-6 text-[#B476FF] text-lg animate-pulse">
+            Loading All Shops...
+          </div>
+        ) : !shops.length ? (
+          /* ✅ All Shop List empty state */
+          <p className="text-gray-500 text-lg mt-6 px-4">
+            No shops available.
+          </p>
+        ) : (
+          /* ✅ Shop Cards */
+          <ShopManagement
+            shops={shops}
+            onDetail={handleViewMenu}
+            onViewShopDetails={handleViewShopDetails}
+          />
+        )}
 
         {/* ✅ Modal */}
-       {selectedShop && (
-  <ViewShopDetail
-    shop={selectedShop}
-    onClose={handleCloseDetail}
-  />
-)}
+        {selectedShop && (
+          <ViewShopDetail
+            shop={selectedShop}
+            onClose={handleCloseDetail}
+          />
+        )}
       </section>
     </>
   );

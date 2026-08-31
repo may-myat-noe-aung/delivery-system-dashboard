@@ -11,6 +11,7 @@ import {
   MapPin,
   UserPlus,
   Plus,
+  DollarSign,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import logo from "../assets/images/pwyzay.jpg";
@@ -58,6 +59,10 @@ const Aside = () => {
     useState(false);
 
   const deliveryMenuRef = useRef(null);
+
+  const [collapsedMenuPosition, setCollapsedMenuPosition] = useState({
+  top: 0,
+});
 
   const closeCollapsedMenu = () => {
     setShowCollapsedDeliveryMenu(false);
@@ -127,6 +132,12 @@ const Aside = () => {
         },
       ],
     },
+       {
+      label: "Finances",
+      icon: DollarSign,
+      to: "/finance",
+      roles: ["owner", "manager"],
+    },
     {
       label: "Report",
       icon: BarChart2,
@@ -169,12 +180,12 @@ const Aside = () => {
     `}
     >
       {/* LOGO + TOGGLE */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800/40">
+      {/* <div className="flex items-center justify-between p-4 border-b border-gray-800/40">
         {!collapsed ? (
           <div className="flex flex-row gap-4 items-center justify-center text-center">
             <img src={logo} alt="logo" className="rounded-full w-10 h-10" />
-            <h1 className="text-xl font-bold bg-[#B476FF] bg-clip-text text-transparent">
-              Pwe Zay
+            <h1 className="text-xl  font-bold bg-[#B476FF] bg-clip-text text-transparent">
+              ပွဲစျေး
             </h1>
           </div>
         ) : (
@@ -190,7 +201,48 @@ const Aside = () => {
         >
           {collapsed ? "»" : "«"}
         </button>
-      </div>
+      </div> */}
+      {/* LOGO + TOGGLE */}
+
+<div className="flex items-center justify-between p-4 border-b border-gray-800/40">
+
+  {!collapsed ? (
+
+    <div className="flex flex-row gap-4 items-center justify-center text-center">
+
+      <img
+        src={logo}
+        alt="logo"
+        className="rounded-full w-10 h-10"
+      />
+
+      <h1 className="text-xl font-bold leading-8 bg-[#B476FF] bg-clip-text text-transparent">
+        ပွဲစျေး
+      </h1>
+
+    </div>
+
+  ) : (
+
+    <img
+      src={logo}
+      alt="logo"
+      className="w-9 h-9 rounded-xl mx-auto"
+    />
+
+  )}
+
+  <button
+    onClick={() => {
+      setCollapsed(!collapsed);
+      setShowCollapsedDeliveryMenu(false);
+    }}
+    className="text-gray-400 hover:text-white"
+  >
+    {collapsed ? "»" : "«"}
+  </button>
+
+</div>
 
       {/* NAV */}
       <nav className="flex-1 px-2 py-4 space-y-2 overflow-y-auto">
@@ -234,13 +286,21 @@ const Aside = () => {
                 ref={deliveryMenuRef}
               >
                 <button
-                  onClick={() => {
-                    if (collapsed) {
-                      setShowCollapsedDeliveryMenu(!showCollapsedDeliveryMenu);
-                    } else {
-                      setIsDeliveryOpen(!isDeliveryOpen);
-                    }
-                  }}
+              onClick={() => {
+  if (collapsed) {
+    if (!showCollapsedDeliveryMenu && deliveryMenuRef.current) {
+      const rect = deliveryMenuRef.current.getBoundingClientRect();
+
+      setCollapsedMenuPosition({
+        top: rect.top,
+      });
+    }
+
+    setShowCollapsedDeliveryMenu(!showCollapsedDeliveryMenu);
+  } else {
+    setIsDeliveryOpen(!isDeliveryOpen);
+  }
+}}
                   className={`w-full flex items-center justify-between px-3 py-3 rounded-xl transition-colors
                   ${
                     isDeliveryRoute
@@ -291,7 +351,7 @@ const Aside = () => {
                 )}
 
                 {/* collapsed popup */}
-                {collapsed && showCollapsedDeliveryMenu && (
+                {/* {collapsed && showCollapsedDeliveryMenu && (
                   <div className="absolute left-20 top-0 w-64 rounded-xl bg-gray-900 border border-gray-700 shadow-2xl z-50 overflow-hidden">
                     <div className="px-4 py-3 border-b border-gray-700 font-semibold text-white">
                       Delivery
@@ -316,7 +376,38 @@ const Aside = () => {
                       </NavLink>
                     ))}
                   </div>
-                )}
+                )} */}
+                {collapsed && showCollapsedDeliveryMenu && (
+ <div
+  className="fixed left-20 w-64 rounded-xl bg-gray-900 border border-gray-700 shadow-2xl z-[9999] overflow-hidden"
+  style={{
+    top: `${collapsedMenuPosition.top}px`,
+  }}
+>
+    <div className="px-4 py-3 border-b border-gray-700 font-semibold text-white">
+      Delivery
+    </div>
+
+    {children.map(({ label, to, icon: ChildIcon }) => (
+      <NavLink
+        key={label}
+        to={to}
+        onClick={() => setShowCollapsedDeliveryMenu(false)}
+        className={({ isActive }) =>
+          `flex items-center gap-3 px-4 py-3 transition-colors
+          ${
+            isActive
+              ? "bg-purple-600/20 text-[#B476FF]"
+              : "text-gray-300 hover:bg-gray-800"
+          }`
+        }
+      >
+        <ChildIcon className="w-5 h-5" />
+        <span>{label}</span>
+      </NavLink>
+    ))}
+  </div>
+)}
               </div>
             );
           })}

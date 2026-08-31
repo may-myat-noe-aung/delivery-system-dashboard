@@ -5,6 +5,7 @@ import SystemNotificationFetcher from "../SystemNotificationFetcher";
 import SystemNotificationFetcherForShopmanager from "../SystemNotificationFetcherForShopmanager";
 import SystemNotificationFetcherForDelimanager from "../SystemNotificationFetcherForDelimanager";
 import { apiFetch } from "../api";
+import FinanceNotificationFetcher from "../FinanceNotificationFetcher";
 
 const Header = () => {
 const role = localStorage.getItem("role");
@@ -55,6 +56,7 @@ useEffect(() => {
     if (path === "/") return "Dashboard";
     if (path.startsWith("/shop")) return "Shop";
     if (path.startsWith("/report")) return "Report";
+       if (path.startsWith("/finance")) return "Finances";
     if (path.startsWith("/management")) return "Management";
     if (path.startsWith("/shop-management")) return "Management";
     if (path.startsWith("/setting")) return "Settings";
@@ -92,6 +94,10 @@ useEffect(() => {
 ) : role === "delimanager" ? (
   <SystemNotificationFetcherForDelimanager />
 ) : null}
+
+{(role === "owner" || role === "manager") && (
+  <FinanceNotificationFetcher />
+)}
 
         <div className="w-px h-6 bg-[#B476FF]" />
 

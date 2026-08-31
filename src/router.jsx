@@ -18,6 +18,7 @@ import ReportTable from "./components/Report/ReportTable";
 import SettingPage from "./pages/SettingPage";
 import ManagementPageForShopManager from "./pages/ManagementPageForShopManager";
 import SettingPage2 from "./pages/SettingPage2";
+import FinancePage from "./pages/FinancePage";
 
 const router = createBrowserRouter([
   {
@@ -106,6 +107,14 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+       {
+        path: "/finance",
+        element: (
+          <ProtectedRoute allowedRoles={["owner","manager"]}>
+            <FinancePage />
+          </ProtectedRoute>
+        ),
+      },
 
       {
         path: "/report",
@@ -158,6 +167,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      
     ],
   },
 ]);
