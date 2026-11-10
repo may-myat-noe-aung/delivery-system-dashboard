@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import { Download, Edit, Search, Star } from "lucide-react";
 
 import EditDeliveryMan from "./components/EditDeliveryMan";
 import DeleteDeliveryMan from "./components/DeleteDeliveryMan";
 import StatusDeliveryMan from "./components/StatusDeliveryMan";
-import axios from "axios";
+// import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
@@ -19,42 +18,63 @@ export default function DeliveryTable({ setShowForm }) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  // useEffect(() => {
+  //   const fetchDeliverymen = () => {
+  //     const token = localStorage.getItem("token");
 
-//   useEffect(() => {
-//   const fetchDeliverymen = () => {
-//     axios
-//       .get("https://api.pwezayshops.com/deliverymen")
-//       .then((res) => setDeliverymen(res.data?.data || res.data || []))
-//       .catch((err) => console.error("API Error:", err));
-//   };
+  //     axios
+  //       .get("https://api.pwezayshops.com/deliverymen", {
+  //         headers: {
+  //           Authorization: `MSHteam ${token}`,
+  //         },
+  //       })
+  //       .then((res) => setDeliverymen(res.data?.data || res.data || []))
+  //       .catch((err) => console.error("API Error:", err));
+  //   };
 
-//   fetchDeliverymen();
+  //   fetchDeliverymen();
 
-//   const interval = setInterval(fetchDeliverymen, 1000);
+  //   const interval = setInterval(fetchDeliverymen, 1000);
 
-//   return () => clearInterval(interval);
-// }, []);  
+  //   return () => clearInterval(interval);
+  // }, []);
 
-useEffect(() => {
-  const fetchDeliverymen = () => {
-    const token = localStorage.getItem("token");
+  useEffect(() => {
+    const fetchDeliverymen = async () => {
+      const token = localStorage.getItem("token");
 
-    axios
-      .get("https://api.pwezayshops.com/deliverymen", {
-        headers: {
-          Authorization: `MSHteam ${token}`,
-        },
-      })
-      .then((res) => setDeliverymen(res.data?.data || res.data || []))
-      .catch((err) => console.error("API Error:", err));
-  };
+      try {
+        const response = await fetch(
+          "https://api.pwezayshops.com/deliverymen",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `MSHteam ${token}`,
+            },
+          },
+        );
 
-  fetchDeliverymen();
+    // console.log("API Response:", response);
 
-  const interval = setInterval(fetchDeliverymen, 1000);
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`);
+        }
 
-  return () => clearInterval(interval);
-}, []);
+        const res = await response.json();
+        console.log("API JSON Response:", res);
+
+        setDeliverymen(res?.data || res || []);
+      } catch (err) {
+        console.error("API Error:", err);
+      }
+    };
+
+    fetchDeliverymen();
+
+    const interval = setInterval(fetchDeliverymen, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const splitDateTime = (datetime) => {
     if (!datetime) return ["-", "-"];
@@ -97,83 +117,81 @@ useEffect(() => {
     setEditModal(true);
   };
 
-
-
   const handleExport = () => {
-  try {
-    const exportData = [
-      {
-        ID: "ID",
-        Name: "Name",
-        Email: "Email",
-        Phone: "Phone",
-        WorkType: "Work Type",
-        Finished: "Finished",
-        Assigned: "Assigned",
-        Status: "Status",
-        Rating: "Rating",
-        Date: "Date",
-        Time: "Time",
-      },
-      ...filteredUsers.map((delivery) => {
-        const [date, time] = splitDateTime(delivery.created_at);
+    try {
+      const exportData = [
+        {
+          ID: "ID",
+          Name: "Name",
+          Email: "Email",
+          Phone: "Phone",
+          WorkType: "Work Type",
+          Finished: "Finished",
+          Assigned: "Assigned",
+          Status: "Status",
+          Rating: "Rating",
+          Date: "Date",
+          Time: "Time",
+        },
+        ...filteredUsers.map((delivery) => {
+          const [date, time] = splitDateTime(delivery.created_at);
 
-        return {
-          ID: delivery.id,
-          Name: delivery.name,
-          Email: delivery.email,
-          Phone: delivery.phone,
-          WorkType: delivery.work_type,
-          Finished: delivery.finished_order_count,
-          Assigned: delivery.assign_order,
-          Status: delivery.status,
-          Rating: delivery.rating,
-          Date: date,
-          Time: time,
-        };
-      }),
-    ];
+          return {
+            ID: delivery.id,
+            Name: delivery.name,
+            Email: delivery.email,
+            Phone: delivery.phone,
+            WorkType: delivery.work_type,
+            Finished: delivery.finished_order_count,
+            Assigned: delivery.assign_order,
+            Status: delivery.status,
+            Rating: delivery.rating,
+            Date: date,
+            Time: time,
+          };
+        }),
+      ];
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
 
-    // optional column width
-    worksheet["!cols"] = [
-      { wch: 10 },
-      { wch: 20 },
-      { wch: 25 },
-      { wch: 15 },
-      { wch: 15 },
-      { wch: 10 },
-      { wch: 10 },
-      { wch: 15 },
-      { wch: 10 },
-      { wch: 15 },
-      { wch: 10 },
-    ];
+      // optional column width
+      worksheet["!cols"] = [
+        { wch: 10 },
+        { wch: 20 },
+        { wch: 25 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 15 },
+        { wch: 10 },
+        { wch: 15 },
+        { wch: 10 },
+      ];
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Delivery Men");
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Delivery Men");
 
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
 
-    const blob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
+      const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-  link.download = `deliverymen.xlsx`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  } catch (error) {
-    console.error("Export error:", error);
-  }
-};
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `deliverymen.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Export error:", error);
+    }
+  };
 
   return (
     <div className="bg-[#0f172a] text-gray-100 min-h-full pt-6">
@@ -187,7 +205,6 @@ useEffect(() => {
         </button>
 
         <div className="flex items-center gap-3">
-
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative">
               <Search
@@ -290,7 +307,9 @@ useEffect(() => {
 
                   <td className="p-4 text-center">{delivery.phone}</td>
 
-                  <td className="p-4 text-center">{delivery.work_type || "System"}</td>
+                  <td className="p-4 text-center">
+                    {delivery.work_type || "System"}
+                  </td>
 
                   <td className="p-4 text-center">
                     <div className="flex flex-col text-sm">

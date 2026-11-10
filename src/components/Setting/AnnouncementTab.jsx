@@ -281,7 +281,7 @@ export default function AnnouncementTab() {
       )}
 
       {/* ================= VIEW ================= */}
-      {announcement && (
+      {/* {announcement && (
         <div className="mt-6">
           <h3 className="text-white font-bold mb-4">
             Announcement Image
@@ -301,7 +301,52 @@ export default function AnnouncementTab() {
             Second : {announcement.second}
           </p>
         </div>
-      )}
+      )} */}
+{/* ================= VIEW ================= */}
+{announcement && (
+  <div className="mt-6">
+    <h3 className="text-white font-bold mb-4">
+      Announcement Image
+    </h3>
+
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      {(Array.isArray(announcement.images)
+        ? announcement.images
+        : typeof announcement.images === "string" &&
+            announcement.images.trim()
+          ? (() => {
+              try {
+                const parsed = JSON.parse(announcement.images);
+                return Array.isArray(parsed)
+                  ? parsed
+                  : [announcement.images];
+              } catch {
+                return [announcement.images];
+              }
+            })()
+          : []
+      ).map((img, index) => (
+        <img
+          key={index}
+          src={
+            typeof img === "string" && img.startsWith("http")
+              ? img
+              : `https://api.pwezayshops.com/announce-uploads/${img}`
+          }
+          alt={`Announcement ${index + 1}`}
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+          className="h-40 w-full object-cover rounded-xl border border-gray-700"
+        />
+      ))}
+    </div>
+
+    <p className="text-green-400 mt-4 text-xl">
+      Second : {announcement.second}
+    </p>
+  </div>
+)}
     </div>
   );
 }

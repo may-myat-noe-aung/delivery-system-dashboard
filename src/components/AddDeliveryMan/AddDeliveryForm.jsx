@@ -3,6 +3,7 @@ import { Camera, Eye, EyeOff } from "lucide-react";
 import { useAlert } from "../../AlertContext";
 import { apiFetch } from "../../api";
 
+
 const isValidEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
@@ -30,6 +31,8 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
 
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
+      const token = localStorage.getItem("token");
+
 
   // ================= PASSCODE STATES (ADDED ONLY) =================
   const [passcodeModal, setPasscodeModal] = useState(false);
@@ -107,23 +110,34 @@ export default function AddDeliveryForm({ shopId, onClose, onAdded }) {
 
     try {
       // 1. VERIFY PASSCODE
-      const verifyRes = await apiFetch(
-        "https://api.pwezayshops.com/admin/verify-delimanager-passcode",
-        {
-          method: "POST",
-          body: JSON.stringify({ passcode }),
-        },
-      );
+
+const verifyRes = await fetch(
+  "https://api.pwezayshops.com/admin/verify-delimanager-passcode",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && {
+        Authorization: `MSHteam ${token}`,
+      }),
+    },
+    body: JSON.stringify({ passcode }),
+  }
+);
 
       if (!verifyRes) return;
 
-      const verifyData = await verifyRes.json();
+const verifyData = await verifyRes.json();
 
-      if (!verifyData.success) {
-        showAlert("Wrong passcode", "error");
-        setSaving(false);
-        return;
-      }
+if (!verifyRes.ok || !verifyData.success) {
+  showAlert(
+    verifyData.message || "Wrong passcode",
+    "error"
+  );
+
+  setSaving(false);
+  return;
+}
 
       // 2. CREATE DELIVERY MAN (YOUR ORIGINAL API)
       const payload = new FormData();

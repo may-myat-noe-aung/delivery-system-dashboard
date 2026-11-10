@@ -19,6 +19,8 @@ import SettingPage from "./pages/SettingPage";
 import ManagementPageForShopManager from "./pages/ManagementPageForShopManager";
 import SettingPage2 from "./pages/SettingPage2";
 import FinancePage from "./pages/FinancePage";
+import MainMenuManagementPage from "./pages/MainMenuManagementPage";
+import MainMenuShopMenuPage from "./pages/MainMenuShopMenuPage";
 
 const router = createBrowserRouter([
   {
@@ -115,6 +117,23 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+       {
+        path: "/main-menu-management",
+        element: (
+          <ProtectedRoute allowedRoles={["owner"]}>
+            <MainMenuManagementPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+  path: "/main-menu-management/:shopId",
+  element: (
+    <ProtectedRoute allowedRoles={["owner"]}>
+      <MainMenuShopMenuPage />
+    </ProtectedRoute>
+  ),
+},
+      
 
       {
         path: "/report",
